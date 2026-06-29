@@ -1,0 +1,747 @@
+(function(){
+  'use strict';
+
+  const DATA = window.BALANCE_DATA || {};
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const storagePrefix = 'balance1600.';
+  const storeKeys = {
+    settings: storagePrefix + 'settings',
+    mealChecks: storagePrefix + 'mealChecks',
+    shoppingChecks: storagePrefix + 'shoppingChecks',
+    favorites: storagePrefix + 'favorites',
+    tracking: storagePrefix + 'trackingEntries',
+    ui: storagePrefix + 'uiState'
+  };
+
+  const todayIso = () => {
+    const d = new Date();
+    const tz = d.getTimezoneOffset() * 60000;
+    return new Date(d - tz).toISOString().slice(0,10);
+  };
+
+  function readStore(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function writeStore(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+
+  let settings = readStore(storeKeys.settings, {
+    onboardingCompleted:false,
+    dietStartDate: todayIso(),
+    cycleModuleEnabled:false,
+    cycleStartDate: todayIso(),
+    cycleLengthDays:28,
+    waterGoalMl:2500,
+    trackingMode:'simple'
+  });
+  let mealChecks = readStore(storeKeys.mealChecks, {});
+  let shoppingChecks = readStore(storeKeys.shoppingChecks, {});
+  let favorites = readStore(storeKeys.favorites, {});
+  let trackingEntries = readStore(storeKeys.tracking, {});
+  let ui = readStore(storeKeys.ui, {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, onlyOpen:false, recipeSearch:'', recipeFilters:[]});
+
+  const weeks = DATA.weeks || [];
+  const allDays = weeks.flatMap(w => (w.days || []).map((d, idx) => ({...d, globalDayNumber:(d.week-1)*7 + (d.day_number_in_week || idx+1)})));
+  const recipes = DATA.recipe_library || [];
+  const recipesById = new Map(recipes.map(r => [r.recipe_id, r]));
+  const tagLabels = new Map((DATA.tag_catalog || []).map(t => [t.tag_id, t.label_hu]));
+  const usageByRecipe = new Map((DATA.recipe_usage_map || []).map(u => [u.recipe_id, u]));
+
+  const SLOT_LABELS = {reggeli:'Reggeli', ebéd:'Ebéd', ebed:'Ebéd', uzsonna:'Uzsonna', vacsora:'Vacsora'};
+  const SLOT_ICON = {reggeli:'R', ebéd:'E', ebed:'E', uzsonna:'U', vacsora:'V'};
+  const PHASE_LABELS = {
+    menstruacio:'Menstruáció', korai_follikularis:'Korai follikuláris', follikularis:'Follikuláris', ovulacio:'Ovuláció',
+    korai_lutealis:'Korai luteális', kesoi_lutealis:'Késői luteális', pms_kesoi_lutealis:'PMS / késői luteális', kesoi_lutealis_pms:'PMS / késői luteális'
+  };
+  const GROUP_LABELS = {
+    vegetable:'Zöldség', fruit:'Gyümölcs', fresh_protein:'Friss fehérje', fresh_dairy:'Friss tejtermék',
+    grain_carb:'Gabona és köret', pasta_noodle:'Tészta és rizstészta', plant_drink:'Növényi ital', plant_protein:'Növényi fehérje', fat:'Zsiradék', sweetener:'Édesítő', other:'Egyéb'
+  };
+
+  function esc(v){
+    return String(v ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+  function stripTechText(text){
+    return String(text || '')
+      .replace(/PWA/gi, 'app')
+      .replace(/JSON/gi, 'étrend')
+      .replace(/adatlista/gi, 'étrend')
+      .replace(/adatforrás/gi, 'tartalom')
+      .replace(/validation report/gi, 'ellenőrzés')
+      .replace(/schema/gi, 'felépítés')
+      .replace(/localStorage|IndexedDB/gi, 'a készülék');
+  }
+  function humanAmount(item){
+    const raw = item?.pwa_display_amount_hu || `${item?.amount ?? item?.net_amount ?? ''} ${item?.unit || ''}`;
+    return stripTechText(raw)
+      .replace(/nettó/gi, 'Recepthez')
+      .replace(/vásárláshoz kb\./gi, 'Vedd meg kb.')
+      .replace(/vásárláshoz/gi, 'Vedd meg')
+      .replace(/mennyiségből/gi, 'mennyiség alapján');
+  }
+  function humanNote(text){
+    return stripTechText(text || '').replace(/nettó mennyiség/gi, 'Recepthez számolt mennyiség');
+  }
+  function saveAll(){
+    writeStore(storeKeys.settings, settings);
+    writeStore(storeKeys.mealChecks, mealChecks);
+    writeStore(storeKeys.shoppingChecks, shoppingChecks);
+    writeStore(storeKeys.favorites, favorites);
+    writeStore(storeKeys.tracking, trackingEntries);
+    writeStore(storeKeys.ui, ui);
+  }
+  function toast(msg){
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>el.classList.remove('show'), 2100);
+  }
+  function parseDate(iso){ return new Date((iso || todayIso()) + 'T00:00:00'); }
+  function dayDiff(a,b){ return Math.floor((parseDate(b) - parseDate(a)) / 86400000); }
+  function currentPlanDayNumber(){
+    const diff = dayDiff(settings.dietStartDate, todayIso());
+    if(diff < 0) return 1;
+    if(diff > 27) return 28;
+    return diff + 1;
+  }
+  function planIsFuture(){ return dayDiff(settings.dietStartDate, todayIso()) < 0; }
+  function planIsFinished(){ return dayDiff(settings.dietStartDate, todayIso()) > 27; }
+  function selectedDay(){
+    const n = ui.selectedDayNumber || currentPlanDayNumber();
+    return allDays.find(d => d.globalDayNumber === n) || allDays[0];
+  }
+  function dayLabel(day){ return `${day.week}. hét · ${day.day_number_in_week}. nap · ${day.weekday_hu}`; }
+  function cycleLabels(tags){ return (tags || []).map(t => PHASE_LABELS[t] || tagLabels.get(t) || t).filter(Boolean); }
+  function tagLabel(tag){ return tagLabels.get(tag) || PHASE_LABELS[tag] || String(tag || '').replaceAll('_',' '); }
+  function riskText(level){
+    const n = Number(level || 0);
+    if(n <= 0) return 'kímélő';
+    if(n === 1) return 'enyhe figyelem';
+    if(n === 2) return 'egyéni teszt';
+    return 'erősebb figyelem';
+  }
+  function maxMealRisk(meal){
+    const r = meal?.meal_card?.risk_badges || {};
+    return Math.max(Number(r.reflux||0), Number(r.histamine||0), Number(r.purine||0));
+  }
+  function maxRecipeRisk(recipe){
+    const r = recipe?.risk_scores || {};
+    return Math.max(Number(r.reflux_risk_level||0), Number(r.histamine_caution_level||0), Number(r.purine_caution_level||0), Number(r.bloating_risk_level||0));
+  }
+  function macroLine(macros){ return `${macros?.protein ?? 0}g feh. · ${macros?.carbohydrate ?? 0}g ch · ${macros?.fat ?? 0}g zsír`; }
+  function mealKey(day, meal){ return `${day.day_id}|${meal.slot}|${meal.recipe_id}`; }
+  function shoppingKey(scope, parts){ return `${scope}|${parts.map(p=>String(p).replaceAll('|','-')).join('|')}`; }
+  function progressForDay(day){
+    const done = (day.meals || []).filter(m => mealChecks[mealKey(day,m)]).length;
+    return {done, total:(day.meals || []).length || 4, pct: Math.round(done / ((day.meals || []).length || 4) * 100)};
+  }
+  function motivation(done,total){
+    if(done === 0) return 'Szép, nyugodt indulás';
+    if(done < total/2) return 'Jó tempóban haladsz';
+    if(done < total) return 'Félig már megvan';
+    return 'Mai terv teljesítve';
+  }
+  function render(){
+    $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === ui.activeTab));
+    if(ui.activeTab === 'weeks') renderWeeks();
+    else if(ui.activeTab === 'recipes') renderRecipes();
+    else if(ui.activeTab === 'shopping') renderShopping();
+    else if(ui.activeTab === 'tracking') renderTracking();
+    else renderToday();
+    writeStore(storeKeys.ui, ui);
+    $('#view').focus({preventScroll:true});
+  }
+
+  function statHero(day){
+    const p = progressForDay(day);
+    const totals = day.daily_totals || {};
+    const planNote = planIsFuture() ? '<div class="chip blue">Az étrend még nem indult el</div>' : (planIsFinished() ? '<div class="chip warn">A 28 napos kör végére értél</div>' : '');
+    return `
+      <section class="hero card section">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">Tervezett mai érték</div>
+            <div class="day-label">${esc(dayLabel(day))}</div>
+            <div class="small-muted">${esc(motivation(p.done,p.total))} · ${p.done}/${p.total} étkezés</div>
+          </div>
+          <div class="kcal-bubble"><b>${esc(totals.energy_kcal || 0)}</b><span>kcal</span></div>
+        </div>
+        <div class="metric-row">
+          <div class="metric"><b>${esc(totals.protein || 0)}g</b><span>Fehérje</span></div>
+          <div class="metric"><b>${esc(totals.carbohydrate || 0)}g</b><span>Szénhidrát</span></div>
+          <div class="metric"><b>${esc(totals.fat || 0)}g</b><span>Zsír</span></div>
+          <div class="metric"><b>${p.done}/${p.total}</b><span>Haladás</span></div>
+        </div>
+        <div class="progress-track" aria-label="Napi haladás"><div class="progress-fill" style="width:${p.pct}%"></div></div>
+        <div class="day-switch">
+          <button class="ghost-btn" data-action="prevDay" aria-label="Előző nap">‹</button>
+          <button class="ghost-btn wide" data-action="openDayPicker">Nap választása</button>
+          <button class="ghost-btn" data-action="nextDay" aria-label="Következő nap">›</button>
+        </div>
+        ${planNote ? `<div class="chip-row" style="margin-top:10px">${planNote}</div>` : ''}
+      </section>`;
+  }
+
+  function focusBlock(day){
+    const chips = [];
+    const flags = day.daily_flags || {};
+    if(flags.full_meat_free_day && flags.full_dairy_free_day) chips.push('teljes húsmentes és tejmentes nap');
+    if(flags.full_plant_based_day) chips.push('növényi nap');
+    if(flags.has_pasta_or_noodle) chips.push('tésztás / rizstésztás nap');
+    if(flags.has_salty_dairy_free_breakfast) chips.push('sós tejmentes reggeli');
+    if(settings.cycleModuleEnabled) chips.push(...cycleLabels(day.cycle_phase_tags || []).slice(0,2));
+    return `
+      <section class="card section"><div class="card-pad">
+        <h2 class="headline">Mai fókusz</h2>
+        <p class="small-muted">${esc(day.daily_focus_hu || 'Kímélő, jól követhető napi terv.')}</p>
+        <div class="chip-row">${chips.map(c=>`<span class="chip">${esc(c)}</span>`).join('') || '<span class="chip soft">egyszerű kímélő nap</span>'}</div>
+      </div></section>`;
+  }
+
+  function mealCard(day, meal){
+    const checked = !!mealChecks[mealKey(day,meal)];
+    const tags = (meal.meal_card?.primary_tags || []).slice(0,3);
+    const risk = maxMealRisk(meal);
+    return `
+      <article class="meal-card ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
+        <div class="meal-slot">${esc(SLOT_ICON[meal.slot] || meal.slot?.[0] || '•')}</div>
+        <div>
+          <div class="small-muted">${esc(SLOT_LABELS[meal.slot] || meal.slot)}</div>
+          <div class="meal-title">${esc(meal.name_hu || meal.meal_card?.pwa_title)}</div>
+          <div class="meal-meta"><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(macroLine(meal.macros_g))}</span></div>
+          <div class="chip-row" style="margin-top:8px">
+            ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
+            <span class="chip ${risk >= 2 ? 'warn' : 'green'}">${esc(riskText(risk))}</span>
+          </div>
+        </div>
+        <button class="check ${checked ? 'checked' : ''}" data-action="toggleMeal" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}" data-recipe="${esc(meal.recipe_id)}" aria-label="Étkezés kipipálása"></button>
+      </article>`;
+  }
+
+  function renderToday(){
+    const day = selectedDay();
+    const risks = day.day_risk_overview || {};
+    $('#view').innerHTML = `
+      ${statHero(day)}
+      ${focusBlock(day)}
+      <section class="section stack" aria-label="Mai étkezések">
+        ${(day.meals || []).map(m => mealCard(day,m)).join('')}
+      </section>
+      <section class="card section"><div class="card-pad stack">
+        <div>
+          <h2 class="headline">Esti kímélő tipp</h2>
+          <p class="small-muted">${esc(day.evening_tip_hu || DATA.timing_rules?.pwa_reminder_templates_hu?.dinner_time || '')}</p>
+        </div>
+        <div class="chip-row">
+          <span class="chip green">Reflux: ${esc(riskText(risks.max_reflux_risk_level))}</span>
+          <span class="chip ${Number(risks.max_histamine_caution_level||0) >= 2 ? 'warn' : 'green'}">Hisztamin: ${esc(riskText(risks.max_histamine_caution_level))}</span>
+          <span class="chip ${Number(risks.max_purine_caution_level||0) >= 2 ? 'warn' : 'green'}">Purin: ${esc(riskText(risks.max_purine_caution_level))}</span>
+        </div>
+        <div class="grid2">
+          <button class="primary-btn" data-action="openDayDetails">Mai részletek</button>
+          <button class="ghost-btn" data-action="openTracking">Napló</button>
+        </div>
+      </div></section>
+      <div class="footer-space"></div>`;
+  }
+
+  function renderWeeks(){
+    const week = weeks.find(w => w.week === ui.activeWeek) || weeks[0];
+    $('#view').innerHTML = `
+      <section class="section">
+        <h1 class="headline">4 hetes terv</h1>
+        <div class="week-tabs">${weeks.map(w => `<button class="week-card ${w.week === ui.activeWeek ? 'active' : ''}" data-action="selectWeek" data-week="${w.week}"><b>${w.week}. hét</b><br><span class="small-muted">${esc((w.theme||'').split(' ')[0] || 'Terv')}</span></button>`).join('')}</div>
+      </section>
+      <section class="card section"><div class="card-pad">
+        <h2 class="headline">${esc(week.theme || `${week.week}. hét`)}</h2>
+        <p class="small-muted">${esc(week.focus || '')}</p>
+        <div class="chip-row">${cycleLabels(week.phase || []).map(p=>`<span class="chip blue">${esc(p)}</span>`).join('')}</div>
+      </div></section>
+      <section class="section grid2">
+        ${(week.days || []).map(day => {
+          const flags = day.daily_flags || {};
+          const dayChips = [];
+          if(flags.full_meat_free_day && flags.full_dairy_free_day) dayChips.push('hús- és tejmentes');
+          if(flags.full_plant_based_day) dayChips.push('növényi');
+          if(flags.has_pasta_or_noodle) dayChips.push('tészta');
+          if(flags.has_salty_dairy_free_breakfast) dayChips.push('sós reggeli');
+          return `<article class="mini-day" data-action="weekDay" data-daynum="${day.globalDayNumber}">
+            <div class="day-n">${esc(day.day_number_in_week)}. nap</div>
+            <div class="small-muted">${esc(day.weekday_hu)} · ${esc(day.daily_totals?.energy_kcal)} kcal</div>
+            <div class="chip-row" style="margin:8px 0">${dayChips.slice(0,2).map(c=>`<span class="chip soft">${esc(c)}</span>`).join('')}</div>
+            ${(day.meals || []).map(m => `<div class="meal-mini">${esc(SLOT_LABELS[m.slot] || m.slot)}: ${esc(m.name_hu)}</div>`).join('')}
+          </article>`;
+        }).join('')}
+      </section>`;
+  }
+
+  function recipeMatches(recipe){
+    const q = (ui.recipeSearch || '').trim().toLowerCase();
+    const hay = [recipe.name_hu, recipe.pwa_title, recipe.pwa_short_note, ...(recipe.search_helper?.ingredient_names_hu || []), ...(recipe.search_helper?.keywords_hu || [])].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return false;
+    const flags = recipe.suitability_flags || recipe.search_helper?.filter_flags || {};
+    const active = new Set(ui.recipeFilters || []);
+    for(const f of active){
+      if(f === 'tejmentes' && !flags.dairy_free) return false;
+      if(f === 'husmentes' && !flags.meat_free) return false;
+      if(f === 'novenyi' && !flags.plant_based) return false;
+      if(f === 'sos' && !flags.salty_breakfast) return false;
+      if(f === 'teszta' && !flags.pasta_or_noodle) return false;
+      if(f === 'gyors' && !String(recipe.cooking_time_level || '').includes('gyors')) return false;
+      if(f === 'kozepes' && !String(recipe.cooking_time_level || '').includes('közep')) return false;
+      if(f === 'hosszabb' && !((recipe.tag_ids||[]).includes('hosszabb_fozes') || Number(recipe.cooking_profile?.total_minutes||0) >= 35)) return false;
+      if(f === 'ovatos' && !(recipe.risk_scores?.individual_test_required || maxRecipeRisk(recipe) >= 2)) return false;
+      if(f.startsWith('phase:') && !(recipe.cycle_fit?.best_cycle_phases || []).includes(f.split(':')[1])) return false;
+    }
+    return true;
+  }
+
+  function renderRecipes(){
+    const filterDefs = [
+      ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi napba illik'], ['sos','Sós reggeli'], ['teszta','Tésztás / rizstésztás'], ['gyors','Gyors'], ['kozepes','Közepes'], ['hosszabb','Hosszabb főzés'], ['ovatos','Egyéni teszt']
+    ];
+    const phaseDefs = ['menstruacio','follikularis','ovulacio','korai_lutealis','pms_kesoi_lutealis'].map(p => [`phase:${p}`, PHASE_LABELS[p] || p]);
+    const shown = recipes.filter(recipeMatches);
+    $('#view').innerHTML = `
+      <section class="searchbar">
+        <input id="recipeSearch" type="search" placeholder="Keresés receptnévben vagy alapanyagban" value="${esc(ui.recipeSearch || '')}" aria-label="Receptkeresés" />
+        <div class="h-scroll" style="margin-top:8px">
+          ${[...filterDefs, ...phaseDefs].map(([id,label]) => `<button class="filter-chip ${(ui.recipeFilters||[]).includes(id) ? 'active' : ''}" data-action="toggleFilter" data-filter="${esc(id)}">${esc(label)}</button>`).join('')}
+        </div>
+      </section>
+      <section class="section">
+        <h1 class="headline">Recepttár</h1>
+        <p class="small-muted">${shown.length} fogás látható a 112-ből.</p>
+      </section>
+      <section class="section">
+        ${shown.length ? shown.map(r => recipeCard(r)).join('') : `<div class="empty">${esc(DATA.empty_state_and_logic_messages_hu?.no_filter_results || 'Nincs találat.')}</div>`}
+      </section>`;
+    const search = $('#recipeSearch');
+    search.addEventListener('input', e => { ui.recipeSearch = e.target.value; writeStore(storeKeys.ui, ui); clearTimeout(renderRecipes._t); renderRecipes._t = setTimeout(renderRecipes, 120); });
+  }
+
+  function recipeCard(r){
+    const flags = r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids || []).slice(0,2).map(tagLabel);
+    const fav = !!favorites[r.recipe_id];
+    return `<article class="recipe-card" data-action="openRecipe" data-recipe="${esc(r.recipe_id)}">
+      <div class="recipe-card-top">
+        <div>
+          <div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')}</div>
+          <div class="meal-title">${esc(r.name_hu || r.pwa_title)}</div>
+          <div class="meal-meta"><span>${esc(r.energy_kcal)} kcal</span><span>${esc(macroLine(r.macros_g))}</span><span>${esc(r.cooking_profile?.total_minutes || r.prep_minutes_estimate || '')} perc</span></div>
+        </div>
+        <button class="fav-btn ${fav ? 'active' : ''}" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}" aria-label="Kedvenc jelölése">★</button>
+      </div>
+      <div class="chip-row" style="margin-top:10px">${flags.slice(0,3).map(f=>`<span class="chip soft">${esc(f)}</span>`).join('')}<span class="chip ${maxRecipeRisk(r)>=2?'warn':'green'}">${esc(riskText(maxRecipeRisk(r)))}</span></div>
+    </article>`;
+  }
+
+  function renderShopping(){
+    const day = selectedDay();
+    const views = [['today','Ma friss'],['weekly','Heti bevásárlás'],['pantry','Kamra'],['fresh','Frissen kezelendő']];
+    $('#view').innerHTML = `
+      <section class="section">
+        <h1 class="headline">Bevásárlólista</h1>
+        <p class="small-muted">${esc(dayLabel(day))} · bolti használatra tagolt lista</p>
+        <div class="segmented">${views.map(v=>`<button class="${ui.shoppingView===v[0]?'active':''}" data-action="shoppingView" data-view="${v[0]}">${v[1]}</button>`).join('')}</div>
+        <div class="grid2">
+          <button class="ghost-btn" data-action="toggleOnlyOpen">${ui.onlyOpen ? 'Minden tétel' : 'Csak még nem pipált'}</button>
+          <button class="ghost-btn" data-action="resetShoppingDaily">Napi lista visszaállítása</button>
+        </div>
+      </section>
+      <section class="section stack">${shoppingContent(day)}</section>`;
+  }
+  function shoppingContent(day){
+    if(ui.shoppingView === 'weekly') return weeklyShopping();
+    if(ui.shoppingView === 'pantry') return pantryShopping(day);
+    if(ui.shoppingView === 'fresh') return freshHandling(day);
+    return dailyFreshShopping(day);
+  }
+  function listItems(items, scope, title, note){
+    const visible = (items || []).map((item, idx) => ({item, idx})).filter(obj => !ui.onlyOpen || !shoppingChecks[shoppingKey(scope,[title,obj.idx,obj.item.item || obj.item.name_hu])]);
+    return `<div class="card"><div class="card-pad">
+      <h2 class="subhead">${esc(title)}</h2>${note ? `<p class="small-muted">${esc(humanNote(note))}</p>` : ''}
+      ${visible.length ? visible.map(({item,idx}) => {
+        const key = shoppingKey(scope,[title,idx,item.item || item.name_hu]);
+        const checked = !!shoppingChecks[key];
+        return `<div class="list-item ${checked?'checked':''}">
+          <button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button>
+          <div class="item-main"><div class="item-title">${esc(item.item || item.name_hu || 'Tétel')}</div><div class="item-note">${esc(humanAmount(item))}</div>${item.note_hu || item.buying_note_hu ? `<div class="item-note">${esc(humanNote(item.note_hu || item.buying_note_hu))}</div>` : ''}</div>
+        </div>`;
+      }).join('') : `<div class="empty">Minden látható tétel kipipálva.</div>`}
+    </div></div>`;
+  }
+  function dailyFreshShopping(day){
+    const mp = day.shopping_micro_plan || {};
+    const groups = {};
+    (mp.daily_fresh_items || []).forEach(it => {
+      const g = GROUP_LABELS[it.category_group] || 'Friss tételek';
+      groups[g] = groups[g] || [];
+      groups[g].push(it);
+    });
+    return Object.entries(groups).map(([title,items]) => listItems(items, `daily-${day.day_id}`, title, 'Mai friss tételek az adott napi fogásokhoz.')).join('') || `<div class="empty">${esc(DATA.empty_state_and_logic_messages_hu?.shopping_not_generated || 'Nincs lista ehhez a naphoz.')}</div>`;
+  }
+  function weeklyShopping(){
+    const week = DATA.weekly_shopping_lists?.find(w => w.week === ui.shoppingWeek) || DATA.weekly_shopping_lists?.[0];
+    return `<div class="card"><div class="card-pad">
+      <h2 class="subhead">Hét választása</h2>
+      <div class="segmented">${weeks.map(w=>`<button class="${ui.shoppingWeek===w.week?'active':''}" data-action="shoppingWeek" data-week="${w.week}">${w.week}. hét</button>`).join('')}</div>
+      <p class="small-muted">${esc(humanNote(week?.freshness_note_hu || ''))}</p>
+      <button class="ghost-btn wide" data-action="resetShoppingWeekly">Heti lista visszaállítása</button>
+    </div></div>
+    ${(week?.shopping_groups || []).map(g => listItems(g.items, `weekly-${week.week}`, g.category, '')).join('')}`;
+  }
+  function pantryShopping(day){
+    const daily = day.shopping_micro_plan?.daily_pantry_or_stable_items || [];
+    const strategy = DATA.shopping_strategy?.find(s => s.week === day.week);
+    const weekly = strategy?.pantry_or_stable_summary || [];
+    return listItems(daily, `pantry-day-${day.day_id}`, 'Mai kamra és stabil alapok', 'Ezek nem a napi friss tételek közé tartoznak.') + listItems(weekly, `pantry-week-${day.week}`, `${day.week}. heti kamraáttekintés`, 'Heti szinten tervezhető alapanyagok.');
+  }
+  function freshHandling(day){
+    const mp = day.shopping_micro_plan || {};
+    return listItems(mp.raw_freeze_candidates || [], `raw-${day.day_id}`, 'Nyersen porciózható fehérjék', 'Kész ételként ne tedd el másnapra; csak nyersen porciózva kezeld előre.') +
+      listItems(mp.same_day_fresh_dairy_items || [], `dairy-${day.day_id}`, 'Aznap fogyasztandó friss tejtermékek', 'Frissen bontva, rövid időn belül fogyasztva illeszkedik legjobban a tervhez.');
+  }
+
+  function renderTracking(){
+    const day = selectedDay();
+    const key = day.day_id;
+    const entry = trackingEntries[key] || {waterMl:0, weight:'', reflux:0, bloating:0, histamine:0, energy:2, hunger:1, note:''};
+    const p = progressForDay(day);
+    const weekPct = weeklyProgress(day.week);
+    const waterGoal = Number(settings.waterGoalMl || 2500);
+    const waterStep = Math.round(waterGoal / 5);
+    $('#view').innerHTML = `
+      <section class="card section"><div class="card-pad">
+        <h1 class="headline">Napló</h1>
+        <p class="small-muted">${esc(dayLabel(day))} · minden bejegyzés csak ezen a készüléken marad.</p>
+        <div class="metric-row">
+          <div class="metric"><b>${p.done}/${p.total}</b><span>Ma</span></div>
+          <div class="metric"><b>${weekPct}%</b><span>Heti teljesítés</span></div>
+          <div class="metric"><b>${Math.round((entry.waterMl||0)/100)/10} l</b><span>Víz</span></div>
+          <div class="metric"><b>${settings.trackingMode === 'detailed' ? 'Részletes' : 'Egyszerű'}</b><span>Mód</span></div>
+        </div>
+      </div></section>
+      <section class="card section"><div class="card-pad stack">
+        <h2 class="subhead">Víz</h2>
+        <div class="water-pills">${[1,2,3,4,5].map(i => `<button class="water-pill ${(entry.waterMl||0) >= i*waterStep ? 'active' : ''}" data-action="setWater" data-value="${i*waterStep}">${Math.round(i*waterStep/100)/10} l</button>`).join('')}</div>
+        <button class="ghost-btn wide" data-action="setWater" data-value="0">Víz nullázása</button>
+      </div></section>
+      <section class="card section"><div class="card-pad stack">
+        <h2 class="subhead">Mai közérzet</h2>
+        ${settings.trackingMode === 'detailed' ? detailedTrackingFields(entry) : '<p class="small-muted">Egyszerű módban csak az étkezéspipák és a víz látszik. A Beállításokban válthatsz részletes naplóra.</p>'}
+        <label>Jegyzet<textarea class="note-area" id="trackNote" placeholder="Rövid saját megjegyzés">${esc(entry.note || '')}</textarea></label>
+        <button class="primary-btn wide" data-action="saveTracking">Napló mentése</button>
+      </div></section>`;
+  }
+  function detailedTrackingFields(entry){
+    const rows = [
+      ['trackWeight','Testsúly opcionálisan','number', entry.weight || '', 'kg'],
+      ['trackReflux','Reflux érzet','range', entry.reflux || 0, '0–3'],
+      ['trackBloating','Puffadás','range', entry.bloating || 0, '0–3'],
+      ['trackHistamine','Hisztaminszerű reakció','range', entry.histamine || 0, '0–3'],
+      ['trackEnergy','Energia','range', entry.energy ?? 2, '0–3'],
+      ['trackHunger','Éhség / jóllakottság','range', entry.hunger ?? 1, '0–3']
+    ];
+    return rows.map(([id,label,type,val,suf]) => `<label class="${type==='range'?'range-row':''}"><span>${label}</span><input id="${id}" type="${type}" ${type==='range'?'min="0" max="3" step="1"':''} value="${esc(val)}" /> <small class="small-muted">${suf}</small></label>`).join('');
+  }
+  function weeklyProgress(weekNo){
+    const ds = allDays.filter(d => d.week === weekNo);
+    const total = ds.reduce((sum,d)=>sum+(d.meals||[]).length,0) || 1;
+    const done = ds.reduce((sum,d)=>sum+(d.meals||[]).filter(m=>mealChecks[mealKey(d,m)]).length,0);
+    return Math.round(done / total * 100);
+  }
+
+  function openDayDetails(day = selectedDay()){
+    const totals = day.daily_totals || {};
+    const risks = day.day_risk_overview || {};
+    const mp = day.shopping_micro_plan || {};
+    const tags = [...(day.day_tags || []), ...(settings.cycleModuleEnabled ? (day.cycle_phase_tags || []) : [])].map(tagLabel);
+    openSheet('Mai részletek', `
+      <div class="sheet-section">
+        <div class="kcal-bubble" style="margin-bottom:12px"><b>${esc(totals.energy_kcal)}</b><span>tervezett kcal</span></div>
+        <div class="metric-row"><div class="metric"><b>${esc(totals.protein)}g</b><span>Fehérje</span></div><div class="metric"><b>${esc(totals.carbohydrate)}g</b><span>Szénhidrát</span></div><div class="metric"><b>${esc(totals.fat)}g</b><span>Zsír</span></div><div class="metric"><b>${progressForDay(day).done}/${progressForDay(day).total}</b><span>Haladás</span></div></div>
+      </div>
+      <div class="sheet-section"><h3 class="subhead">Mai címkék</h3><div class="chip-row">${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div></div>
+      <div class="sheet-section"><h3 class="subhead">Kímélő jelzések</h3><div class="chip-row"><span class="chip green">Reflux: ${esc(riskText(risks.max_reflux_risk_level))}</span><span class="chip ${Number(risks.max_histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.max_histamine_caution_level))}</span><span class="chip ${Number(risks.max_purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.max_purine_caution_level))}</span></div></div>
+      ${['why_this_day_works_hu','reflux_logic_hu','histamine_logic_hu','purine_logic_hu','cycle_logic_hu','evening_tip_hu'].map(k => day[k] ? `<div class="sheet-section"><h3 class="subhead">${sectionTitle(k)}</h3><p>${esc(stripTechText(day[k]))}</p></div>` : '').join('')}
+      <div class="sheet-section"><h3 class="subhead">Mai frissesség</h3><p>${esc(humanNote(mp.freshness_logic_note_hu || 'Friss készítés, készétel-maradék nélkül.'))}</p></div>
+      <div class="sheet-section"><h3 class="subhead">Napi vásárlási áttekintés</h3><ul>${(mp.daily_fresh_items || []).slice(0,8).map(it=>`<li>${esc(it.item)} — ${esc(humanAmount(it))}</li>`).join('') || '<li>Nincs külön napi friss tétel.</li>'}</ul></div>
+      <div class="sheet-section"><h3 class="subhead">Napló alap</h3><p>Mai terv: ${esc(totals.energy_kcal)} kcal. ${day.tracking_prefill?.full_meat_free_dairy_free_day ? 'Ez húsmentes és tejmentes nap.' : 'A napi pipák nem módosítják a tervezett kcal értéket.'}</p></div>
+    `);
+  }
+  function sectionTitle(k){
+    return ({why_this_day_works_hu:'Miért így?', reflux_logic_hu:'Reflux logika', histamine_logic_hu:'Frissesség és hisztamin', purine_logic_hu:'Purin kontroll', cycle_logic_hu:'Ciklushoz igazítva', evening_tip_hu:'Esti tipp'})[k] || 'Részlet';
+  }
+
+  function openRecipe(recipeId){
+    const r = recipesById.get(recipeId);
+    if(!r) return;
+    const usages = r.usage_in_meal_plan?.occurrences || usageByRecipe.get(recipeId)?.occurrences || [];
+    const risks = r.risk_scores || {};
+    const subs = r.smart_substitutions || [];
+    const fallbacks = r.fallback_if_not_tolerated?.fallbacks || [];
+    openSheet(r.name_hu || r.pwa_title || 'Recept', `
+      <div class="sheet-section"><div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')} ${usages[0] ? '· ' + esc(usages[0].week) + '. hét · ' + esc(usages[0].weekday_hu) : ''}</div><h3 class="headline">${esc(r.name_hu || r.pwa_title)}</h3></div>
+      <div class="sheet-section"><div class="metric-row"><div class="metric"><b>${esc(r.energy_kcal)}</b><span>kcal</span></div><div class="metric"><b>${esc(r.macros_g?.protein)}g</b><span>Fehérje</span></div><div class="metric"><b>${esc(r.macros_g?.carbohydrate)}g</b><span>Szénhidrát</span></div><div class="metric"><b>${esc(r.macros_g?.fat)}g</b><span>Zsír</span></div></div></div>
+      <div class="sheet-section"><p>${esc(stripTechText(r.pwa_short_note || r.compatibility_summary_hu?.reflux_logic_hu || ''))}</p></div>
+      <div class="sheet-section"><h3 class="subhead">Fő címkék</h3><div class="chip-row">${(r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids||[]).map(tagLabel)).slice(0,8).map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div></div>
+      <div class="sheet-section"><h3 class="subhead">Kímélő jelzések</h3><div class="chip-row"><span class="chip green">Reflux: ${esc(riskText(risks.reflux_risk_level))}</span><span class="chip ${Number(risks.histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.histamine_caution_level))}</span><span class="chip ${Number(risks.purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.purine_caution_level))}</span>${risks.individual_test_required ? '<span class="chip warn">egyéni teszt</span>' : ''}</div>${risks.why_caution_hu ? `<p>${esc(stripTechText(risks.why_caution_hu))}</p>` : ''}</div>
+      <div class="sheet-section"><h3 class="subhead">Hozzávalók</h3><ul>${(r.ingredients || []).map(i=>`<li>${esc(i.item)} — ${esc(i.amount)} ${esc(i.unit)}</li>`).join('') || '<li>Nincs megadott hozzávaló.</li>'}</ul></div>
+      <div class="sheet-section"><h3 class="subhead">Elkészítés</h3>${r.prep_steps_structured?.length ? `<ol>${r.prep_steps_structured.map(s=>`<li><b>${esc(s.title_hu)}:</b> ${esc(stripTechText(s.instruction_hu))}</li>`).join('')}</ol>` : `<p>${esc(stripTechText(r.prep_steps_hu || 'Nincs külön leírás.'))}</p>`}</div>
+      <div class="sheet-section"><h3 class="subhead">Idő és eszközök</h3><p>${esc(r.cooking_profile?.total_minutes || r.prep_minutes_estimate || '—')} perc · ${esc(r.cooking_profile?.difficulty_level || r.cooking_time_level || 'könnyű')}</p>${r.cooking_profile?.required_tools?.length ? `<div class="chip-row">${r.cooking_profile.required_tools.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div>` : ''}</div>
+      <div class="sheet-section"><h3 class="subhead">Frissesség</h3><p>${esc(stripTechText(r.freshness_rule_hu || r.cooking_profile?.component_prep_note_hu || 'Frissen készítve a legjobb.'))}</p></div>
+      <div class="sheet-section"><h3 class="subhead">Illeszkedés</h3>${compatibilityHtml(r.compatibility_summary_hu)}</div>
+      <div class="sheet-section"><h3 class="subhead">Csereopciók</h3>${subs.length || fallbacks.length ? substitutionHtml(subs, fallbacks) : '<p class="small-muted">Ehhez a fogáshoz nincs külön cserejavaslat.</p>'}</div>
+      <div class="sheet-section"><h3 class="subhead">Melyik napokon szerepel?</h3><ul>${usages.map(u=>`<li>${esc(u.week)}. hét · ${esc(u.day_number_in_week)}. nap · ${esc(u.weekday_hu)} · ${esc(SLOT_LABELS[u.slot] || u.slot)}</li>`).join('') || '<li>A tervben egyszer szerepel.</li>'}</ul></div>
+      <div class="grid2"><button class="primary-btn" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}">${favorites[r.recipe_id] ? 'Kedvencből leveszem' : 'Kedvencnek jelölöm'}</button><button class="ghost-btn" data-action="closeSheet">Bezárás</button></div>
+    `);
+  }
+  function compatibilityHtml(c){
+    if(!c) return '<p class="small-muted">Nincs külön összefoglaló.</p>';
+    return ['reflux_logic_hu','histamine_logic_hu','purine_logic_hu'].map(k => c[k] ? `<p>${esc(stripTechText(c[k]))}</p>` : '').join('');
+  }
+  function substitutionHtml(subs, fallbacks){
+    const subHtml = subs.slice(0,4).map(s => `<li>${esc(s.replace_name_hu)} helyett: <b>${esc(s.with_name_hu)}</b> — ${esc(stripTechText(s.impact_hu || s.ratio_hint || 'hasonló mennyiségben'))}</li>`).join('');
+    const fbHtml = fallbacks.slice(0,3).flatMap(f => (f.fallback_candidates || []).slice(0,2).map(c => `<li>${esc(f.trigger_ingredient_name_hu)} helyett: <b>${esc(c.name_hu || c.with_name_hu || c.item || 'csere')}</b></li>`)).join('');
+    return `<ul>${subHtml}${fbHtml}</ul>`;
+  }
+
+  function openDayPicker(){
+    openSheet('Nap választása', `<div class="grid2">${allDays.map(d => `<button class="week-card ${d.globalDayNumber === selectedDay().globalDayNumber ? 'active' : ''}" data-action="chooseDay" data-daynum="${d.globalDayNumber}"><b>${d.week}. hét · ${d.day_number_in_week}. nap</b><br><span class="small-muted">${esc(d.weekday_hu)} · ${esc(d.daily_totals?.energy_kcal)} kcal</span></button>`).join('')}</div>`);
+  }
+
+  function openTrackingSheet(){
+    ui.activeTab = 'tracking';
+    closeSheet();
+    render();
+  }
+
+  function openSettingsSheet(){
+    const copy = DATA.app_copy_hu || {};
+    openSheet('Beállítások', `
+      <div class="sheet-section"><h3 class="headline">Balance 1600</h3><p>Kímélő női étrend, 4 hétre. Internet nélkül is használható, és nincs bejelentkezés.</p><p><b>Minden naplód csak ezen a készüléken marad.</b></p></div>
+      <div class="sheet-section stack">
+        <label>Kezdőnap<input type="date" id="setDietStart" value="${esc(settings.dietStartDate)}"></label>
+        <label>Napi vízcél literben<input type="number" id="setWaterGoal" min="1" max="5" step="0.1" value="${esc((settings.waterGoalMl||2500)/1000)}"></label>
+        <label>Naplózás módja<select id="setTrackingMode"><option value="simple" ${settings.trackingMode==='simple'?'selected':''}>Egyszerű</option><option value="detailed" ${settings.trackingMode==='detailed'?'selected':''}>Részletes</option></select></label>
+        <label class="switch-row"><span>Ciklusmodul bekapcsolva</span><input type="checkbox" id="setCycleEnabled" ${settings.cycleModuleEnabled?'checked':''}></label>
+        <label>Ciklus kezdőnapja<input type="date" id="setCycleStart" value="${esc(settings.cycleStartDate || todayIso())}"></label>
+        <label>Ciklushossz<input type="number" id="setCycleLength" min="21" max="40" value="${esc(settings.cycleLengthDays || 28)}"></label>
+        <button class="primary-btn wide" data-action="saveSettings">Beállítások mentése</button>
+        <button class="ghost-btn wide" data-action="restartOnboarding">Belépő beállítás újraindítása</button>
+      </div>
+      <div class="sheet-section"><h3 class="subhead">Az étrend logikája</h3>
+        <p>${esc(stripTechText(copy.calorie_goal_explanation || 'A napi cél heti átlagban kb. 1600 kcal.'))}</p>
+        <p>${esc(stripTechText(copy.reflux_explanation || 'Kímélő reflux szemlélet.'))}</p>
+        <p>${esc(stripTechText(copy.low_histamine_explanation || 'A frissesség kiemelt szempont.'))}</p>
+        <p>${esc(stripTechText(copy.purine_explanation || 'Mértékletes fehérje és purin kontroll.'))}</p>
+        <p>${esc(stripTechText(copy.meat_free_dairy_free_day_explanation || 'Hetente egy húsmentes és tejmentes nap szerepel.'))}</p>
+        <p>A kcal és makró értékek becslésként kezelendők, nem hivatalos tápérték-állításként.</p>
+        <p>${esc(stripTechText(copy.medical_safety_text || DATA.medical_safety_note_hu || 'Erős vagy tartós panasz esetén szakember bevonása javasolt.'))}</p>
+      </div>
+      <div class="sheet-section card-pad danger-zone"><h3 class="subhead">Törlés</h3><div class="stack">
+        <button class="ghost-btn danger-btn" data-action="confirmReset" data-reset="mealChecks">Étkezéspipák törlése</button>
+        <button class="ghost-btn danger-btn" data-action="confirmReset" data-reset="shoppingChecks">Bevásárlólista pipák törlése</button>
+        <button class="ghost-btn danger-btn" data-action="confirmReset" data-reset="favorites">Kedvencek törlése</button>
+        <button class="ghost-btn danger-btn" data-action="confirmReset" data-reset="tracking">Naplóadatok törlése</button>
+        <button class="ghost-btn danger-btn" data-action="confirmReset" data-reset="settings">Onboarding / kezdőnap beállítások törlése</button>
+        <button class="ghost-btn danger-btn" data-action="confirmReset" data-reset="all">Összes helyi adat törlése</button>
+      </div></div>
+    `);
+  }
+
+  function openConfirmReset(type){
+    const labels = {mealChecks:'étkezéspipákat', shoppingChecks:'bevásárlólista pipákat', favorites:'kedvenceket', tracking:'naplóadatokat', settings:'belépő és kezdőnap beállításokat', all:'összes helyi adatot'};
+    openSheet('Biztos törlöd?', `<p class="small-muted">A(z) ${esc(labels[type] || 'kiválasztott elemeket')} törlöd erről a készülékről.</p><div class="grid2"><button class="ghost-btn" data-action="openSettings">Mégsem</button><button class="primary-btn" data-action="doReset" data-reset="${esc(type)}">Törlés</button></div>`);
+  }
+  function doReset(type){
+    if(type === 'mealChecks' || type === 'all'){ mealChecks = {}; localStorage.removeItem(storeKeys.mealChecks); }
+    if(type === 'shoppingChecks' || type === 'all'){ shoppingChecks = {}; localStorage.removeItem(storeKeys.shoppingChecks); }
+    if(type === 'favorites' || type === 'all'){ favorites = {}; localStorage.removeItem(storeKeys.favorites); }
+    if(type === 'tracking' || type === 'all'){ trackingEntries = {}; localStorage.removeItem(storeKeys.tracking); }
+    if(type === 'settings' || type === 'all'){
+      settings = {...settings, onboardingCompleted:false, dietStartDate:todayIso(), cycleModuleEnabled:false, cycleStartDate:todayIso(), cycleLengthDays:28, waterGoalMl:2500, trackingMode:'simple'};
+      localStorage.removeItem(storeKeys.settings);
+      showOnboarding();
+    }
+    if(type === 'all'){ ui = {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, onlyOpen:false, recipeSearch:'', recipeFilters:[]}; localStorage.removeItem(storeKeys.ui); }
+    saveAll();
+    closeSheet();
+    render();
+    toast('Törölve.');
+  }
+
+  function openSheet(title, html){
+    $('#sheetTitle').textContent = title;
+    $('#sheetBody').innerHTML = html;
+    $('#sheetBackdrop').hidden = false;
+    $('#sheet').hidden = false;
+    requestAnimationFrame(()=>{
+      $('#sheetBackdrop').classList.add('show');
+      $('#sheet').classList.add('show');
+    });
+    document.body.style.overflow = 'hidden';
+    $('#sheetClose').focus({preventScroll:true});
+  }
+  function closeSheet(){
+    $('#sheetBackdrop').classList.remove('show');
+    $('#sheet').classList.remove('show');
+    document.body.style.overflow = '';
+    setTimeout(()=>{ $('#sheetBackdrop').hidden = true; $('#sheet').hidden = true; $('#sheetBody').innerHTML = ''; }, 220);
+  }
+
+  function showOnboarding(){
+    $('#onboarding').hidden = false;
+    $('#obDietStart').value = settings.dietStartDate || todayIso();
+    $('#obCycleEnabled').checked = !!settings.cycleModuleEnabled;
+    $('#obCycleStart').value = settings.cycleStartDate || todayIso();
+    $('#obCycleLength').value = settings.cycleLengthDays || 28;
+    $('#obWaterGoal').value = (settings.waterGoalMl || 2500) / 1000;
+    $('#obTrackingMode').value = settings.trackingMode || 'simple';
+    $('#obCycleFields').hidden = !$('#obCycleEnabled').checked;
+  }
+  function finishOnboarding(){
+    settings = {
+      ...settings,
+      onboardingCompleted:true,
+      dietStartDate: $('#obDietStart').value || todayIso(),
+      cycleModuleEnabled: $('#obCycleEnabled').checked,
+      cycleStartDate: $('#obCycleStart').value || todayIso(),
+      cycleLengthDays: Number($('#obCycleLength').value || 28),
+      waterGoalMl: Math.round(Number($('#obWaterGoal').value || 2.5) * 1000),
+      trackingMode: $('#obTrackingMode').value || 'simple'
+    };
+    ui.selectedDayNumber = null;
+    saveAll();
+    $('#onboarding').hidden = true;
+    render();
+  }
+
+  function saveTracking(){
+    const day = selectedDay();
+    const current = trackingEntries[day.day_id] || {};
+    trackingEntries[day.day_id] = {
+      ...current,
+      weight: $('#trackWeight')?.value || current.weight || '',
+      reflux: Number($('#trackReflux')?.value || current.reflux || 0),
+      bloating: Number($('#trackBloating')?.value || current.bloating || 0),
+      histamine: Number($('#trackHistamine')?.value || current.histamine || 0),
+      energy: Number($('#trackEnergy')?.value || current.energy || 2),
+      hunger: Number($('#trackHunger')?.value || current.hunger || 1),
+      note: $('#trackNote')?.value || ''
+    };
+    writeStore(storeKeys.tracking, trackingEntries);
+    toast('Napló mentve.');
+    renderTracking();
+  }
+
+  function handleAction(action, el, event){
+    if(action === 'toggleMeal'){
+      event.stopPropagation();
+      const day = allDays.find(d => d.day_id === el.dataset.day) || selectedDay();
+      const meal = (day.meals || []).find(m => m.slot === el.dataset.slot && m.recipe_id === el.dataset.recipe);
+      if(meal){ const k = mealKey(day, meal); mealChecks[k] = !mealChecks[k]; writeStore(storeKeys.mealChecks, mealChecks); render(); }
+    }
+    if(action === 'openRecipe') openRecipe(el.dataset.recipe || el.closest('[data-recipe]')?.dataset.recipe);
+    if(action === 'prevDay'){ ui.selectedDayNumber = Math.max(1, (selectedDay().globalDayNumber || 1) - 1); render(); }
+    if(action === 'nextDay'){ ui.selectedDayNumber = Math.min(28, (selectedDay().globalDayNumber || 1) + 1); render(); }
+    if(action === 'openDayPicker') openDayPicker();
+    if(action === 'chooseDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); closeSheet(); render(); }
+    if(action === 'openDayDetails') openDayDetails();
+    if(action === 'openTracking') openTrackingSheet();
+    if(action === 'selectWeek'){ ui.activeWeek = Number(el.dataset.week); render(); }
+    if(action === 'weekDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); ui.activeTab = 'today'; render(); }
+    if(action === 'toggleFilter'){
+      const set = new Set(ui.recipeFilters || []);
+      set.has(el.dataset.filter) ? set.delete(el.dataset.filter) : set.add(el.dataset.filter);
+      ui.recipeFilters = Array.from(set); renderRecipes(); writeStore(storeKeys.ui, ui);
+    }
+    if(action === 'toggleFavorite'){
+      event.stopPropagation();
+      const id = el.dataset.recipe;
+      favorites[id] = !favorites[id];
+      if(!favorites[id]) delete favorites[id];
+      writeStore(storeKeys.favorites, favorites);
+      toast(favorites[id] ? 'Kedvenchez adva.' : 'Kedvenc levéve.');
+      if(!$('#sheet').hidden && $('#sheetTitle').textContent) openRecipe(id); else render();
+    }
+    if(action === 'shoppingView'){ ui.shoppingView = el.dataset.view; renderShopping(); }
+    if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); renderShopping(); }
+    if(action === 'toggleShoppingItem'){
+      const k = el.dataset.key; shoppingChecks[k] = !shoppingChecks[k]; if(!shoppingChecks[k]) delete shoppingChecks[k]; writeStore(storeKeys.shoppingChecks, shoppingChecks); renderShopping();
+    }
+    if(action === 'toggleOnlyOpen'){ ui.onlyOpen = !ui.onlyOpen; renderShopping(); }
+    if(action === 'resetShoppingDaily'){
+      const day = selectedDay();
+      Object.keys(shoppingChecks).forEach(k => { if(k.includes(day.day_id)) delete shoppingChecks[k]; });
+      writeStore(storeKeys.shoppingChecks, shoppingChecks); toast('Napi lista visszaállítva.'); renderShopping();
+    }
+    if(action === 'resetShoppingWeekly'){
+      Object.keys(shoppingChecks).forEach(k => { if(k.startsWith(`weekly-${ui.shoppingWeek}|`) || k.startsWith(`pantry-week-${ui.shoppingWeek}|`)) delete shoppingChecks[k]; });
+      writeStore(storeKeys.shoppingChecks, shoppingChecks); toast('Heti lista visszaállítva.'); renderShopping();
+    }
+    if(action === 'setWater'){
+      const day = selectedDay(); const entry = trackingEntries[day.day_id] || {};
+      entry.waterMl = Number(el.dataset.value || 0); trackingEntries[day.day_id] = entry; writeStore(storeKeys.tracking, trackingEntries); renderTracking();
+    }
+    if(action === 'saveTracking') saveTracking();
+    if(action === 'saveSettings'){
+      settings.dietStartDate = $('#setDietStart').value || todayIso();
+      settings.waterGoalMl = Math.round(Number($('#setWaterGoal').value || 2.5) * 1000);
+      settings.trackingMode = $('#setTrackingMode').value || 'simple';
+      settings.cycleModuleEnabled = $('#setCycleEnabled').checked;
+      settings.cycleStartDate = $('#setCycleStart').value || todayIso();
+      settings.cycleLengthDays = Number($('#setCycleLength').value || 28);
+      writeStore(storeKeys.settings, settings); toast('Beállítások mentve.'); closeSheet(); render();
+    }
+    if(action === 'restartOnboarding'){ closeSheet(); showOnboarding(); }
+    if(action === 'confirmReset') openConfirmReset(el.dataset.reset);
+    if(action === 'doReset') doReset(el.dataset.reset);
+    if(action === 'openSettings') openSettingsSheet();
+    if(action === 'closeSheet') closeSheet();
+  }
+
+  function initEvents(){
+    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { ui.activeTab = btn.dataset.tab; writeStore(storeKeys.ui, ui); render(); }));
+    $('#todayBtn').addEventListener('click', () => { ui.selectedDayNumber = null; ui.activeTab = 'today'; render(); });
+    $('#settingsBtn').addEventListener('click', openSettingsSheet);
+    $('#sheetClose').addEventListener('click', closeSheet);
+    $('#sheetBackdrop').addEventListener('click', closeSheet);
+    document.addEventListener('keydown', e => { if(e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+    document.addEventListener('click', e => {
+      const el = e.target.closest('[data-action]');
+      if(el) handleAction(el.dataset.action, el, e);
+    });
+    $('#obCycleEnabled').addEventListener('change', () => { $('#obCycleFields').hidden = !$('#obCycleEnabled').checked; });
+    $('#startApp').addEventListener('click', finishOnboarding);
+
+    let startY = null;
+    const sheet = $('#sheet');
+    sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive:true});
+    sheet.addEventListener('touchmove', e => {
+      if(startY === null) return;
+      const delta = e.touches[0].clientY - startY;
+      if(delta > 90 && sheet.scrollTop === 0){ startY = null; closeSheet(); }
+    }, {passive:true});
+  }
+
+  function registerOffline(){
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+    }
+  }
+
+  function init(){
+    initEvents();
+    registerOffline();
+    render();
+    if(!settings.onboardingCompleted) showOnboarding();
+  }
+
+  init();
+})();

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#020713" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Balance" />
+  <meta name="description" content="Balance 1600 — kímélő női étrend, 4 hétre." />
+  <title>Balance 1600</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <header class="topbar" aria-label="Felső sáv">
+      <button class="icon-btn" id="todayBtn" aria-label="Ugrás a mai napra">⌁</button>
+      <div class="brand-block">
+        <div class="brand-title">Balance 1600</div>
+        <div class="brand-subtitle">Kímélő női étrend, 4 hétre</div>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="Beállítások">⚙︎</button>
+    </header>
+
+    <main id="view" class="view" tabindex="-1"></main>
+
+    <nav class="tabbar" aria-label="Alsó navigáció">
+      <button class="tab-btn active" data-tab="today" aria-label="Ma"><span>◐</span><b>Ma</b></button>
+      <button class="tab-btn" data-tab="weeks" aria-label="Hetek"><span>□</span><b>Hetek</b></button>
+      <button class="tab-btn" data-tab="recipes" aria-label="Receptek"><span>◌</span><b>Receptek</b></button>
+      <button class="tab-btn" data-tab="shopping" aria-label="Lista"><span>✓</span><b>Lista</b></button>
+      <button class="tab-btn" data-tab="tracking" aria-label="Napló"><span>✎</span><b>Napló</b></button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+  <section id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-header">
+      <h2 id="sheetTitle"></h2>
+      <button class="icon-btn" id="sheetClose" aria-label="Bezárás">×</button>
+    </div>
+    <div id="sheetBody" class="sheet-body"></div>
+  </section>
+
+  <section id="onboarding" class="onboarding" aria-label="Első beállítás" hidden>
+    <div class="onboarding-card">
+      <div class="orb"></div>
+      <h1>Balance 1600</h1>
+      <p class="lead">Állítsuk be röviden, hogyan induljon a 4 hetes kímélő étrended.</p>
+      <div class="form-grid">
+        <label>Melyik napon kezded az étrendet?
+          <input type="date" id="obDietStart" />
+        </label>
+        <label class="switch-row"><span>Szeretnéd használni a ciklusmodult?</span>
+          <input type="checkbox" id="obCycleEnabled" />
+        </label>
+        <div id="obCycleFields" class="nested-fields" hidden>
+          <label>Ciklus kezdőnapja
+            <input type="date" id="obCycleStart" />
+          </label>
+          <label>Ciklushossz napokban
+            <input type="number" id="obCycleLength" min="21" max="40" value="28" />
+          </label>
+        </div>
+        <label>Napi vízcél literben
+          <input type="number" id="obWaterGoal" min="1" max="5" step="0.1" value="2.5" />
+        </label>
+        <label>Naplózás módja
+          <select id="obTrackingMode">
+            <option value="simple">Egyszerű: étkezéspipák + víz</option>
+            <option value="detailed">Részletes: tünetek, energia, jegyzet</option>
+          </select>
+        </label>
+      </div>
+      <button id="startApp" class="primary-btn wide">Kezdjük</button>
+      <p class="privacy-line">Minden naplód csak ezen a készüléken marad.</p>
+    </div>
+  </section>
+
+  <script src="data/app-data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
