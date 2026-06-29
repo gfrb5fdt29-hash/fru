@@ -127,3 +127,18 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Az app dátumlogikája a diéta kezdőnapja és az eszköz aktuális dátuma alapján számol.
 - A 28 napos terv automatikusan újraindul az 1. naptól; a hetek továbbra is 1–4. hétként maradnak.
 - Hetek fül napkártyáin nagyban a valós nap + dátum látszik, alatta az étrendlogika: 1. hét · 3. nap.
+
+
+## v23 módosítások
+- Beállításokból törölve a „Ciklusmodul bekapcsolva” kapcsoló és pipálhatóság.
+- Napló és Bevásárlás heti sávjaiból kikerült a „napok megnyitása/elrejtése” szöveg.
+- Napló és Bevásárlás napgombjai rövid valós dátumot is mutatnak, például 07.03.
+- Napló/Bevásárlás heti sáv lenyitásakor nem ugrik fel az oldal tetejére.
+- Service worker cache: balance1600-v23.
+
+
+## v24 módosítás
+
+- Alsó ikonsor kevésbé rózsaszínes, fülenként saját színnel: Ma vízzöld, Hetek fehér/kék naptár, Receptek narancs, Bevásárlás zöld, Napló kék.
+- Aktív fül statikus, saját színű glow-val marad jelölt.
+- Service worker cache: balance1600-v24.

@@ -227,6 +227,10 @@
   function calendarShort(date){ return date.toLocaleDateString('hu-HU', {month:'long', day:'numeric'}); }
   function dayDisplayName(day){ return weekdayHu(actualDateForDay(day)); }
   function dayCalendarShort(day){ return calendarShort(actualDateForDay(day)); }
+  function dayNumericShort(day){
+    const d = actualDateForDay(day);
+    return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}.`;
+  }
   function fullDateLabel(day){ return `${dayCalendarShort(day)} · ${weekdayLower(day)}`; }
   function weekCardDateTitle(day){ return `${weekdayLower(day)} · ${dayCalendarShort(day)}`; }
   function planDayLabel(day){ return `${day.week}. hét · ${day.day_number_in_week}. nap`; }
@@ -742,9 +746,9 @@
         return `<div class="tracking-week-row ${open ? 'open active' : ''}">
           <button class="tracking-week-bar" data-action="trackingWeekToggle" data-week="${w.week}" aria-expanded="${open ? 'true' : 'false'}">
             <span>${w.week}. hét</span>
-            <em>${open ? 'napok elrejtése' : 'napok megnyitása'}</em>
+            <i class="week-chevron" aria-hidden="true">${open ? '⌃' : '⌄'}</i>
           </button>
-          ${open ? `<div class="tracking-week-days">${weekDays.map(d => `<button class="tracking-day-pill compact-day-only ${Number(d.globalDayNumber) === activeDayNum ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}" aria-label="${esc(planDayLabel(d))} · ${esc(fullDateLabel(d))}"><b>${esc(compactDayName(d))}</b></button>`).join('')}</div>` : ''}
+          ${open ? `<div class="tracking-week-days">${weekDays.map(d => `<button class="tracking-day-pill compact-day-only ${Number(d.globalDayNumber) === activeDayNum ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}" aria-label="${esc(planDayLabel(d))} · ${esc(fullDateLabel(d))}"><b>${esc(compactDayName(d))}</b><span>${esc(dayNumericShort(d))}</span></button>`).join('')}</div>` : ''}
         </div>`;
       }).join('')}
     </div>`;
@@ -761,9 +765,9 @@
         return `<div class="tracking-week-row shopping-week-row ${open ? 'open active' : ''} ${hasActive ? 'has-selected' : ''}">
           <button class="tracking-week-bar" data-action="shoppingWeekToggle" data-week="${w.week}" aria-expanded="${open ? 'true' : 'false'}">
             <span>${w.week}. hét</span>
-            <em>${open ? 'napok elrejtése' : 'napok megnyitása'}</em>
+            <i class="week-chevron" aria-hidden="true">${open ? '⌃' : '⌄'}</i>
           </button>
-          ${open ? `<div class="tracking-week-days shopping-week-days">${weekDays.map(d => `<button class="tracking-day-pill compact-day-only ${nums.has(d.globalDayNumber) ? 'active' : ''}" data-action="toggleMergeDay" data-daynum="${d.globalDayNumber}" aria-label="${esc(planDayLabel(d))} · ${esc(fullDateLabel(d))}"><b>${esc(compactDayName(d))}</b></button>`).join('')}</div>` : ''}
+          ${open ? `<div class="tracking-week-days shopping-week-days">${weekDays.map(d => `<button class="tracking-day-pill compact-day-only ${nums.has(d.globalDayNumber) ? 'active' : ''}" data-action="toggleMergeDay" data-daynum="${d.globalDayNumber}" aria-label="${esc(planDayLabel(d))} · ${esc(fullDateLabel(d))}"><b>${esc(compactDayName(d))}</b><span>${esc(dayNumericShort(d))}</span></button>`).join('')}</div>` : ''}
         </div>`;
       }).join('')}
     </div>`;
@@ -1099,7 +1103,6 @@
       <div class="sheet-section stack settings-form">
         <label>Kezdőnap<input type="date" id="setDietStart" value="${esc(settings.dietStartDate)}"></label>
         <label>Napi vízcél literben<input type="number" id="setWaterGoal" min="1" max="5" step="0.1" value="${esc((settings.waterGoalMl||2500)/1000)}"></label>
-        <label class="switch-row"><span>Ciklusmodul bekapcsolva</span><input type="checkbox" id="setCycleEnabled" ${settings.cycleModuleEnabled?'checked':''}></label>
         <label>Ciklus kezdőnapja<input type="date" id="setCycleStart" value="${esc(settings.cycleStartDate || todayIso())}"></label>
         <label>Ciklushossz<input type="number" id="setCycleLength" min="21" max="40" value="${esc(settings.cycleLengthDays || 28)}"></label>
         <button class="primary-btn wide" data-action="saveSettings">Beállítások mentése</button>
@@ -1263,7 +1266,7 @@
         const first = allDays.find(d => Number(d.week) === weekNo);
         if(first) ui.selectedDayNumber = first.globalDayNumber;
       }
-      render({resetTop:true});
+      render();
     }
     if(action === 'trackingWeek'){
       ui.trackingWeek = Number(el.dataset.week);
@@ -1280,7 +1283,7 @@
       const weekNo = Number(el.dataset.week);
       ui.shoppingWeek = weekNo;
       writeStore(storeKeys.ui, ui);
-      render({resetTop:true});
+      render();
     }
     if(action === 'shoppingView'){ ui.shoppingView = el.dataset.view; render({resetTop:true}); }
     if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); render({resetTop:true}); }
@@ -1342,7 +1345,7 @@
       settings.dietStartDate = $('#setDietStart').value || todayIso();
       settings.waterGoalMl = Math.round(Number($('#setWaterGoal').value || 2.5) * 1000);
       settings.trackingMode = 'detailed';
-      settings.cycleModuleEnabled = $('#setCycleEnabled').checked;
+      settings.cycleModuleEnabled = true;
       settings.cycleStartDate = $('#setCycleStart').value || todayIso();
       settings.cycleLengthDays = Number($('#setCycleLength').value || 28);
       writeStore(storeKeys.settings, settings); toast('Beállítások mentve.'); closeSheet(); render({resetTop:true});
