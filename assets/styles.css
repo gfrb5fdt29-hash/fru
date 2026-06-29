@@ -874,3 +874,55 @@ body{
   .mini-week-title span{font-size:11.8px;}
   .mini-week-title em{font-size:8.8px;}
 }
+
+
+/* v18: onboarding dátummezők, nagyobb felső ikonok, zsugorodó Fruzsi box, heti naplóösszegzés, recept főzési jelzés, egységesebb animáció */
+:root{--top:calc(70px + env(safe-area-inset-top));}
+.topbar{transition:height .22s ease,padding .22s ease,background .22s ease,box-shadow .22s ease;}
+.topbar.header-compact{height:calc(54px + env(safe-area-inset-top));background:linear-gradient(180deg,rgba(7,22,48,.97),rgba(7,22,48,.88) 78%,rgba(7,22,48,0));}
+.topbar.header-compact .brand-block.brand-box{padding:5px 8px;border-radius:16px;box-shadow:0 0 10px rgba(255,74,184,.11), inset 0 0 10px rgba(255,201,232,.05);}
+.topbar.header-compact .brand-title.soft-fruzsi-title{font-size:13.2px;line-height:1.05;}
+.topbar.header-compact .heart-mark{font-size:.78em;}
+.topbar .icon-btn.glow-icon{width:48px!important;height:48px!important;min-width:48px!important;border-radius:18px!important;}
+.top-icon{width:28px!important;height:28px!important;stroke-width:1.9!important;}
+.topbar .icon-btn.settings-glow{box-shadow:0 0 22px rgba(255,159,28,.38),0 0 40px rgba(255,159,28,.12),inset 0 0 13px rgba(255,199,106,.12);}
+.topbar .icon-btn.home-glow{box-shadow:0 0 23px rgba(53,255,157,.36),0 0 44px rgba(53,255,157,.13),inset 0 0 14px rgba(53,255,157,.12);}
+.settings-glow .top-icon{filter:drop-shadow(0 0 9px rgba(255,159,28,.72))!important;}
+.home-glow .top-icon{filter:drop-shadow(0 0 10px rgba(53,255,157,.85))!important;}
+.view.view-enter{animation:viewSlideIn .28s cubic-bezier(.2,.8,.2,1);}
+@keyframes viewSlideIn{from{opacity:.65;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+.sheet{transition:transform .30s cubic-bezier(.2,.86,.2,1), opacity .22s ease;}
+.sheet.show{animation:sheetPremiumIn .30s cubic-bezier(.2,.86,.2,1);}
+@keyframes sheetPremiumIn{from{transform:translate(-50%,105%);opacity:.86}to{transform:translate(-50%,0);opacity:1}}
+.onboarding-card{font-size:15px;}
+.onboarding .lead{font-size:13.6px!important;line-height:1.42!important;}
+.onboarding-help b{font-size:14px!important;}
+.onboarding-help span{font-size:13px!important;line-height:1.42!important;}
+.onboarding-form-grid label{font-size:13.7px!important;line-height:1.25;overflow:hidden;}
+.onboarding-form-grid input{width:100%;max-width:100%;min-width:0;font-size:16px!important;min-height:44px!important;}
+.onboarding-form-grid input[type="date"],.onboarding-form-grid input[type="number"]{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;}
+.cycle-fields-open{overflow:hidden;}
+.weekly-summary-card{border-color:rgba(53,255,157,.22);background:radial-gradient(circle at 14% 0,rgba(53,255,157,.12),transparent 38%),linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.045));}
+.weekly-summary-card .subhead{color:#dfffe9;}
+.weekly-summary-metrics{grid-template-columns:repeat(4,minmax(0,1fr));}
+.cook-chip{font-weight:850;}
+.recipe-card-chips .chip{font-size:11.2px;}
+.shopping-group-card .subhead::before{content:"";display:inline-block;width:7px;height:7px;border-radius:99px;background:var(--accent2);box-shadow:0 0 10px rgba(247,198,106,.45);margin-right:7px;vertical-align:middle;}
+@media (max-width:390px){
+  :root{--top:calc(68px + env(safe-area-inset-top));}
+  .topbar .icon-btn.glow-icon{width:44px!important;height:44px!important;min-width:44px!important;border-radius:17px!important;}
+  .top-icon{width:25px!important;height:25px!important;}
+  .topbar.header-compact .brand-title.soft-fruzsi-title{font-size:12.2px;}
+  .onboarding-card{width:min(362px,calc(100vw - 18px));}
+  .onboarding-form-grid label{font-size:13.1px!important;}
+  .onboarding-help span{font-size:12.2px!important;}
+  .weekly-summary-metrics .metric b{font-size:12.5px;}
+  .weekly-summary-metrics .metric span{font-size:9.5px;}
+}
+@media (max-width:360px){
+  .topbar .icon-btn.glow-icon{width:42px!important;height:42px!important;min-width:42px!important;}
+  .top-icon{width:24px!important;height:24px!important;}
+  .topbar.header-compact .brand-title.soft-fruzsi-title{font-size:11.3px;}
+  .onboarding-form-grid input{min-height:42px!important;}
+}
+@media (prefers-reduced-motion:reduce){.view.view-enter,.sheet.show{animation:none!important}}

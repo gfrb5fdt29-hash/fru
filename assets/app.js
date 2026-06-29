@@ -250,8 +250,15 @@
       $('#view').innerHTML = `<section class="card section"><div class="card-pad stack"><h1 class="headline">Ez a nézet most nem töltődött be.</h1><p class="small-muted">Lépj vissza a főoldalra, majd próbáld újra. A többi fül továbbra is elérhető.</p><button class="primary-btn wide" data-action="goHome">Főoldal</button></div></section>`;
     }
     writeStore(storeKeys.ui, ui);
-    $('#view').focus({preventScroll:true});
+    const viewEl = $('#view');
+    if(viewEl){
+      viewEl.classList.remove('view-enter');
+      void viewEl.offsetWidth;
+      viewEl.classList.add('view-enter');
+      viewEl.focus({preventScroll:true});
+    }
     if(options.resetTop) scrollToViewTop();
+    requestAnimationFrame(updateHeaderCompact);
   }
 
   function statHero(day){
@@ -447,20 +454,20 @@
     const carbFocus = [...new Set(meals.flatMap(m => carbNames.filter(c => (m.name_hu || '').toLowerCase().includes(c))))].slice(0,4);
     const special = flags.length ? flags.join(', ') : (day.daily_focus_hu || 'kímélő, egyszerű napi ritmus');
     const eveningText = dinner
-      ? `Ma az esti lezárás konkrétan a(z) ${dinner.name_hu.toLowerCase()} (${dinner.energy_kcal} kcal). Ez a napi energia kb. ${dinnerShare}%-a, ezért az este nem kap túl nagy terhelést. ${snack ? `Az uzsonna (${snack.name_hu.toLowerCase()}) segít, hogy a vacsora ne éhségből legyen túl nagy.` : 'Uzsonna nélkül is érdemes nyugodt, korai vacsoraidőt tartani.'}`
-      : `Ma nincs külön kiemelt vacsoraadat, ezért az esti cél a nyugodt, nem kapkodós lezárás.`;
+      ? `Fruzsinak ma az esti lezárás a(z) ${dinner.name_hu.toLowerCase()} (${dinner.energy_kcal} kcal). Ez a napi energia kb. ${dinnerShare}%-a, így a nap vége nem lesz túl nehéz. ${snack ? `Az uzsonna (${snack.name_hu.toLowerCase()}) pont azért hasznos, hogy a vacsora ne éhségből legyen túl nagy.` : 'Uzsonna nélkül is érdemes nyugodt, korai vacsoraidőt tartani.'}`
+      : `Ma nincs külön kiemelt vacsoraadat, ezért Fruzsinak az esti cél a nyugodt, nem kapkodós lezárás.`;
     return [
       {
         title:'Miért így?',
-        text:`${dayLabel(day)} fő fókusza: ${day.daily_focus_hu || 'kímélő, jól követhető nap'}. A napi terv ${totals.energy_kcal || 0} kcal, makróban ${totals.protein || 0} g fehérje, ${totals.carbohydrate || 0} g szénhidrát és ${totals.fat || 0} g zsír. A legnagyobb energiaadag ma: ${highest ? `${SLOT_LABELS[highest.slot] || highest.slot} – ${highest.name_hu} (${highest.energy_kcal} kcal)` : 'nincs kiemelve'}. Külön napi jelleg: ${special}.`
+        text:`Fruzsinak ez a nap azért így épül fel, mert a fő fókusz ma: ${day.daily_focus_hu || 'kímélő, jól követhető nap'}. A napi terv ${totals.energy_kcal || 0} kcal, makróban ${totals.protein || 0} g fehérje, ${totals.carbohydrate || 0} g szénhidrát és ${totals.fat || 0} g zsír. A legnagyobb energiaadag ma: ${highest ? `${SLOT_LABELS[highest.slot] || highest.slot} – ${highest.name_hu} (${highest.energy_kcal} kcal)` : 'nincs kiemelve'}, ezért a nap súlya nem estére tolódik. Külön napi jelleg: ${special}.`
       },
       {
         title:'Étkezési ritmus',
-        text:`A nap négy konkrét fogásra van bontva: ${mealLine}. ${breakfast ? `A reggeli (${breakfast.name_hu.toLowerCase()}) adja az indulást,` : 'A reggeli adja az indulást,'} ${lunch ? `az ebéd (${lunch.name_hu.toLowerCase()}) a főbb nappali energiát,` : 'az ebéd a főbb nappali energiát,'} ${dinner ? `a vacsora pedig (${dinner.name_hu.toLowerCase()}) az esti lezárást.` : 'a vacsora az esti lezárást.'}`
+        text:`A nap négy konkrét fogásra van bontva, hogy Fruzsinak ne egyszerre kelljen nagy adagokkal terhelni a gyomrát: ${mealLine}. ${breakfast ? `A reggeli (${breakfast.name_hu.toLowerCase()}) adja az indulást,` : 'A reggeli adja az indulást,'} ${lunch ? `az ebéd (${lunch.name_hu.toLowerCase()}) a főbb nappali energiát,` : 'az ebéd a főbb nappali energiát,'} ${dinner ? `a vacsora pedig (${dinner.name_hu.toLowerCase()}) egy nyugodtabb esti lezárás.` : 'a vacsora az esti lezárást.'}`
       },
       {
         title:'Reflux logika',
-        text:`Ma a reflux-jelzés: ${riskText(risk.max_reflux_risk_level)}. A tervben nincs paradicsom, citrus, csípős vagy bő olajban sült elem. ${dinner ? `A vacsora ${dinner.energy_kcal} kcal, ezért érdemes ezt korábban, nyugodt tempóban lezárni.` : 'Az esti étkezést érdemes korábban lezárni.'}`
+        text:`Ma a reflux-jelzés: ${riskText(risk.max_reflux_risk_level)}. Fruzsi napja paradicsom, citrus, csípős és bő olajban sült elem nélkül marad. ${dinner ? `A vacsora ${dinner.energy_kcal} kcal, ezért jó, ha ez nem késő esti, kapkodós étkezés, hanem korábban, nyugodt tempóban zárja a napot.` : 'Az esti étkezést érdemes korábban, nyugodt tempóban lezárni.'}`
       },
       {
         title:'Frissesség és hisztamin',
@@ -472,7 +479,7 @@
       },
       {
         title:'Ciklushoz igazítva',
-        text:`${cycle ? `Mai ciklusfókusz: ${cycle}. ` : ''}${cycleSuggestionText(day)} A napi ételválasztásnál ezért a konkrét hangsúly ma: ${day.daily_focus_hu || 'stabil, kímélő energia'}.`
+        text:`${cycle ? `Mai ciklusfókusz: ${cycle}. ` : ''}${cycleSuggestionText(day)} Ez nem szigorú szabály, inkább finom segítség: Fruzsinak ma a konkrét hangsúly ${day.daily_focus_hu || 'stabil, kímélő energia'}, ezért az ételek egyszerűek, követhetők és nem túl harsányak.`
       },
       {
         title:'Esti tipp',
@@ -597,6 +604,19 @@
   function recipeResultsHtml(shown){
     return shown.length ? shown.map(r => recipeCard(r)).join('') : `<div class="empty">${esc(DATA.empty_state_and_logic_messages_hu?.no_filter_results || 'Nincs találat.')}</div>`;
   }
+  function cookingSpeedLabel(recipe){
+    const raw = String(recipe.cooking_time_level || recipe.cooking_profile?.difficulty_level || '').toLowerCase();
+    const mins = Number(recipe.cooking_profile?.total_minutes || recipe.prep_minutes_estimate || 0);
+    if(raw.includes('gyors') || (mins && mins <= 20)) return 'Gyors főzés';
+    if(raw.includes('hossz') || (recipe.tag_ids || []).includes('hosszabb_fozes') || mins >= 35) return 'Hosszabb főzés';
+    return 'Közepes főzés';
+  }
+  function cookingSpeedClass(recipe){
+    const label = cookingSpeedLabel(recipe);
+    if(label.startsWith('Gyors')) return 'green';
+    if(label.startsWith('Hosszabb')) return 'warn';
+    return 'soft';
+  }
   function updateRecipeResults(){
     const shown = recipes.filter(recipeMatches);
     const count = $('#recipeCount');
@@ -613,11 +633,11 @@
         <div>
           <div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')}</div>
           <div class="meal-title">${esc(r.name_hu || r.pwa_title)}</div>
-          <div class="meal-meta"><span>${esc(r.energy_kcal)} kcal</span><span>${esc(macroLine(r.macros_g))}</span><span>${esc(r.cooking_profile?.total_minutes || r.prep_minutes_estimate || '')} perc</span></div>
+          <div class="meal-meta"><span>${esc(r.energy_kcal)} kcal</span><span>${esc(macroLine(r.macros_g))}</span></div>
         </div>
         <button class="fav-btn ${fav ? 'active' : ''}" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}" aria-label="Kedvenc jelölése">★</button>
       </div>
-      <div class="chip-row" style="margin-top:10px">${flags.slice(0,3).map(f=>`<span class="chip soft">${esc(f)}</span>`).join('')}<span class="chip ${maxRecipeRisk(r)>=2?'warn':'green'}">${esc(riskText(maxRecipeRisk(r)))}</span></div>
+      <div class="chip-row recipe-card-chips" style="margin-top:10px"><span class="chip cook-chip ${cookingSpeedClass(r)}">${esc(cookingSpeedLabel(r))}</span>${flags.slice(0,2).map(f=>`<span class="chip soft">${esc(f)}</span>`).join('')}<span class="chip ${maxRecipeRisk(r)>=2?'warn':'green'}">${esc(riskText(maxRecipeRisk(r)))}</span></div>
     </article>`;
   }
 
@@ -790,11 +810,13 @@
     const rows = aggregateShopping(days);
     const groups = rows.reduce((acc,item) => { (acc[item.group] ||= []).push(item); return acc; }, {});
     return `<div class="card"><div class="card-pad"><h2 class="subhead">Összevont lista</h2><p class="small-muted">Kijelölt napok: ${esc(days.map(dayLabel).join(' · '))}</p><button class="ghost-btn wide" data-action="openMergedShopping">Megnyitás felcsúszó listában</button></div></div>` +
-      (Object.entries(groups).map(([group,items]) => `<div class="card"><div class="card-pad"><h3 class="subhead">${esc(group)}</h3>${items.map((it,idx) => {
-        const key = shoppingKey('merged', [group, idx, it.name, it.unit, days.map(d=>d.day_id).join('-')]);
-        const checked = !!shoppingChecks[key];
-        return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(formatAmountValue(it.buy, it.unit))} · recepthez összesen ${esc(formatAmountValue(it.net, it.unit))}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
-      }).join('')}</div></div>`).join('') || '<div class="empty">Nincs összeadható tétel.</div>');
+      (Object.entries(groups).map(([group,items]) => {
+        const visible = items.map((it,idx)=>({it,idx,key:shoppingKey('merged', [group, idx, it.name, it.unit, days.map(d=>d.day_id).join('-')])})).filter(row => !ui.onlyOpen || !shoppingChecks[row.key]);
+        return `<div class="card shopping-group-card"><div class="card-pad"><h3 class="subhead">${esc(group)}</h3>${visible.length ? visible.map(({it,idx,key}) => {
+          const checked = !!shoppingChecks[key];
+          return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(formatAmountValue(it.buy, it.unit))} · recepthez összesen ${esc(formatAmountValue(it.net, it.unit))}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
+        }).join('') : '<div class="empty">Minden látható tétel kipipálva.</div>'}</div></div>`;
+      }).join('') || '<div class="empty">Nincs összeadható tétel.</div>');
   }
   function openMergedShopping(){
     const days = selectedShoppingDays();
@@ -803,13 +825,42 @@
     const groups = rows.reduce((acc,item) => { (acc[item.group] ||= []).push(item); return acc; }, {});
     openSheet('Összevont bevásárlás', `
       <div class="sheet-section"><p class="small-muted">Kijelölt napok: ${esc(days.map(dayLabel).join(' · '))}</p></div>
-      ${Object.entries(groups).map(([group,items]) => `<div class="sheet-section"><h3 class="subhead">${esc(group)}</h3>${items.map((it,idx) => {
-        const key = shoppingKey('merged', [group, idx, it.name, it.unit, days.map(d=>d.day_id).join('-')]);
-        const checked = !!shoppingChecks[key];
-        return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(formatAmountValue(it.buy, it.unit))} · recepthez összesen ${esc(formatAmountValue(it.net, it.unit))}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
-      }).join('')}</div>`).join('') || '<div class="empty">Nincs összeadható tétel.</div>'}
+      ${Object.entries(groups).map(([group,items]) => {
+        const visible = items.map((it,idx)=>({it,idx,key:shoppingKey('merged', [group, idx, it.name, it.unit, days.map(d=>d.day_id).join('-')])})).filter(row => !ui.onlyOpen || !shoppingChecks[row.key]);
+        return `<div class="sheet-section"><h3 class="subhead">${esc(group)}</h3>${visible.length ? visible.map(({it,idx,key}) => {
+          const checked = !!shoppingChecks[key];
+          return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(formatAmountValue(it.buy, it.unit))} · recepthez összesen ${esc(formatAmountValue(it.net, it.unit))}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
+        }).join('') : '<div class="empty">Minden látható tétel kipipálva.</div>'}</div>`;
+      }).join('') || '<div class="empty">Nincs összeadható tétel.</div>'}
     `);
   }
+  function weeklyTrackingSummary(weekNo){
+    const ds = allDays.filter(d => Number(d.week) === Number(weekNo));
+    const entries = ds.map(d => ({day:d, entry:trackingEntries[d.day_id] || {}}));
+    const fullDays = ds.filter(d => {
+      const meals = d.meals || [];
+      return meals.length && meals.every(m => mealChecks[mealKey(d,m)]);
+    }).length;
+    const logged = entries.filter(x => Object.keys(x.entry).length > 0).length;
+    const waterValues = entries.map(x => Number(x.entry.waterMl || 0)).filter(v => v > 0);
+    const avgWater = waterValues.length ? waterValues.reduce((a,b)=>a+b,0) / waterValues.length / 1000 : 0;
+    const refluxValues = entries.map(x => Number(x.entry.reflux)).filter(v => Number.isFinite(v) && v > 0);
+    const avgReflux = refluxValues.length ? refluxValues.reduce((a,b)=>a+b,0) / refluxValues.length : 0;
+    const energyValues = entries.map(x => Number(x.entry.energy)).filter(v => Number.isFinite(v) && v > 0);
+    const avgEnergy = energyValues.length ? energyValues.reduce((a,b)=>a+b,0) / energyValues.length : 0;
+    return {fullDays, logged, avgWater, avgReflux, avgEnergy, total:ds.length || 7};
+  }
+  function weeklyTrackingSummaryHtml(weekNo){
+    const s = weeklyTrackingSummary(weekNo);
+    const waterText = s.avgWater ? `${formatHuNumber(s.avgWater,1)} l` : 'nincs adat';
+    const refluxText = s.avgReflux ? `${formatHuNumber(s.avgReflux,1)}/10` : 'nincs adat';
+    const energyText = s.avgEnergy ? `${formatHuNumber(s.avgEnergy,1)}/10` : 'nincs adat';
+    const note = s.logged
+      ? `Fruzsi, ezen a héten ${s.logged} naphoz került naplóadat. A teljesen kipipált napok száma ${s.fullDays}, az átlag víz ${waterText}, a reflux átlag ${refluxText}, az energia átlag ${energyText}.`
+      : 'Ehhez a héthez még nincs naplóadat. Ha elkezded vezetni a vizet és a közérzetet, itt jelenik meg a heti összkép.';
+    return `<section class="card section weekly-summary-card"><div class="card-pad stack"><h2 class="subhead">${esc(weekNo)}. heti mini összegzés</h2><div class="metric-row weekly-summary-metrics"><div class="metric"><b>${esc(s.fullDays)}/${esc(s.total)}</b><span>Teljes nap</span></div><div class="metric"><b>${esc(waterText)}</b><span>Átlag víz</span></div><div class="metric"><b>${esc(refluxText)}</b><span>Reflux</span></div><div class="metric"><b>${esc(energyText)}</b><span>Energia</span></div></div><p class="small-muted">${esc(note)}</p></div></section>`;
+  }
+
   function renderTracking(){
     const day = selectedDay();
     const key = day.day_id;
@@ -825,6 +876,7 @@
         <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
         ${weekBoxDaySelector('trackingDay', [day.globalDayNumber], 'tracking-week-selector')}
       </section>
+      ${weeklyTrackingSummaryHtml(day.week)}
       <section class="card section"><div class="card-pad">
         <h2 class="headline">${esc(dayDisplayName(day))} naplója</h2>
         <p class="small-muted">${esc(dayLabel(day))} · ${esc(day.daily_focus_hu || 'részletes napi követés')}</p>
@@ -1204,7 +1256,15 @@
     if(action === 'closeSheet') closeSheet();
   }
 
+  function updateHeaderCompact(){
+    const topbar = $('.topbar');
+    if(!topbar) return;
+    topbar.classList.toggle('header-compact', window.scrollY > 34);
+  }
+
   function initEvents(){
+    window.addEventListener('scroll', updateHeaderCompact, {passive:true});
+    updateHeaderCompact();
     $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
     $('#todayBtn').addEventListener('click', () => { if(!$('#sheet').hidden) closeSheet(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); });
     $('#settingsBtn').addEventListener('click', openSettingsSheet);
