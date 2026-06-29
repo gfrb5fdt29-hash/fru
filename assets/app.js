@@ -41,7 +41,7 @@
   let shoppingChecks = readStore(storeKeys.shoppingChecks, {});
   let favorites = readStore(storeKeys.favorites, {});
   let trackingEntries = readStore(storeKeys.tracking, {});
-  let ui = readStore(storeKeys.ui, {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, onlyOpen:false, recipeSearch:'', recipeFilters:[]});
+  let ui = readStore(storeKeys.ui, {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, onlyOpen:false, recipeSearch:'', recipeFilters:[], dayReturnTab:'weeks'});
 
   const weeks = DATA.weeks || [];
   const allDays = weeks.flatMap(w => (w.days || []).map((d, idx) => ({...d, globalDayNumber:(d.week-1)*7 + (d.day_number_in_week || idx+1)})));
@@ -100,6 +100,13 @@
     clearTimeout(toast._t);
     toast._t = setTimeout(()=>el.classList.remove('show'), 2100);
   }
+  function scrollToViewTop(){
+    requestAnimationFrame(() => {
+      window.scrollTo({top:0, left:0, behavior:'auto'});
+      const view = $('#view');
+      if(view) view.scrollTop = 0;
+    });
+  }
   function parseDate(iso){ return new Date((iso || todayIso()) + 'T00:00:00'); }
   function dayDiff(a,b){ return Math.floor((parseDate(b) - parseDate(a)) / 86400000); }
   function currentPlanDayNumber(){
@@ -145,15 +152,18 @@
     if(done < total) return 'Félig már megvan';
     return 'Mai terv teljesítve';
   }
-  function render(){
-    $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === ui.activeTab));
-    if(ui.activeTab === 'weeks') renderWeeks();
+  function render(options = {}){
+    const activeKey = ui.activeTab === 'dayDetail' ? (ui.dayReturnTab || 'weeks') : ui.activeTab;
+    $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === activeKey));
+    if(ui.activeTab === 'dayDetail') renderDayPage();
+    else if(ui.activeTab === 'weeks') renderWeeks();
     else if(ui.activeTab === 'recipes') renderRecipes();
     else if(ui.activeTab === 'shopping') renderShopping();
     else if(ui.activeTab === 'tracking') renderTracking();
     else renderToday();
     writeStore(storeKeys.ui, ui);
     $('#view').focus({preventScroll:true});
+    if(options.resetTop) scrollToViewTop();
   }
 
   function statHero(day){
@@ -251,33 +261,110 @@
 
   function renderWeeks(){
     const week = weeks.find(w => w.week === ui.activeWeek) || weeks[0];
+    const weekDays = allDays.filter(d => d.week === (week?.week || ui.activeWeek));
     $('#view').innerHTML = `
       <section class="section">
-        <h1 class="headline">4 hetes terv</h1>
-        <div class="week-tabs">${weeks.map(w => `<button class="week-card ${w.week === ui.activeWeek ? 'active' : ''}" data-action="selectWeek" data-week="${w.week}"><b>${w.week}. hét</b><br><span class="small-muted">${esc((w.theme||'').split(' ')[0] || 'Terv')}</span></button>`).join('')}</div>
+        <h1 class="headline">Hetek</h1>
+        <p class="small-muted">Válassz hetet, majd nyisd meg a kívánt napot külön lapon.</p>
+        <div class="week-tabs uniform-week-tabs">${weeks.map(w => `<button class="week-card week-select ${w.week === ui.activeWeek ? 'active' : ''}" data-action="selectWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
       </section>
       <section class="card section"><div class="card-pad">
         <h2 class="headline">${esc(week.theme || `${week.week}. hét`)}</h2>
         <p class="small-muted">${esc(week.focus || '')}</p>
         <div class="chip-row">${cycleLabels(week.phase || []).map(p=>`<span class="chip blue">${esc(p)}</span>`).join('')}</div>
       </div></section>
-      <section class="section grid2">
-        ${(week.days || []).map(day => {
+      <section class="section week-days-list">
+        ${weekDays.map(day => {
           const flags = day.daily_flags || {};
           const dayChips = [];
           if(flags.full_meat_free_day && flags.full_dairy_free_day) dayChips.push('hús- és tejmentes');
           if(flags.full_plant_based_day) dayChips.push('növényi');
           if(flags.has_pasta_or_noodle) dayChips.push('tészta');
           if(flags.has_salty_dairy_free_breakfast) dayChips.push('sós reggeli');
-          return `<article class="mini-day" data-action="weekDay" data-daynum="${day.globalDayNumber}">
-            <div class="day-n">${esc(day.day_number_in_week)}. nap</div>
-            <div class="small-muted">${esc(day.weekday_hu)} · ${esc(day.daily_totals?.energy_kcal)} kcal</div>
-            <div class="chip-row" style="margin:8px 0">${dayChips.slice(0,2).map(c=>`<span class="chip soft">${esc(c)}</span>`).join('')}</div>
-            ${(day.meals || []).map(m => `<div class="meal-mini">${esc(SLOT_LABELS[m.slot] || m.slot)}: ${esc(m.name_hu)}</div>`).join('')}
+          const cycle = settings.cycleModuleEnabled ? cycleLabels(day.cycle_phase_tags || []).slice(0,1) : [];
+          const selected = day.globalDayNumber === ui.selectedDayNumber;
+          return `<article class="mini-day week-day-card ${selected ? 'active' : ''}" data-action="weekDay" data-daynum="${day.globalDayNumber}">
+            <div class="week-day-head">
+              <div>
+                <div class="day-n">${esc(day.day_number_in_week)}. nap · ${esc(day.weekday_hu)}</div>
+                <div class="small-muted">${esc(day.daily_focus_hu || '')}</div>
+              </div>
+              <div class="week-kcal"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal</span></div>
+            </div>
+            <div class="metric-row compact-metrics">
+              <div class="metric"><b>${esc(day.daily_totals?.protein || 0)}g</b><span>Feh.</span></div>
+              <div class="metric"><b>${esc(day.daily_totals?.carbohydrate || 0)}g</b><span>CH</span></div>
+              <div class="metric"><b>${esc(day.daily_totals?.fat || 0)}g</b><span>Zsír</span></div>
+              <div class="metric"><b>${esc((day.meals || []).length)}</b><span>Étkezés</span></div>
+            </div>
+            <div class="chip-row" style="margin:10px 0">${[...dayChips, ...cycle].slice(0,4).map(c=>`<span class="chip soft">${esc(c)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div>
+            <div class="week-meals">
+              ${(day.meals || []).map(m => `<div class="meal-mini"><b>${esc(SLOT_LABELS[m.slot] || m.slot)}</b><span>${esc(m.name_hu)}</span><em>${esc(m.energy_kcal)} kcal</em></div>`).join('')}
+            </div>
           </article>`;
         }).join('')}
-      </section>`;
+      </section>
+      <div class="footer-space"></div>`;
   }
+
+  function renderDayPage(){
+    const day = selectedDay();
+    const totals = day.daily_totals || {};
+    const risks = day.day_risk_overview || {};
+    const tags = [...(day.day_tags || []), ...(settings.cycleModuleEnabled ? (day.cycle_phase_tags || []) : [])].map(tagLabel);
+    const mp = day.shopping_micro_plan || {};
+    $('#view').innerHTML = `
+      <section class="section day-page-toolbar">
+        <button class="ghost-btn back-btn" data-action="backFromDay">‹ Vissza</button>
+        <div class="small-muted">${esc(dayLabel(day))}</div>
+      </section>
+      <section class="hero card section detail-hero">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">Napi terv</div>
+            <div class="day-label">${esc(day.weekday_hu)} · ${esc(day.day_number_in_week)}. nap</div>
+            <div class="small-muted">${esc(day.daily_focus_hu || 'Részletes napi nézet')}</div>
+          </div>
+          <div class="kcal-bubble"><b>${esc(totals.energy_kcal || 0)}</b><span>kcal</span></div>
+        </div>
+        <div class="metric-row">
+          <div class="metric"><b>${esc(totals.protein || 0)}g</b><span>Fehérje</span></div>
+          <div class="metric"><b>${esc(totals.carbohydrate || 0)}g</b><span>Szénhidrát</span></div>
+          <div class="metric"><b>${esc(totals.fat || 0)}g</b><span>Zsír</span></div>
+          <div class="metric"><b>${progressForDay(day).done}/${progressForDay(day).total}</b><span>Haladás</span></div>
+        </div>
+      </section>
+      <section class="card section"><div class="card-pad">
+        <h2 class="headline">Címkék és kímélő jelzések</h2>
+        <div class="chip-row">${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div>
+        <div class="chip-row" style="margin-top:10px"><span class="chip green">Reflux: ${esc(riskText(risks.max_reflux_risk_level))}</span><span class="chip ${Number(risks.max_histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.max_histamine_caution_level))}</span><span class="chip ${Number(risks.max_purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.max_purine_caution_level))}</span></div>
+      </div></section>
+      <section class="section stack" aria-label="Napi étkezések">
+        ${(day.meals || []).map(m => mealCard(day,m)).join('')}
+      </section>
+      <section class="card section"><div class="card-pad stack">
+        <h2 class="headline">Miért így?</h2>
+        ${['why_this_day_works_hu','reflux_logic_hu','histamine_logic_hu','purine_logic_hu','cycle_logic_hu','evening_tip_hu'].map(k => day[k] ? `<div><h3 class="subhead">${sectionTitle(k)}</h3><p class="small-muted">${esc(stripTechText(day[k]))}</p></div>` : '').join('')}
+      </div></section>
+      <section class="card section"><div class="card-pad stack">
+        <h2 class="headline">Napi vásárlás</h2>
+        <p class="small-muted">${esc(humanNote(mp.freshness_logic_note_hu || 'Friss készítés, készétel-maradék nélkül.'))}</p>
+        ${(mp.daily_fresh_items || []).slice(0,10).map(it=>`<div class="list-item"><div class="item-main"><div class="item-title">${esc(it.item)}</div><div class="item-note">${esc(humanAmount(it))}</div></div></div>`).join('') || '<div class="empty">Nincs külön napi friss tétel.</div>'}
+      </div></section>
+      <div class="footer-space"></div>`;
+  }
+
+  function openDayPage(dayNum){
+    const n = Number(dayNum);
+    const day = allDays.find(d => d.globalDayNumber === n);
+    if(!day) return;
+    ui.dayReturnTab = ui.activeTab === 'dayDetail' ? (ui.dayReturnTab || 'weeks') : ui.activeTab;
+    ui.dayReturnWeek = ui.activeWeek;
+    ui.selectedDayNumber = day.globalDayNumber;
+    ui.activeTab = 'dayDetail';
+    render({resetTop:true});
+  }
+
 
   function recipeMatches(recipe){
     const q = (ui.recipeSearch || '').trim().toLowerCase();
@@ -579,6 +666,7 @@
   function openSheet(title, html){
     $('#sheetTitle').textContent = title;
     $('#sheetBody').innerHTML = html;
+    $('#sheetBody').scrollTop = 0;
     $('#sheetBackdrop').hidden = false;
     $('#sheet').hidden = false;
     requestAnimationFrame(()=>{
@@ -619,7 +707,7 @@
     ui.selectedDayNumber = null;
     saveAll();
     $('#onboarding').hidden = true;
-    render();
+    render({resetTop:true});
   }
 
   function saveTracking(){
@@ -651,11 +739,12 @@
     if(action === 'prevDay'){ ui.selectedDayNumber = Math.max(1, (selectedDay().globalDayNumber || 1) - 1); render(); }
     if(action === 'nextDay'){ ui.selectedDayNumber = Math.min(28, (selectedDay().globalDayNumber || 1) + 1); render(); }
     if(action === 'openDayPicker') openDayPicker();
-    if(action === 'chooseDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); closeSheet(); render(); }
+    if(action === 'chooseDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); closeSheet(); render({resetTop:true}); }
     if(action === 'openDayDetails') openDayDetails();
     if(action === 'openTracking') openTrackingSheet();
-    if(action === 'selectWeek'){ ui.activeWeek = Number(el.dataset.week); render(); }
-    if(action === 'weekDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); ui.activeTab = 'today'; render(); }
+    if(action === 'selectWeek'){ ui.activeWeek = Number(el.dataset.week); render({resetTop:true}); }
+    if(action === 'weekDay') openDayPage(el.dataset.daynum);
+    if(action === 'backFromDay'){ ui.activeTab = ui.dayReturnTab || 'weeks'; if(ui.dayReturnWeek) ui.activeWeek = ui.dayReturnWeek; render(); }
     if(action === 'toggleFilter'){
       const set = new Set(ui.recipeFilters || []);
       set.has(el.dataset.filter) ? set.delete(el.dataset.filter) : set.add(el.dataset.filter);
@@ -707,8 +796,8 @@
   }
 
   function initEvents(){
-    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { ui.activeTab = btn.dataset.tab; writeStore(storeKeys.ui, ui); render(); }));
-    $('#todayBtn').addEventListener('click', () => { ui.selectedDayNumber = null; ui.activeTab = 'today'; render(); });
+    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; ui.activeTab = btn.dataset.tab; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
+    $('#todayBtn').addEventListener('click', () => { ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); });
     $('#settingsBtn').addEventListener('click', openSettingsSheet);
     $('#sheetClose').addEventListener('click', closeSheet);
     $('#sheetBackdrop').addEventListener('click', closeSheet);

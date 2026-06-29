@@ -64,3 +64,23 @@ select option{background:#041427;color:#fff}
 .meal-title,.item-title,.headline,.subhead{overflow-wrap:anywhere}
 
 html,body{width:100%;max-width:100%;}
+
+/* v3 navigation + iPhone week redesign */
+.tab-btn{position:relative;border:1px solid transparent;transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease}
+.tab-btn.active{color:#d9ffe9;background:linear-gradient(180deg,rgba(47,255,151,.18),rgba(47,255,151,.075));border-color:rgba(47,255,151,.45);box-shadow:0 0 20px rgba(47,255,151,.26),inset 0 0 16px rgba(47,255,151,.12)}
+.tab-btn.active::after{content:"";position:absolute;left:50%;bottom:5px;width:22px;height:3px;border-radius:99px;transform:translateX(-50%);background:#35ff9d;box-shadow:0 0 14px rgba(53,255,157,.9)}
+.tab-btn.active span{text-shadow:0 0 14px rgba(53,255,157,.9)}
+.uniform-week-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.week-select{min-height:48px;padding:9px 4px;border-radius:18px;display:grid;place-items:center;text-align:center}
+.week-select b{font-size:13px;white-space:nowrap}
+.week-days-list{display:grid;grid-template-columns:1fr;gap:12px}
+.week-day-card{width:100%;min-height:auto;padding:14px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.week-day-card:active{transform:scale(.99)}
+.week-day-card.active{border-color:rgba(47,255,151,.38);box-shadow:0 0 20px rgba(47,255,151,.16);background:linear-gradient(145deg,rgba(47,255,151,.09),rgba(255,255,255,.055))}
+.week-day-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.week-kcal{min-width:70px;border:1px solid rgba(255,199,106,.24);background:rgba(2,7,19,.36);border-radius:18px;padding:8px 7px;text-align:center}
+.week-kcal b{display:block;font-size:17px;line-height:1}.week-kcal span{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+.compact-metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}.compact-metrics .metric{padding:7px 4px}.compact-metrics .metric b{font-size:13px}.compact-metrics .metric span{font-size:10px}
+.week-meals{display:grid;gap:6px;margin-top:8px}.week-meals .meal-mini{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:7px;align-items:start;white-space:normal;overflow:visible;text-overflow:clip;font-size:12px;line-height:1.3;color:var(--soft);padding:6px 0;border-top:1px solid rgba(255,255,255,.06);margin:0}.week-meals .meal-mini:first-child{border-top:0}.week-meals .meal-mini b{color:#ffe5b4;font-weight:760}.week-meals .meal-mini span{min-width:0;overflow-wrap:anywhere}.week-meals .meal-mini em{font-style:normal;color:var(--muted);white-space:nowrap;font-size:11px}
+.day-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}.back-btn{min-height:38px;padding:8px 13px}.detail-hero .day-label{font-size:22px}.detail-hero{padding:14px}.detail-hero .metric-row{margin-top:13px}
+@media (max-width:380px){.uniform-week-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.week-select{border-radius:16px;padding:8px 2px;min-height:46px}.week-select b{font-size:12px}.week-day-card{padding:12px}.week-day-head{gap:8px}.week-kcal{min-width:62px;padding:7px 5px}.week-meals .meal-mini{grid-template-columns:48px minmax(0,1fr);gap:6px}.week-meals .meal-mini em{grid-column:2}.compact-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.compact-metrics .metric span{font-size:9.5px}.tabbar{gap:5px;padding-left:8px;padding-right:8px}.tab-btn{border-radius:16px}.tab-btn b{font-size:10px}}

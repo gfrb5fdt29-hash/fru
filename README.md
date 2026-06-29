@@ -19,8 +19,15 @@ Offline használható, iPhone-ra optimalizált, statikus étrend PWA.
 - `service-worker.js`
 - `icons/`
 
-## Javított verzió
+## V3 javítások
 
-Ebben a javított kiadásban az első indítási képernyő továbblépési hibája javítva lett, és a 393×852 körüli iPhone nézet kompaktabb beállításokat kapott.
+- Új nézet vagy új tartalom megnyitásakor az oldal felülről indul.
+- A Hetek fül teljesen iPhone-kompatibilis, egyoszlopos listanézetet kapott.
+- Felül 4 egységes hétválasztó gomb látható.
+- A hét napkártyáin nap neve, kcal, makrók, címkék és a 4 étkezés kcal-val együtt jelenik meg.
+- A napkártyák már a tényleges kiválasztott napot nyitják meg, nem mindig az 1. hét hétfőjét.
+- A napkártyák külön napi lapon nyílnak meg, vissza gombbal.
+- Az alsó navigáció prémiumabb ikon + rövid szöveg jellegű maradt, az aktív lap neon zöld kiemelést kapott.
+- A service worker cache verzió frissült, hogy az új fájlok könnyebben felülírják a korábbi telepített verziót.
 
 A naplózás, pipák, kedvencek, bevásárlólista és beállítások a készüléken maradnak.
