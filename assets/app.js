@@ -45,6 +45,39 @@
   let trackingEntries = readStore(storeKeys.tracking, {});
   const defaultUi = {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, shoppingDayNumber:null, shoppingMergeDays:[], onlyOpen:false, recipeSearch:'', recipeFilters:[], dayReturnTab:'weeks', trackingWeek:1};
   let ui = {...defaultUi, ...readStore(storeKeys.ui, {})};
+  let navStack = [];
+
+  function snapshotUi(){
+    return {
+      activeTab: ui.activeTab,
+      selectedDayNumber: ui.selectedDayNumber,
+      activeWeek: ui.activeWeek,
+      shoppingView: ui.shoppingView,
+      shoppingWeek: ui.shoppingWeek,
+      shoppingDayNumber: ui.shoppingDayNumber,
+      shoppingMergeDays: Array.isArray(ui.shoppingMergeDays) ? [...ui.shoppingMergeDays] : [],
+      trackingWeek: ui.trackingWeek,
+      dayReturnTab: ui.dayReturnTab,
+      dayReturnWeek: ui.dayReturnWeek
+    };
+  }
+  function sameNavState(a,b){
+    return a && b && a.activeTab === b.activeTab && a.selectedDayNumber === b.selectedDayNumber && a.activeWeek === b.activeWeek && a.shoppingView === b.shoppingView && a.trackingWeek === b.trackingWeek;
+  }
+  function pushNavState(){
+    const snap = snapshotUi();
+    const last = navStack[navStack.length - 1];
+    if(!sameNavState(last, snap)){
+      navStack.push(snap);
+      if(navStack.length > 24) navStack.shift();
+    }
+  }
+  function restoreNavState(state){
+    if(!state) return false;
+    ui = {...ui, ...state};
+    render({resetTop:true});
+    return true;
+  }
 
   const weeks = DATA.weeks || [];
   const allDays = weeks.flatMap(w => (w.days || []).map((d, idx) => ({...d, globalDayNumber:(d.week-1)*7 + (d.day_number_in_week || idx+1)})));
@@ -544,6 +577,7 @@
     const n = Number(dayNum);
     const day = allDays.find(d => d.globalDayNumber === n);
     if(!day) return;
+    pushNavState();
     ui.dayReturnTab = ui.activeTab === 'dayDetail' ? (ui.dayReturnTab || 'weeks') : ui.activeTab;
     ui.dayReturnWeek = ui.activeWeek;
     ui.selectedDayNumber = day.globalDayNumber;
@@ -690,6 +724,24 @@
       </button>`).join('')}
     </div>`;
   }
+  function trackingWeekAccordionSelector(activeDay){
+    const activeWeek = Number(activeDay?.week || ui.trackingWeek || 1);
+    const activeDayNum = Number(activeDay?.globalDayNumber || selectedDay().globalDayNumber);
+    return `<div class="tracking-accordion">
+      ${weeks.map(w => {
+        const weekDays = allDays.filter(d => d.week === w.week);
+        const open = Number(w.week) === activeWeek;
+        return `<div class="tracking-week-row ${open ? 'open active' : ''}">
+          <button class="tracking-week-bar" data-action="trackingWeekToggle" data-week="${w.week}" aria-expanded="${open ? 'true' : 'false'}">
+            <span>${w.week}. hét</span>
+            <em>${open ? 'napok elrejtése' : 'napok megnyitása'}</em>
+          </button>
+          ${open ? `<div class="tracking-week-days">${weekDays.map(d => `<button class="tracking-day-pill ${Number(d.globalDayNumber) === activeDayNum ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}</b><span>${esc(compactDayName(d))}</span></button>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
   function shoppingDayButtons(activeWeek){
     const weekDays = allDays.filter(d => d.week === activeWeek);
     const activeNums = activeShoppingDayNumbers();
@@ -877,7 +929,7 @@
       <section class="section tracking-picker">
         <h1 class="headline">Napló</h1>
         <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
-        ${weekBoxDaySelector('trackingDay', [day.globalDayNumber], 'tracking-week-selector')}
+        ${trackingWeekAccordionSelector(day)}
       </section>
       ${weeklyTrackingSummaryHtml(day.week)}
       <section class="card section"><div class="card-pad">
@@ -1006,6 +1058,7 @@
   }
 
   function openTrackingSheet(){
+    pushNavState();
     ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1;
     ui.activeTab = 'tracking';
     closeSheet();
@@ -1016,7 +1069,7 @@
     const copy = DATA.app_copy_hu || {};
     openSheet('Beállítások', `
       <div class="sheet-section"><h3 class="headline">Étrend- és életmód segítő APP Fruzsinak</h3><p>Kímélő női étrend, 4 hétre. Internet nélkül is használható, és nincs bejelentkezés.</p><p><b>Minden naplód csak ezen a készüléken marad.</b></p></div>
-      <div class="sheet-section stack">
+      <div class="sheet-section stack settings-form">
         <label>Kezdőnap<input type="date" id="setDietStart" value="${esc(settings.dietStartDate)}"></label>
         <label>Napi vízcél literben<input type="number" id="setWaterGoal" min="1" max="5" step="0.1" value="${esc((settings.waterGoalMl||2500)/1000)}"></label>
         <label class="switch-row"><span>Ciklusmodul bekapcsolva</span><input type="checkbox" id="setCycleEnabled" ${settings.cycleModuleEnabled?'checked':''}></label>
@@ -1175,6 +1228,16 @@
       toast(favorites[id] ? 'Kedvenchez adva.' : 'Kedvenc levéve.');
       if(!$('#sheet').hidden && $('#sheetTitle').textContent) openRecipe(id); else render();
     }
+    if(action === 'trackingWeekToggle'){
+      const weekNo = Number(el.dataset.week);
+      ui.trackingWeek = weekNo;
+      const current = selectedDay();
+      if(!current || Number(current.week) !== weekNo){
+        const first = allDays.find(d => Number(d.week) === weekNo);
+        if(first) ui.selectedDayNumber = first.globalDayNumber;
+      }
+      render({resetTop:true});
+    }
     if(action === 'trackingWeek'){
       ui.trackingWeek = Number(el.dataset.week);
       const first = allDays.find(d => d.week === ui.trackingWeek);
@@ -1259,6 +1322,28 @@
     if(action === 'closeSheet') closeSheet();
   }
 
+  function performBackGesture(){
+    const onboarding = $('#onboarding');
+    if(onboarding && !onboarding.hidden) return false;
+    const sheetOpen = $('#sheet') && !$('#sheet').hidden;
+    if(sheetOpen){ closeSheet(); return true; }
+    if(ui.activeTab === 'dayDetail'){
+      ui.activeTab = ui.dayReturnTab || 'weeks';
+      if(ui.dayReturnWeek) ui.activeWeek = ui.dayReturnWeek;
+      render({resetTop:true});
+      return true;
+    }
+    const previous = navStack.pop();
+    if(previous) return restoreNavState(previous);
+    if(ui.activeTab && ui.activeTab !== 'today'){
+      ui.activeTab = 'today';
+      ui.selectedDayNumber = null;
+      render({resetTop:true});
+      return true;
+    }
+    return false;
+  }
+
   function updateHeaderCompact(){
     const topbar = $('.topbar');
     if(!topbar) return;
@@ -1268,8 +1353,8 @@
   function initEvents(){
     window.addEventListener('scroll', updateHeaderCompact, {passive:true});
     updateHeaderCompact();
-    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
-    $('#todayBtn').addEventListener('click', () => { if(!$('#sheet').hidden) closeSheet(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); });
+    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; if(changed) pushNavState(); ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
+    $('#todayBtn').addEventListener('click', () => { if(!$('#sheet').hidden) closeSheet(); if(ui.activeTab !== 'today') pushNavState(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); });
     $('#settingsBtn').addEventListener('click', openSettingsSheet);
     $('#sheetClose').addEventListener('click', closeSheet);
     $('#sheetBackdrop').addEventListener('click', closeSheet);
@@ -1292,6 +1377,26 @@
       if(el) handleAction(el.dataset.action, el, e);
     });
     $('#startApp').addEventListener('click', finishOnboarding);
+
+    let edgeStart = null;
+    document.addEventListener('touchstart', e => {
+      const t = e.touches && e.touches[0];
+      if(!t) return;
+      if(t.clientX <= 26) edgeStart = {x:t.clientX, y:t.clientY, handled:false};
+      else edgeStart = null;
+    }, {passive:true});
+    document.addEventListener('touchmove', e => {
+      if(!edgeStart || edgeStart.handled) return;
+      const t = e.touches && e.touches[0];
+      if(!t) return;
+      const dx = t.clientX - edgeStart.x;
+      const dy = Math.abs(t.clientY - edgeStart.y);
+      if(dx > 72 && dy < 70){
+        edgeStart.handled = true;
+        if(performBackGesture()) e.preventDefault();
+      }
+    }, {passive:false});
+    document.addEventListener('touchend', () => { edgeStart = null; }, {passive:true});
 
     let startY = null;
     const sheet = $('#sheet');

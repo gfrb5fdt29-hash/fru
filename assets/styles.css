@@ -1230,3 +1230,182 @@ body{
 .prep-step-card:nth-of-type(3n+3){
   background:radial-gradient(circle at 8% 0,rgba(255,117,191,.11),transparent 34%),linear-gradient(145deg,rgba(45,50,99,.40),rgba(17,59,86,.34))!important;
 }
+
+/* v21: iPhone-szerű bal szélről visszalépés, kék-zöld kártyarendszer, beállítások és Napló felső rész finomítás */
+:root{
+  --v21-blue-deep:#0b2a52;
+  --v21-blue:#123f73;
+  --v21-green-deep:#0b594f;
+  --v21-green:#18c9ad;
+  --v21-aqua:#62f3d6;
+}
+
+/* A kártyák visszafogottabb, egységes kék-zöld átmenetet kapnak: nincs több narancs/rózsaszín kártyavilág. */
+.card,
+.hero,
+.detail-hero,
+.recipe-card,
+.meal-card,
+.mini-day,
+.week-card,
+.list-item,
+.prep-step-card,
+.metric,
+.kcal-bubble,
+.premium-week-box,
+.selection-summary,
+.shopping-group-card,
+.shopping-select-card,
+.weekly-summary-card,
+.water-card,
+.tracking-week-row,
+.sheet-section.card-pad{
+  border-color:rgba(98,243,214,.18)!important;
+  background:
+    radial-gradient(circle at 10% 0,rgba(98,243,214,.13),transparent 34%),
+    radial-gradient(circle at 92% 10%,rgba(24,201,173,.10),transparent 36%),
+    linear-gradient(145deg,rgba(18,63,115,.56),rgba(11,42,82,.45) 48%,rgba(11,89,79,.30))!important;
+  box-shadow:0 16px 44px rgba(0,0,0,.24),0 0 22px rgba(24,201,173,.055),inset 0 1px 0 rgba(255,255,255,.075)!important;
+}
+.card::before,
+.meal-card::before,
+.premium-week-box::before,
+.water-card::after{
+  background:
+    radial-gradient(circle at 10% 0,rgba(98,243,214,.11),transparent 30%),
+    radial-gradient(circle at 92% 8%,rgba(45,156,219,.075),transparent 32%)!important;
+}
+.card.section:nth-of-type(4n+1),
+.card.section:nth-of-type(4n+2),
+.card.section:nth-of-type(4n+3),
+.card.section:nth-of-type(4n+4),
+.recipe-card:nth-of-type(4n+1),
+.recipe-card:nth-of-type(4n+2),
+.recipe-card:nth-of-type(4n+3),
+.recipe-card:nth-of-type(4n+4),
+.mini-day:nth-of-type(4n+1),
+.mini-day:nth-of-type(4n+2),
+.mini-day:nth-of-type(4n+3),
+.mini-day:nth-of-type(4n+4),
+.meal-card,
+.meal-card.meal-slot-reggeli,
+.meal-card.meal-slot-ebed,
+.meal-card.meal-slot-ebéd,
+.meal-card.meal-slot-uzsonna,
+.meal-card.meal-slot-vacsora,
+.recipe-card,
+.shopping-group-card,
+.shopping-select-card,
+.weekly-summary-card,
+.water-card,
+.list-item,
+.list-item:nth-of-type(3n+2),
+.list-item:nth-of-type(3n+3),
+.prep-step-card,
+.prep-step-card:nth-of-type(3n+2),
+.prep-step-card:nth-of-type(3n+3){
+  background:
+    radial-gradient(circle at 12% 0,rgba(98,243,214,.14),transparent 35%),
+    radial-gradient(circle at 88% 14%,rgba(57,148,219,.09),transparent 35%),
+    linear-gradient(145deg,rgba(18,63,115,.55),rgba(14,52,94,.43) 52%,rgba(10,92,80,.30))!important;
+}
+
+.week-card,
+.premium-week-box,
+.tracking-day-btn,
+.mini-day-btn,
+.segmented button,
+.filter-chip,
+.ghost-btn{
+  background:linear-gradient(145deg,rgba(19,63,108,.48),rgba(10,86,77,.27))!important;
+  border-color:rgba(98,243,214,.16)!important;
+}
+.week-card.active,
+.premium-week-box.active,
+.tracking-day-btn.active,
+.mini-day-btn.active,
+.segmented button.active,
+.filter-chip.active,
+.tracking-week-row.active .tracking-week-bar,
+.tracking-day-pill.active{
+  color:#e9fff8!important;
+  background:
+    radial-gradient(circle at 10% 0,rgba(98,243,214,.25),transparent 38%),
+    linear-gradient(135deg,rgba(20,135,124,.50),rgba(20,83,139,.34))!important;
+  border-color:rgba(98,243,214,.46)!important;
+  box-shadow:0 0 24px rgba(98,243,214,.14),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+.primary-btn,
+.check.checked,
+.small-check.checked{
+  color:#03251e!important;
+  background:linear-gradient(135deg,#62f3d6,#35ff9d)!important;
+  box-shadow:0 14px 32px rgba(53,255,157,.20)!important;
+}
+.progress-fill{background:linear-gradient(90deg,#62f3d6,#35ff9d)!important;box-shadow:0 0 22px rgba(98,243,214,.28)!important;}
+
+/* Beállítások sheet: az inputok/sávok ne lógjanak ki iPhone szélességen. */
+.sheet-body,
+.sheet-section,
+.sheet-section *{box-sizing:border-box;max-width:100%;}
+.settings-form{overflow:hidden;gap:11px!important;}
+.settings-form label{display:grid;gap:6px;min-width:0;width:100%;font-size:13.5px;line-height:1.25;color:var(--soft);}
+.settings-form input[type="date"],
+.settings-form input[type="number"],
+.settings-form select,
+.sheet-body input[type="date"],
+.sheet-body input[type="number"]{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:44px;
+  border-radius:15px;
+  padding:9px 10px;
+  overflow:hidden;
+}
+.settings-form .switch-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;}
+.settings-form .switch-row input{width:24px!important;height:24px!important;min-height:24px!important;justify-self:end;}
+.sheet-body .danger-zone{padding:12px!important;overflow:hidden;}
+
+/* Napló: egymás alatti lenyitható heti sávok napgombokkal. */
+.tracking-accordion{display:grid;gap:9px;margin-top:12px;}
+.tracking-week-row{border-radius:21px;overflow:hidden;padding:0!important;}
+.tracking-week-bar{
+  width:100%;
+  min-height:48px;
+  border:0;
+  background:transparent;
+  color:var(--soft);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  text-align:left;
+}
+.tracking-week-bar span{font-weight:850;font-size:15px;color:#f3fbff;}
+.tracking-week-bar em{font-style:normal;font-size:11.5px;color:rgba(213,242,255,.68);white-space:nowrap;}
+.tracking-week-row.open .tracking-week-bar em{color:#b8ffed;}
+.tracking-week-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding:0 10px 11px;}
+.tracking-day-pill{
+  min-width:0;
+  min-height:47px;
+  border-radius:14px;
+  border:1px solid rgba(98,243,214,.14);
+  background:rgba(255,255,255,.045);
+  color:var(--muted);
+  display:grid;
+  align-content:center;
+  justify-items:center;
+  gap:2px;
+  padding:6px 1px;
+}
+.tracking-day-pill b{font-size:12px;color:#e8f9ff;line-height:1;}
+.tracking-day-pill span{font-size:9px;line-height:1;}
+@media (max-width:380px){
+  .tracking-week-bar{padding:11px 12px;}
+  .tracking-week-bar span{font-size:14px;}
+  .tracking-week-bar em{font-size:10.5px;}
+  .tracking-week-days{gap:4px;padding-left:8px;padding-right:8px;}
+  .tracking-day-pill{min-height:43px;border-radius:12px;}
+}
