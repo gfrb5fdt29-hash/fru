@@ -1043,3 +1043,190 @@ body{
 @media (prefers-reduced-motion:reduce){
   .b-soft-tabbar .tab-btn.active,.sheet.show,.view.view-enter{animation:none!important;}
 }
+
+/* v20: aktív alsó fül villogás nélkül + színesebb prémium kártyavilág */
+:root{
+  --deep-blue:#102b58;
+  --deep-blue-2:#173a6e;
+  --deep-green:#0f4f45;
+  --water-green:#25d4bf;
+  --pink-soft:#ff75bf;
+  --orange-warm:#ff9f1c;
+}
+
+/* Az aktív alsó fül maradjon látványos, de ne pulzáljon/villogjon. */
+.b-soft-tabbar .tab-btn.active,
+.tabbar .tab-btn.active{
+  animation:none!important;
+  color:#eafff4!important;
+  background:linear-gradient(180deg,rgba(53,255,157,.20),rgba(27,118,91,.12))!important;
+  border-color:rgba(53,255,157,.46)!important;
+  box-shadow:0 0 22px rgba(53,255,157,.26),0 0 34px rgba(53,255,157,.08),inset 0 0 15px rgba(53,255,157,.12)!important;
+}
+.b-soft-tabbar .tab-btn.active .b-tab-icon{
+  filter:drop-shadow(0 0 9px rgba(53,255,157,.42))!important;
+}
+.b-soft-tabbar .tab-btn.active::after,
+.tabbar .tab-btn.active::after{
+  background:linear-gradient(90deg,#35ff9d,#25d4bf)!important;
+  box-shadow:0 0 14px rgba(53,255,157,.72)!important;
+}
+
+/* Alap kártya: ne legyen egysíkú, minden kártya kapjon mély, színes gradiens réteget. */
+.card,
+.recipe-card,
+.meal-card,
+.mini-day,
+.week-card,
+.list-item,
+.prep-step-card,
+.metric,
+.kcal-bubble,
+.premium-week-box,
+.selection-summary{
+  border-color:rgba(255,255,255,.17)!important;
+  background:
+    radial-gradient(circle at 11% 0,rgba(255,117,191,.105),transparent 34%),
+    radial-gradient(circle at 96% 12%,rgba(37,212,191,.105),transparent 36%),
+    linear-gradient(145deg,rgba(24,58,108,.48),rgba(12,36,72,.40) 44%,rgba(12,69,62,.28))!important;
+  box-shadow:0 16px 46px rgba(0,0,0,.24),0 0 22px rgba(37,212,191,.045),inset 0 1px 0 rgba(255,255,255,.075)!important;
+}
+.card::before{
+  background:
+    radial-gradient(circle at 9% 0,rgba(255,159,28,.14),transparent 28%),
+    radial-gradient(circle at 92% 6%,rgba(255,117,191,.10),transparent 30%)!important;
+}
+
+/* Változatos, de harmonikus kártyatónusok. */
+.card.section:nth-of-type(4n+1),
+.recipe-card:nth-of-type(4n+1),
+.mini-day:nth-of-type(4n+1){
+  background:
+    radial-gradient(circle at 12% 0,rgba(255,159,28,.16),transparent 35%),
+    radial-gradient(circle at 90% 18%,rgba(255,117,191,.10),transparent 34%),
+    linear-gradient(145deg,rgba(32,69,124,.52),rgba(15,43,82,.42) 50%,rgba(77,48,38,.20))!important;
+}
+.card.section:nth-of-type(4n+2),
+.recipe-card:nth-of-type(4n+2),
+.mini-day:nth-of-type(4n+2){
+  background:
+    radial-gradient(circle at 12% 0,rgba(37,212,191,.18),transparent 36%),
+    radial-gradient(circle at 92% 14%,rgba(255,117,191,.08),transparent 34%),
+    linear-gradient(145deg,rgba(14,69,63,.48),rgba(14,44,84,.43) 52%,rgba(13,28,58,.36))!important;
+}
+.card.section:nth-of-type(4n+3),
+.recipe-card:nth-of-type(4n+3),
+.mini-day:nth-of-type(4n+3){
+  background:
+    radial-gradient(circle at 16% 0,rgba(255,117,191,.16),transparent 36%),
+    radial-gradient(circle at 88% 15%,rgba(255,159,28,.11),transparent 34%),
+    linear-gradient(145deg,rgba(53,47,95,.42),rgba(20,48,91,.45) 50%,rgba(14,63,56,.22))!important;
+}
+.card.section:nth-of-type(4n+4),
+.recipe-card:nth-of-type(4n+4),
+.mini-day:nth-of-type(4n+4){
+  background:
+    radial-gradient(circle at 10% 0,rgba(255,159,28,.12),transparent 34%),
+    radial-gradient(circle at 92% 12%,rgba(37,212,191,.16),transparent 36%),
+    linear-gradient(145deg,rgba(15,43,88,.52),rgba(14,75,64,.33) 54%,rgba(31,51,91,.32))!important;
+}
+
+/* Fő napi hero marad erős, de kap zöld/vízzöld és narancs mélységet. */
+.hero,
+.detail-hero{
+  background:
+    radial-gradient(circle at 12% 0,rgba(255,159,28,.25),transparent 36%),
+    radial-gradient(circle at 94% 20%,rgba(37,212,191,.18),transparent 38%),
+    linear-gradient(145deg,rgba(23,58,110,.78),rgba(9,47,76,.60) 54%,rgba(10,69,59,.36))!important;
+  box-shadow:0 20px 58px rgba(0,0,0,.28),0 0 30px rgba(255,159,28,.07),inset 0 1px 0 rgba(255,255,255,.09)!important;
+}
+
+/* Étkezéskártyák: a napszakok saját finom színátmenetet kapnak. */
+.meal-card{
+  background:
+    radial-gradient(circle at 0 0,rgba(255,201,232,.12),transparent 34%),
+    linear-gradient(145deg,rgba(17,52,96,.50),rgba(14,40,76,.43) 55%,rgba(15,82,70,.26))!important;
+}
+.meal-card.meal-slot-reggeli{
+  background:radial-gradient(circle at 0 0,rgba(255,199,106,.19),transparent 36%),linear-gradient(145deg,rgba(32,70,120,.48),rgba(72,57,38,.28))!important;
+}
+.meal-card.meal-slot-ebed,
+.meal-card.meal-slot-ebéd{
+  background:radial-gradient(circle at 0 0,rgba(255,159,28,.21),transparent 36%),linear-gradient(145deg,rgba(36,67,116,.48),rgba(92,51,24,.26),rgba(13,71,63,.20))!important;
+}
+.meal-card.meal-slot-uzsonna{
+  background:radial-gradient(circle at 0 0,rgba(255,117,191,.20),transparent 36%),linear-gradient(145deg,rgba(45,55,110,.44),rgba(78,39,85,.25),rgba(14,66,62,.22))!important;
+}
+.meal-card.meal-slot-vacsora{
+  background:radial-gradient(circle at 0 0,rgba(87,178,255,.20),transparent 36%),linear-gradient(145deg,rgba(16,52,102,.52),rgba(10,39,82,.36),rgba(8,70,66,.24))!important;
+}
+
+/* Receptek, bevásárlás és napló kártyák kapjanak külön karaktert. */
+.recipe-card{
+  background:
+    radial-gradient(circle at 9% 0,rgba(255,117,191,.13),transparent 35%),
+    radial-gradient(circle at 90% 13%,rgba(255,159,28,.10),transparent 36%),
+    linear-gradient(145deg,rgba(26,57,106,.50),rgba(20,50,89,.38),rgba(13,72,63,.24))!important;
+}
+.shopping-group-card,
+.shopping-select-card{
+  border-color:rgba(37,212,191,.24)!important;
+  background:
+    radial-gradient(circle at 10% 0,rgba(37,212,191,.17),transparent 38%),
+    radial-gradient(circle at 92% 14%,rgba(255,159,28,.10),transparent 36%),
+    linear-gradient(145deg,rgba(13,76,68,.46),rgba(13,44,82,.43),rgba(21,42,79,.33))!important;
+}
+.weekly-summary-card{
+  border-color:rgba(53,255,157,.27)!important;
+  background:
+    radial-gradient(circle at 12% 0,rgba(53,255,157,.19),transparent 38%),
+    radial-gradient(circle at 92% 14%,rgba(255,117,191,.09),transparent 35%),
+    linear-gradient(145deg,rgba(13,79,69,.45),rgba(18,54,96,.42))!important;
+}
+.water-card{
+  background:
+    radial-gradient(circle at 16% 0,rgba(128,231,255,.46),transparent 39%),
+    radial-gradient(circle at 92% 16%,rgba(37,212,191,.25),transparent 36%),
+    linear-gradient(145deg,rgba(25,155,229,.36),rgba(9,75,102,.33),rgba(14,47,92,.26))!important;
+}
+
+/* Mini/selection elemek is kapjanak prémium színt, ne maradjanak szürkés üvegek. */
+.week-card,
+.premium-week-box,
+.tracking-day-btn,
+.mini-day-btn,
+.segmented button,
+.filter-chip,
+.ghost-btn{
+  background:
+    linear-gradient(145deg,rgba(30,64,112,.44),rgba(15,61,68,.26))!important;
+  border-color:rgba(255,255,255,.15)!important;
+}
+.week-card.active,
+.premium-week-box.active,
+.tracking-day-btn.active,
+.mini-day-btn.active,
+.segmented button.active,
+.filter-chip.active{
+  background:
+    radial-gradient(circle at 14% 0,rgba(255,159,28,.22),transparent 35%),
+    linear-gradient(135deg,rgba(255,159,28,.30),rgba(37,212,191,.20),rgba(255,117,191,.14))!important;
+  border-color:rgba(255,199,106,.48)!important;
+  box-shadow:0 0 24px rgba(255,159,28,.14),0 0 22px rgba(37,212,191,.08),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+
+/* Bevásárló tételek és elkészítési lépések se legyenek egyszínűek. */
+.list-item,
+.prep-step-card{
+  background:
+    radial-gradient(circle at 8% 0,rgba(255,159,28,.095),transparent 34%),
+    linear-gradient(145deg,rgba(20,56,103,.44),rgba(14,69,62,.28))!important;
+}
+.list-item:nth-of-type(3n+2),
+.prep-step-card:nth-of-type(3n+2){
+  background:radial-gradient(circle at 8% 0,rgba(37,212,191,.13),transparent 34%),linear-gradient(145deg,rgba(14,75,67,.42),rgba(19,50,92,.36))!important;
+}
+.list-item:nth-of-type(3n+3),
+.prep-step-card:nth-of-type(3n+3){
+  background:radial-gradient(circle at 8% 0,rgba(255,117,191,.11),transparent 34%),linear-gradient(145deg,rgba(45,50,99,.40),rgba(17,59,86,.34))!important;
+}
