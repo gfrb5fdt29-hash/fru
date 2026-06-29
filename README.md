@@ -23,7 +23,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - A PWA főképernyő/app ikonja a kiválasztott A3 terv alapján frissítve.
 - Nem készült új ikonvariáció: a tervlap A3 ikonja lett kivágva és méretezve.
 - Frissített ikonok: icon-192.png, icon-512.png, apple-touch-icon.png.
-- Service worker cache: balance1600-v18.
+- Service worker cache: balance1600-v19.
 
 ## v10 ikonfrissítés
 - Alsó navigáció a választott B verzió szerint: kitöltött, lágy ikonok.
@@ -33,7 +33,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Bevásárlás: bevásárlótáska szívvel.
 - Napló: naplófüzet szívvel.
 - Nem került be új, eltérő ikonkoncepció.
-- Service worker cache: balance1600-v18.
+- Service worker cache: balance1600-v19.
 
 
 ## v12 javítások
@@ -48,7 +48,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Napló: víz-kék vízbox, 0,5 literes csúszka.
 - Mai közérzet: testsúly mező eltávolítva.
 - App háttérszíne látványosan világosabb, de továbbra is prémium sötét hangulatú.
-- Service worker cache: balance1600-v18.
+- Service worker cache: balance1600-v19.
 
 
 ## v15 módosítások
@@ -58,7 +58,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Napló vízcsúszka jobb oldali értéke csak az aktuális literértéket mutatja, napi cél nélkül.
 - Víz nullázása mellé külön Mentés gomb került.
 - Az app háttérszíne a v13-hoz képest kissé sötétebb, de továbbra is világosabb/prémium mélykék.
-- Service worker cache: balance1600-v18.
+- Service worker cache: balance1600-v19.
 
 
 ## v15 változások
@@ -73,20 +73,33 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Ciklusfókusz automatikusan aktív, a kezdőnap és ciklushossz mezők közvetlenül látszanak.
 - Új app használati segédlet kártya a Kezdjük gomb fölött.
 - Onboarding boxok, gombok és sávok iPhone méretre kompaktabbra igazítva.
-- Service worker cache: balance1600-v18.
+- Service worker cache: balance1600-v19.
 
 ## v17 módosítások
 - Bevásárlás fül: heti nézetben már csak hétválasztó boxok jelennek meg, napgombok nem.
 - Bevásárlás és Napló: prémiumabb 2×2 heti box design, egységesebb glass/glow hatással.
-- Service worker cache: balance1600-v18.
+- Service worker cache: balance1600-v19.
 
 
 ## v18 módosítások
 - Onboarding dátummezők szélességjavítása, nagyobb belépő betűméret, ciklussegéd szöveg eltávolítva.
 - Jobb felső Home és Beállítások ikon nagyobb, erősebb prémium glow-val.
 - Fruzsi fejléc görgetéskor kisebbre zsugorodik.
-- Receptkártyákon főzési jelzés: Gyors főzés / Közepes főzés / Hosszabb főzés.
+- Receptkártyákon főzési jelzés: Gyors / Általános / Hosszabb.
 - Bevásárlásnál a csoportosított lista nyitott kártyákban marad, a pipált elemek elrejthetők.
 - Napló fülön kiválasztott hét alá részletes, áttekinthető heti mini összegzés került.
 - „Miért így?” szövegek személyesebbek, Fruzsinak szólóbbak.
 - Nézet- és sheet-animációk egységesebb, látványosabb iPhone-szerű mozgást kaptak.
+
+
+## v19 módosítások
+- Főzési jelzések egyszerűsítve: Gyors / Általános / Hosszabb.
+- A főzési jelzés a részletes napi étkezéskártyákon is megjelenik.
+- Kártyák finomabb border/shadow/glow hangolást kaptak nagy irányváltás nélkül.
+- Étkezéskártyák reggeli / ebéd / uzsonna / vacsora szerint apró ikon- és színcsík-különbséget kaptak.
+- Bottom sheet nyitás látványosabb, rugósabb iPhone-szerű animációval és erősebb blur háttérrel.
+- Nézetváltás fade + enyhe felúszás animációra hangolva.
+- Aktív alsó fül lassú, finom pulzáló glow-t kapott.
+- Miért így? szövegek személyesebb, Fruzsinak szólóbb hangvételt kaptak.
+- Napló vízbox kékebb, vizesebb, csillogóbb lett.
+- Korábbi vízbox duplikációs HTML-hiba javítva.

@@ -323,11 +323,14 @@
   function mealCard(day, meal){
     const checked = !!mealChecks[mealKey(day,meal)];
     const tags = (meal.meal_card?.primary_tags || []).slice(0,3).map(stripTechText);
-    return `<article class="meal-card ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
+    const recipe = recipesById.get(meal.recipe_id) || {};
+    const speed = cookingSpeedLabel(recipe);
+    const slotClass = String(meal.slot || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-') || 'fogas';
+    return `<article class="meal-card meal-slot-${esc(slotClass)} ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
         <div class="meal-slot">${esc((SLOT_LABELS[meal.slot] || meal.slot || '?').slice(0,2))}</div>
         <div class="meal-body">
           <div class="meal-title">${esc(meal.name_hu)}</div>
-          <div class="meal-meta"><span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span></div>
+          <div class="meal-meta"><span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span><span class="cook-mini ${cookingSpeedClass(recipe)}">${esc(speed)}</span></div>
           <div class="meal-indicators">
             ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
             ${mealRiskChips(meal)}
@@ -454,32 +457,32 @@
     const carbFocus = [...new Set(meals.flatMap(m => carbNames.filter(c => (m.name_hu || '').toLowerCase().includes(c))))].slice(0,4);
     const special = flags.length ? flags.join(', ') : (day.daily_focus_hu || 'kímélő, egyszerű napi ritmus');
     const eveningText = dinner
-      ? `Fruzsinak ma az esti lezárás a(z) ${dinner.name_hu.toLowerCase()} (${dinner.energy_kcal} kcal). Ez a napi energia kb. ${dinnerShare}%-a, így a nap vége nem lesz túl nehéz. ${snack ? `Az uzsonna (${snack.name_hu.toLowerCase()}) pont azért hasznos, hogy a vacsora ne éhségből legyen túl nagy.` : 'Uzsonna nélkül is érdemes nyugodt, korai vacsoraidőt tartani.'}`
-      : `Ma nincs külön kiemelt vacsoraadat, ezért Fruzsinak az esti cél a nyugodt, nem kapkodós lezárás.`;
+      ? `Fruzsi, ma este a(z) ${dinner.name_hu.toLowerCase()} zárja a napot (${dinner.energy_kcal} kcal). Ez a teljes napi terv kb. ${dinnerShare}%-a, ezért nem tolja túl erősen estére az energiát. ${snack ? `Az uzsonna (${snack.name_hu.toLowerCase()}) azért van jó helyen, hogy vacsorára ne farkaséhesen érkezz.` : 'Uzsonna nélkül is az a legjobb, ha a vacsora nyugodt, korábbi lezárás marad.'}`
+      : `Fruzsi, ma este a fő cél a nyugodt, nem kapkodós lezárás: kis adag, lassabb tempó, lefekvés előtt kellő idővel.`;
     return [
       {
         title:'Miért így?',
-        text:`Fruzsinak ez a nap azért így épül fel, mert a fő fókusz ma: ${day.daily_focus_hu || 'kímélő, jól követhető nap'}. A napi terv ${totals.energy_kcal || 0} kcal, makróban ${totals.protein || 0} g fehérje, ${totals.carbohydrate || 0} g szénhidrát és ${totals.fat || 0} g zsír. A legnagyobb energiaadag ma: ${highest ? `${SLOT_LABELS[highest.slot] || highest.slot} – ${highest.name_hu} (${highest.energy_kcal} kcal)` : 'nincs kiemelve'}, ezért a nap súlya nem estére tolódik. Külön napi jelleg: ${special}.`
+        text:`Fruzsi, ez a nap nem véletlenül ilyen: a fő fókusz ma ${day.daily_focus_hu || 'egy kímélő, jól követhető ritmus'}. A napi terv ${totals.energy_kcal || 0} kcal, benne ${totals.protein || 0} g fehérjével, ${totals.carbohydrate || 0} g szénhidráttal és ${totals.fat || 0} g zsírral. A legnagyobb falat ma ${highest ? `${SLOT_LABELS[highest.slot] || highest.slot}: ${highest.name_hu} (${highest.energy_kcal} kcal)` : 'nem külön kiemelt'}, így a nap nem lesz túl nehéz estére. Mai külön jelleg: ${special}.`
       },
       {
         title:'Étkezési ritmus',
-        text:`A nap négy konkrét fogásra van bontva, hogy Fruzsinak ne egyszerre kelljen nagy adagokkal terhelni a gyomrát: ${mealLine}. ${breakfast ? `A reggeli (${breakfast.name_hu.toLowerCase()}) adja az indulást,` : 'A reggeli adja az indulást,'} ${lunch ? `az ebéd (${lunch.name_hu.toLowerCase()}) a főbb nappali energiát,` : 'az ebéd a főbb nappali energiát,'} ${dinner ? `a vacsora pedig (${dinner.name_hu.toLowerCase()}) egy nyugodtabb esti lezárás.` : 'a vacsora az esti lezárást.'}`
+        text:`A négy étkezés azért van szépen szétosztva, hogy Fruzsinak ne egyszerre kelljen nagy adaggal terhelni a gyomrát. ${breakfast ? `A reggeli (${breakfast.name_hu.toLowerCase()}) adja a puhább indulást,` : 'A reggeli adja az indulást,'} ${lunch ? `az ebéd (${lunch.name_hu.toLowerCase()}) viszi a nap főbb energiáját,` : 'az ebéd viszi a nap főbb energiáját,'} ${snack ? `az uzsonna (${snack.name_hu.toLowerCase()}) megtartja az egyensúlyt,` : 'az uzsonna a nap közepét tartja egyensúlyban,'} ${dinner ? `a vacsora (${dinner.name_hu.toLowerCase()}) pedig nyugodtabb esti zárás.` : 'a vacsora pedig az esti zárás.'}`
       },
       {
         title:'Reflux logika',
-        text:`Ma a reflux-jelzés: ${riskText(risk.max_reflux_risk_level)}. Fruzsi napja paradicsom, citrus, csípős és bő olajban sült elem nélkül marad. ${dinner ? `A vacsora ${dinner.energy_kcal} kcal, ezért jó, ha ez nem késő esti, kapkodós étkezés, hanem korábban, nyugodt tempóban zárja a napot.` : 'Az esti étkezést érdemes korábban, nyugodt tempóban lezárni.'}`
+        text:`A mai reflux-jelzés: ${riskText(risk.max_reflux_risk_level)}. A nap paradicsom, citrus, csípős rész és bő olajban sütés nélkül marad. ${dinner ? `A vacsora ${dinner.energy_kcal} kcal, ezért Fruzsinak az segít a legtöbbet, ha ez nem késő esti, gyors evés, hanem korábbi, lassabb tempójú étkezés.` : 'Az esti étkezést érdemes korábban és nyugodtabban lezárni.'}`
       },
       {
         title:'Frissesség és hisztamin',
-        text:`Hisztamin szempontból a napi jelzés: ${riskText(risk.max_histamine_caution_level)}. ${freshItems.length ? `A frissen kezelendő tételek ma: ${freshItems.join(', ')}.` : 'Ma nincs külön erősen kiemelt friss tétel.'} ${pantryItems.length ? `Kamrából/stabil alapból főleg ezek kapcsolódnak hozzá: ${pantryItems.join(', ')}.` : ''} A készétel-maradék helyett az aznapi készítés vagy nyers porciózás illik jobban a tervhez.`
+        text:`Hisztamin oldalról a mai jelzés: ${riskText(risk.max_histamine_caution_level)}. ${freshItems.length ? `A legfontosabb frissen kezelendő tételek: ${freshItems.join(', ')}.` : 'Ma nincs külön erősen kiemelt friss tétel.'} ${pantryItems.length ? `A stabilabb alapok közül ezek segítik a napot: ${pantryItems.join(', ')}.` : ''} Fruzsinak itt az aznapi készítés vagy a nyers porciózás a barátja, nem a másnapos készétel.`
       },
       {
         title:'Purin kontroll',
-        text:`Purin szempontból a napi jelzés: ${riskText(risk.max_purine_caution_level)}. ${proteinFocus.length ? `A fehérjés pontok ma: ${proteinFocus.join('; ')}.` : 'Ma nincs nagy húsos fókusz, a nap könnyebb fehérje- és szénhidrátalapokra épül.'} ${carbFocus.length ? `A kímélő köret/energia alap: ${carbFocus.join(', ')}.` : ''} Belsőség, hal, tenger gyümölcsei és koncentrált húslé nincs benne.`
+        text:`Purin szempontból a mai jelzés: ${riskText(risk.max_purine_caution_level)}. ${proteinFocus.length ? `A fehérjés pontok ma: ${proteinFocus.join('; ')}.` : 'Ma nincs nagy húsos fókusz, inkább könnyebb alapokra épül a nap.'} ${carbFocus.length ? `A kímélő energia alapja főleg: ${carbFocus.join(', ')}.` : ''} Belsőség, hal, tenger gyümölcsei és koncentrált húslé nincs benne.`
       },
       {
         title:'Ciklushoz igazítva',
-        text:`${cycle ? `Mai ciklusfókusz: ${cycle}. ` : ''}${cycleSuggestionText(day)} Ez nem szigorú szabály, inkább finom segítség: Fruzsinak ma a konkrét hangsúly ${day.daily_focus_hu || 'stabil, kímélő energia'}, ezért az ételek egyszerűek, követhetők és nem túl harsányak.`
+        text:`${cycle ? `Mai ciklusfókusz: ${cycle}. ` : ''}${cycleSuggestionText(day)} Ez nem szigorú szabály, csak finom kapaszkodó: Fruzsinak ma a lényeg a(z) ${day.daily_focus_hu || 'stabil, kímélő energia'}, ezért az ételek egyszerűek, követhetők és nem túl harsányak.`
       },
       {
         title:'Esti tipp',
@@ -572,7 +575,7 @@
 
   function renderRecipes(){
     const filterDefs = [
-      ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi'], ['sos','Sós reggeli'], ['teszta','Tészta'], ['gyors','Gyors'], ['kozepes','Közepes'], ['hosszabb','Hosszabb'], ['ovatos','Egyéni teszt']
+      ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi'], ['sos','Sós reggeli'], ['teszta','Tészta'], ['gyors','Gyors'], ['kozepes','Általános'], ['hosszabb','Hosszabb'], ['ovatos','Egyéni teszt']
     ];
     const phaseDefs = ['menstruacio','follikularis','ovulacio','korai_lutealis','pms_kesoi_lutealis'].map(p => [`phase:${p}`, PHASE_LABELS[p] || p]);
     const shown = recipes.filter(recipeMatches);
@@ -607,9 +610,9 @@
   function cookingSpeedLabel(recipe){
     const raw = String(recipe.cooking_time_level || recipe.cooking_profile?.difficulty_level || '').toLowerCase();
     const mins = Number(recipe.cooking_profile?.total_minutes || recipe.prep_minutes_estimate || 0);
-    if(raw.includes('gyors') || (mins && mins <= 20)) return 'Gyors főzés';
-    if(raw.includes('hossz') || (recipe.tag_ids || []).includes('hosszabb_fozes') || mins >= 35) return 'Hosszabb főzés';
-    return 'Közepes főzés';
+    if(raw.includes('gyors') || (mins && mins <= 20)) return 'Gyors';
+    if(raw.includes('hossz') || (recipe.tag_ids || []).includes('hosszabb_fozes') || mins >= 35) return 'Hosszabb';
+    return 'Általános';
   }
   function cookingSpeedClass(recipe){
     const label = cookingSpeedLabel(recipe);

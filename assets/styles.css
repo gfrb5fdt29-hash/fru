@@ -926,3 +926,120 @@ body{
   .onboarding-form-grid input{min-height:42px!important;}
 }
 @media (prefers-reduced-motion:reduce){.view.view-enter,.sheet.show{animation:none!important}}
+
+
+/* v19: specifikus design-finomságok, főzési címkék és látványosabb iPhone-szerű mozgás */
+.card{
+  border-color:rgba(255,255,255,.145);
+  box-shadow:0 18px 54px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.card:hover,.recipe-card:hover,.meal-card:hover,.mini-day:hover{
+  border-color:rgba(255,201,232,.20);
+}
+.meal-card{
+  border-left:4px solid rgba(255,199,106,.34);
+  box-shadow:0 12px 34px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.055);
+}
+.meal-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 0 0,rgba(255,201,232,.10),transparent 36%);
+}
+.meal-slot-reggeli{border-left-color:rgba(255,196,120,.72);}
+.meal-slot-ebed,.meal-slot-ebéd{border-left-color:rgba(255,159,28,.72);}
+.meal-slot-uzsonna{border-left-color:rgba(255,123,190,.64);}
+.meal-slot-vacsora{border-left-color:rgba(118,181,255,.70);}
+.meal-slot-reggeli .meal-slot::after{content:"☀";font-size:10px;position:absolute;transform:translate(11px,-13px);opacity:.85;}
+.meal-slot-ebed .meal-slot::after,.meal-slot-ebéd .meal-slot::after{content:"🍽";font-size:10px;position:absolute;transform:translate(11px,-13px);opacity:.85;}
+.meal-slot-uzsonna .meal-slot::after{content:"♡";font-size:11px;position:absolute;transform:translate(12px,-13px);opacity:.92;color:#ffd5ef;}
+.meal-slot-vacsora .meal-slot::after{content:"☾";font-size:12px;position:absolute;transform:translate(12px,-13px);opacity:.9;color:#d6ebff;}
+.cook-mini{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:22px;
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:10.8px;
+  font-weight:850;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.065);
+  color:rgba(239,247,255,.88);
+}
+.cook-mini.green{color:#d9ffe9;background:rgba(53,255,157,.12);border-color:rgba(53,255,157,.26);}
+.cook-mini.warn{color:#ffe1a3;background:rgba(255,159,28,.13);border-color:rgba(255,199,106,.31);}
+.cook-chip{font-size:11px!important;letter-spacing:.05px;}
+.recipe-card{box-shadow:0 12px 38px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.055);}
+.recipe-card-chips .cook-chip{padding-left:11px;padding-right:11px;}
+.card.section:has(.headline:first-child), .card.section:has(.subhead:first-child){
+  transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;
+}
+.card.section:has(.headline:first-child):hover{box-shadow:0 18px 50px rgba(0,0,0,.25),0 0 20px rgba(255,126,198,.06);}
+/* Miért így? kapjon prémium arany/narancs, de ne legyen túl harsány */
+.card:has(.headline:first-child){ }
+.card .headline + div h3.subhead,
+.sheet-section h3.subhead{
+  letter-spacing:-.1px;
+}
+.card .headline:where(:not(.brand-title)){
+  text-shadow:0 0 16px rgba(255,199,106,.08);
+}
+.card.section .card-pad:has(> .headline:first-child) h2.headline:first-child{
+  color:#ffe6bd;
+}
+.card.section .card-pad:has(> .headline:first-child) h2.headline:first-child + div .subhead,
+.card.section .card-pad:has(> .headline:first-child) h3.subhead{
+  color:#ffd891;
+}
+.card.section .card-pad:has(> .headline:first-child){
+  background:radial-gradient(circle at 9% 0,rgba(255,159,28,.09),transparent 36%);
+  border-radius:inherit;
+}
+/* Vizesebb naplóbox */
+.water-card{
+  border-color:rgba(87,213,255,.50)!important;
+  background:radial-gradient(circle at 16% 0,rgba(128,231,255,.42),transparent 39%),radial-gradient(circle at 92% 16%,rgba(78,146,255,.30),transparent 36%),linear-gradient(145deg,rgba(25,155,229,.36),rgba(11,60,112,.27))!important;
+  box-shadow:0 20px 60px rgba(15,132,219,.24),0 0 28px rgba(95,215,255,.12),0 14px 36px rgba(0,0,0,.22)!important;
+}
+.water-card::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 34%,rgba(124,221,255,.08));
+}
+/* Lassú, élő aktív alsó fül, nem harsány */
+.b-soft-tabbar .tab-btn.active{
+  animation:activeTabSoftPulse 3.6s ease-in-out infinite;
+}
+@keyframes activeTabSoftPulse{
+  0%,100%{box-shadow:0 0 20px rgba(53,255,157,.24),inset 0 0 14px rgba(53,255,157,.10);}
+  50%{box-shadow:0 0 30px rgba(53,255,157,.36),0 0 46px rgba(53,255,157,.12),inset 0 0 18px rgba(53,255,157,.14);}
+}
+/* Látványosabb sheet: rugó + erősebb blur */
+.sheet-backdrop{background:rgba(0,0,0,.58)!important;backdrop-filter:blur(17px) saturate(1.12)!important;transition:opacity .34s ease!important;}
+.sheet{transition:transform .42s cubic-bezier(.18,1.18,.22,1),opacity .30s ease!important;}
+.sheet.show{animation:sheetSpringIn .50s cubic-bezier(.17,1.22,.22,1) both!important;}
+@keyframes sheetSpringIn{
+  0%{transform:translate(-50%,108%);opacity:.72;}
+  70%{transform:translate(-50%,-10px);opacity:1;}
+  100%{transform:translate(-50%,0);opacity:1;}
+}
+/* Nézetváltás: fade + enyhe felúszás */
+.view.view-enter{animation:viewFadeUp .36s cubic-bezier(.2,.86,.2,1) both!important;}
+@keyframes viewFadeUp{from{opacity:.46;transform:translateY(18px) scale(.992)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* több rózsaszín akcentus, de visszafogottan */
+.filter-chip.active,.segmented button.active{
+  box-shadow:0 0 18px rgba(255,126,198,.12),0 10px 25px rgba(0,0,0,.12);
+}
+.brand-block.brand-box{box-shadow:0 0 12px rgba(255,74,184,.11), inset 0 0 13px rgba(255,201,232,.055)!important;}
+@media (max-width:390px){
+  .cook-mini{font-size:10px;padding:3px 7px;}
+  .meal-meta{gap:5px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .b-soft-tabbar .tab-btn.active,.sheet.show,.view.view-enter{animation:none!important;}
+}
