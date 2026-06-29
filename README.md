@@ -142,3 +142,12 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Alsó ikonsor kevésbé rózsaszínes, fülenként saját színnel: Ma vízzöld, Hetek fehér/kék naptár, Receptek narancs, Bevásárlás zöld, Napló kék.
 - Aktív fül statikus, saját színű glow-val marad jelölt.
 - Service worker cache: balance1600-v24.
+
+
+## v25 javítások
+
+- Dátumlogika magyarázó box bekerült a belépő beállításba és a Beállítások menübe, példával együtt.
+- Jobb felső Home és Beállítások ikonok nagyobbak, a gombkeretet szorosabban kitöltik.
+- Napló fülön napra kattintáskor nincs külön nézetváltó animáció és nem ugrik fel/le a képernyő.
+- Az app animációi megmaradtak, de lassabbak és nyugodtabbak lettek.
+- Service worker cache: balance1600-v25.

@@ -1518,3 +1518,75 @@ body{
 .b-calendar-icon .b-fill-light{fill:rgba(255,255,255,.60);opacity:.62;}
 .b-calendar-icon .b-fill-main{opacity:.86;}
 .b-soft-tabbar .tab-btn:not(.active) .b-tab-icon{opacity:.82;filter:drop-shadow(0 6px 7px rgba(0,0,0,.28)) saturate(.88);}
+
+/* v25: dátumlogika box, feszesebb felső ikonok, nyugodtabb animációk */
+.date-logic-help.card-soft-note,
+.onboarding-help.date-logic-help{
+  background:linear-gradient(145deg,rgba(17,75,111,.58),rgba(11,91,76,.35))!important;
+  border:1px solid rgba(98,243,214,.22)!important;
+  box-shadow:0 0 20px rgba(98,243,214,.08), inset 0 1px 0 rgba(255,255,255,.08)!important;
+  border-radius:18px!important;
+  padding:11px 12px!important;
+  display:grid!important;
+  gap:6px!important;
+}
+.date-logic-help b{color:#dffdf6!important;font-weight:850!important;font-size:14px!important;}
+.date-logic-help span{color:#c9e4ec!important;font-size:12.8px!important;line-height:1.42!important;}
+.topbar .icon-btn.glow-icon{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  border-radius:17px!important;
+  padding:5px!important;
+}
+.topbar .icon-btn.glow-icon .top-icon{
+  width:37px!important;
+  height:37px!important;
+  stroke-width:1.75!important;
+}
+.topbar .icon-btn.settings-glow{
+  border-color:rgba(255,169,54,.72)!important;
+  box-shadow:0 0 24px rgba(255,159,28,.46),0 0 50px rgba(255,159,28,.16),inset 0 0 15px rgba(255,199,106,.16)!important;
+}
+.topbar .icon-btn.home-glow{
+  border-color:rgba(89,255,181,.48)!important;
+  box-shadow:0 0 24px rgba(53,255,157,.42),0 0 52px rgba(53,255,157,.15),inset 0 0 15px rgba(53,255,157,.14)!important;
+}
+@media (max-width:390px){
+  .topbar .icon-btn.glow-icon{width:46px!important;height:46px!important;min-width:46px!important;padding:5px!important;}
+  .topbar .icon-btn.glow-icon .top-icon{width:33px!important;height:33px!important;}
+}
+@media (max-width:360px){
+  .topbar .icon-btn.glow-icon{width:43px!important;height:43px!important;min-width:43px!important;}
+  .topbar .icon-btn.glow-icon .top-icon{width:31px!important;height:31px!important;}
+}
+.onboarding-form-grid,
+.onboarding-form-grid label,
+.onboarding-form-grid input,
+.settings-form,
+.settings-form label,
+.settings-form input{box-sizing:border-box!important;max-width:100%!important;min-width:0!important;}
+.onboarding-form-grid input[type="date"],
+.settings-form input[type="date"]{
+  width:100%!important;
+  overflow:hidden!important;
+  font-size:16px!important;
+  padding-left:10px!important;
+  padding-right:8px!important;
+}
+/* Lassabb, kevésbé rángató appmozgás: animációk megmaradnak, de nyugodtabbak. */
+.view.view-enter{animation:viewFadeUpV25 .52s cubic-bezier(.18,.82,.23,1) both!important;}
+@keyframes viewFadeUpV25{from{opacity:.58;transform:translateY(12px) scale(.996)}to{opacity:1;transform:translateY(0) scale(1)}}
+.sheet-backdrop{transition:opacity .50s ease!important;}
+.sheet{transition:transform .66s cubic-bezier(.18,.92,.23,1),opacity .48s ease!important;}
+.sheet.show{animation:sheetSpringInV25 .68s cubic-bezier(.18,.92,.23,1) both!important;}
+@keyframes sheetSpringInV25{0%{transform:translate(-50%,106%);opacity:.82}72%{transform:translate(-50%,-1.5%);opacity:1}100%{transform:translate(-50%,0);opacity:1}}
+.tab-btn,
+.week-card,
+.meal-card,
+.recipe-card,
+.ghost-btn,
+.primary-btn,
+.tracking-week-bar,
+.tracking-day-pill{transition-duration:.32s!important;}
+@media (prefers-reduced-motion:reduce){.view.view-enter,.sheet.show{animation:none!important}.sheet,.sheet-backdrop{transition-duration:.01ms!important}}

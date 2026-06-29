@@ -250,6 +250,13 @@
   }
   function dayLabel(day){ return planDayLabel(day); }
   function dayLabelWithDate(day){ return `${fullDateLabel(day)} · ${planDayLabel(day)}`; }
+
+  function dateLogicHelpHtml(){
+    return `<div class="date-logic-help card-soft-note">
+      <b>Dátumlogika röviden</b>
+      <span>Az app a megadott diéta kezdőnapból és a telefon aktuális dátumából számolja, hogy ma a 28 napos terv melyik napja fut. A terv 1–4. hétként marad meg, de a napok mellé valós dátum kerül. Példa: ha kedden kezded, akkor az 1. nap keddi kezdésként jelenik meg; 28 nap után a terv automatikusan újraindul az 1. naptól.</span>
+    </div>`;
+  }
   function cycleLabels(tags){ return (tags || []).map(t => PHASE_LABELS[t] || tagLabels.get(t) || humanizeText(t)).filter(Boolean); }
   function tagLabel(tag){ return tagLabels.get(tag) || PHASE_LABELS[tag] || humanizeText(tag); }
   function riskText(level){
@@ -297,9 +304,11 @@
     writeStore(storeKeys.ui, ui);
     const viewEl = $('#view');
     if(viewEl){
-      viewEl.classList.remove('view-enter');
-      void viewEl.offsetWidth;
-      viewEl.classList.add('view-enter');
+      if(!options.noAnimate){
+        viewEl.classList.remove('view-enter');
+        void viewEl.offsetWidth;
+        viewEl.classList.add('view-enter');
+      }
       viewEl.focus({preventScroll:true});
     }
     if(options.resetTop) scrollToViewTop();
@@ -1100,6 +1109,7 @@
     const copy = DATA.app_copy_hu || {};
     openSheet('Beállítások', `
       <div class="sheet-section"><h3 class="headline">Étrend- és életmód segítő APP Fruzsinak</h3><p>Kímélő női étrend, 4 hétre. Internet nélkül is használható, és nincs bejelentkezés.</p><p><b>Minden naplód csak ezen a készüléken marad.</b></p></div>
+      <div class="sheet-section">${dateLogicHelpHtml()}</div>
       <div class="sheet-section stack settings-form">
         <label>Kezdőnap<input type="date" id="setDietStart" value="${esc(settings.dietStartDate)}"></label>
         <label>Napi vízcél literben<input type="number" id="setWaterGoal" min="1" max="5" step="0.1" value="${esc((settings.waterGoalMl||2500)/1000)}"></label>
@@ -1277,7 +1287,7 @@
     if(action === 'trackingDay'){
       const n = Number(el.dataset.daynum);
       const d = allDays.find(day => day.globalDayNumber === n);
-      if(d){ ui.selectedDayNumber = n; ui.trackingWeek = d.week; render({resetTop:true}); }
+      if(d){ ui.selectedDayNumber = n; ui.trackingWeek = d.week; render({noAnimate:true}); }
     }
     if(action === 'shoppingWeekToggle'){
       const weekNo = Number(el.dataset.week);
