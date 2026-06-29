@@ -15,3 +15,22 @@ GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segít
 ## Használat GitHub Pages-en
 
 A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd GitHub Pages-en a root mappát publikálni.
+
+
+
+## v11 főképernyő ikon
+
+- A PWA főképernyő/app ikonja a kiválasztott A3 terv alapján frissítve.
+- Nem készült új ikonvariáció: a tervlap A3 ikonja lett kivágva és méretezve.
+- Frissített ikonok: icon-192.png, icon-512.png, apple-touch-icon.png.
+- Service worker cache: balance1600-v11.
+
+## v10 ikonfrissítés
+- Alsó navigáció a választott B verzió szerint: kitöltött, lágy ikonok.
+- Ma: házikó szívvel.
+- Hetek: naptár.
+- Receptek: séfsapka szívvel.
+- Bevásárlás: bevásárlótáska szívvel.
+- Napló: naplófüzet szívvel.
+- Nem került be új, eltérő ikonkoncepció.
+- Service worker cache: balance1600-v11.

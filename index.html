@@ -33,12 +33,62 @@
 
     <main id="view" class="view" tabindex="-1"></main>
 
-    <nav class="tabbar" aria-label="Alsó navigáció">
-      <button class="tab-btn active" data-tab="today" aria-label="Ma"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8v2.1M12 18.1v2.1M4.7 12h2.1M17.2 12h2.1M6.8 6.8l1.5 1.5M15.7 15.7l1.5 1.5M17.2 6.8l-1.5 1.5M8.3 15.7l-1.5 1.5"/><circle cx="12" cy="12" r="4.2"/></svg><b>Ma</b></button>
-      <button class="tab-btn" data-tab="weeks" aria-label="Hetek"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8v3M17 3.8v3M5.2 8.2h13.6"/><rect x="4.5" y="5.6" width="15" height="14.2" rx="3"/><path d="M8 12h.1M12 12h.1M16 12h.1M8 15.7h.1M12 15.7h.1"/></svg><b>Hetek</b></button>
-      <button class="tab-btn" data-tab="recipes" aria-label="Receptek"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 11.8h11.6M7.2 11.8c.4-3.2 2.6-5.4 4.8-5.4s4.4 2.2 4.8 5.4M5.6 15.2h12.8c.5 0 .9.4.9.9v.1c0 1-.8 1.8-1.8 1.8h-11c-1 0-1.8-.8-1.8-1.8v-.1c0-.5.4-.9.9-.9ZM12 4.4v2"/></svg><b>Receptek</b></button>
-      <button class="tab-btn" data-tab="shopping" aria-label="Bevásárlás"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5h10l-.7 11H7.7l-.7-11Z"/><path d="M9 8.5a3 3 0 0 1 6 0M9.5 13l1.7 1.7 3.5-3.5"/></svg><b>Bevásárlás</b></button>
-      <button class="tab-btn" data-tab="tracking" aria-label="Napló"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="4.5" width="13" height="15" rx="3"/><path d="M8.8 9h6.4M8.8 12.2h3.8M8.8 15.4h5.4"/><path d="M16.5 4.5v3"/></svg><b>Napló</b></button>
+<nav class="tabbar b-soft-tabbar" aria-label="Alsó navigáció">
+      <button class="tab-btn active" data-tab="today" aria-label="Ma">
+        <svg class="tab-icon b-tab-icon b-home-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="bHomeGrad" x1="8" y1="5" x2="38" y2="42" gradientUnits="userSpaceOnUse"><stop stop-color="#ffd6e5"/><stop offset=".45" stop-color="#ff7aac"/><stop offset="1" stop-color="#fff0d9"/></linearGradient></defs>
+          <path class="b-soft-shadow" d="M7.8 23.2 24 9.2l16.2 14v18.2a2.6 2.6 0 0 1-2.6 2.6H10.4a2.6 2.6 0 0 1-2.6-2.6V23.2Z"/>
+          <path class="b-fill-main" d="M8.5 22.8 24 9.4l15.5 13.4v18.1a2.4 2.4 0 0 1-2.4 2.4H10.9a2.4 2.4 0 0 1-2.4-2.4V22.8Z" fill="url(#bHomeGrad)"/>
+          <path class="b-fill-light" d="M24 9.4 8.5 22.8v4.5L24 14.2l15.5 13.1v-4.5L24 9.4Z"/>
+          <path class="b-outline" d="M5.5 23.4 24 7.4l18.5 16"/>
+          <path class="b-heart" d="M24 34.9s-7.2-4.1-7.2-8.4c0-2.4 1.7-4 3.8-4 1.5 0 2.7.8 3.4 1.9.7-1.1 1.9-1.9 3.4-1.9 2.1 0 3.8 1.6 3.8 4 0 4.3-7.2 8.4-7.2 8.4Z"/>
+        </svg>
+        <b>Ma</b>
+      </button>
+      <button class="tab-btn" data-tab="weeks" aria-label="Hetek">
+        <svg class="tab-icon b-tab-icon b-calendar-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="bCalGrad" x1="8" y1="6" x2="39" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#fff0ec"/><stop offset=".54" stop-color="#ffb1c4"/><stop offset="1" stop-color="#ffe8bf"/></linearGradient></defs>
+          <rect class="b-soft-shadow" x="8" y="10" width="32" height="32" rx="7"/>
+          <rect class="b-fill-main" x="8.5" y="10.5" width="31" height="31" rx="6.6" fill="url(#bCalGrad)"/>
+          <path class="b-calendar-top" d="M9 17.2h30v-1a5.7 5.7 0 0 0-5.7-5.7H14.7A5.7 5.7 0 0 0 9 16.2v1Z"/>
+          <path class="b-outline" d="M16.3 6.8v8M31.7 6.8v8"/>
+          <g class="b-cal-dots"><rect x="14.2" y="22" width="4.7" height="4.7" rx="1.1"/><rect x="22" y="22" width="4.7" height="4.7" rx="1.1"/><rect x="29.8" y="22" width="4.7" height="4.7" rx="1.1"/><rect x="14.2" y="30" width="4.7" height="4.7" rx="1.1"/><rect x="22" y="30" width="4.7" height="4.7" rx="1.1"/></g>
+        </svg>
+        <b>Hetek</b>
+      </button>
+      <button class="tab-btn" data-tab="recipes" aria-label="Receptek">
+        <svg class="tab-icon b-tab-icon b-chef-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="bChefGrad" x1="10" y1="6" x2="37" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#ffe3ed"/><stop offset=".48" stop-color="#ff93b9"/><stop offset="1" stop-color="#ffd2dc"/></linearGradient></defs>
+          <path class="b-soft-shadow" d="M15.3 34.1h17.4v7.3H15.3v-7.3Z"/>
+          <path class="b-fill-main" d="M14.2 34h19.6v7.2H14.2V34Z" fill="url(#bChefGrad)"/>
+          <path class="b-fill-main" d="M14 34.2c-5.4-.5-8.6-4-8.6-8.8 0-4.9 3.8-8.7 8.6-8.7.7-4.7 4.8-8.2 9.8-8.2 5.1 0 9.2 3.5 9.9 8.2 4.9 0 8.8 3.8 8.8 8.7 0 4.9-3.3 8.3-8.8 8.8H14Z" fill="url(#bChefGrad)"/>
+          <path class="b-fill-light" d="M9 25.1c.4-3 2.7-5.2 5.7-5.5 1.5-4.4 4.8-6.8 9.1-6.8 4.4 0 7.7 2.4 9.2 6.8 3 .3 5.3 2.5 5.7 5.5-2.3-2-6.5-3.3-14.8-3.3S11.3 23.1 9 25.1Z"/>
+          <path class="b-heart small" d="M24 31.2s-5.6-3.1-5.6-6.5c0-1.9 1.3-3.1 3-3.1 1.1 0 2.1.6 2.6 1.5.5-.9 1.5-1.5 2.6-1.5 1.7 0 3 1.2 3 3.1 0 3.4-5.6 6.5-5.6 6.5Z"/>
+        </svg>
+        <b>Receptek</b>
+      </button>
+      <button class="tab-btn" data-tab="shopping" aria-label="Bevásárlás">
+        <svg class="tab-icon b-tab-icon b-bag-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="bBagGrad" x1="9" y1="7" x2="39" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#f4ffe4"/><stop offset=".52" stop-color="#b8d68b"/><stop offset="1" stop-color="#e8f2b8"/></linearGradient></defs>
+          <path class="b-soft-shadow" d="M9.5 19.1h29l-1.9 22.8H11.4L9.5 19.1Z"/>
+          <path class="b-fill-main" d="M9.9 19.2h28.2l-1.8 22.3H11.7L9.9 19.2Z" fill="url(#bBagGrad)"/>
+          <path class="b-outline" d="M17 19.2v-2.6c0-4.7 3-8.1 7-8.1s7 3.4 7 8.1v2.6"/>
+          <path class="b-fill-light" d="M12 22h24l-.35 4.2c-3.8-1.3-7.7-1.9-11.7-1.9s-7.8.6-11.6 1.9L12 22Z"/>
+          <path class="b-heart" d="M24 34.8s-7.1-4-7.1-8.2c0-2.4 1.7-3.9 3.7-3.9 1.5 0 2.7.8 3.4 1.9.7-1.1 1.9-1.9 3.4-1.9 2 0 3.7 1.5 3.7 3.9 0 4.2-7.1 8.2-7.1 8.2Z"/>
+        </svg>
+        <b>Bevásárlás</b>
+      </button>
+      <button class="tab-btn" data-tab="tracking" aria-label="Napló">
+        <svg class="tab-icon b-tab-icon b-notebook-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="bNoteGrad" x1="10" y1="6" x2="38" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#ffe2ff"/><stop offset=".52" stop-color="#c99be8"/><stop offset="1" stop-color="#f1c2ff"/></linearGradient></defs>
+          <rect class="b-soft-shadow" x="11" y="7.5" width="27" height="34" rx="6"/>
+          <rect class="b-fill-main" x="11.4" y="7.9" width="26.3" height="33.2" rx="5.7" fill="url(#bNoteGrad)"/>
+          <path class="b-fill-light" d="M15 11.5h18.8a3.4 3.4 0 0 1 3.4 3.4v3.2c-5-1.7-12.3-1.9-25.2-.8v-2.4a3.4 3.4 0 0 1 3-3.4Z"/>
+          <g class="b-ring"><rect x="8.4" y="14" width="6.3" height="2.2" rx="1.1"/><rect x="8.4" y="22" width="6.3" height="2.2" rx="1.1"/><rect x="8.4" y="30" width="6.3" height="2.2" rx="1.1"/></g>
+          <path class="b-heart" d="M24.7 31.8s-6.9-3.9-6.9-8c0-2.3 1.6-3.8 3.6-3.8 1.4 0 2.6.8 3.3 1.8.7-1 1.9-1.8 3.3-1.8 2 0 3.6 1.5 3.6 3.8 0 4.1-6.9 8-6.9 8Z"/>
+        </svg>
+        <b>Napló</b>
+      </button>
     </nav>
   </div>
 
