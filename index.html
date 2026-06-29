@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#020713" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Balance" />
-  <meta name="description" content="Balance 1600 — kímélő női étrend, 4 hétre." />
-  <title>Balance 1600</title>
+  <meta name="apple-mobile-web-app-title" content="Fruzsi 1600" />
+  <meta name="description" content="1600 kcal étrend és életmód segítő app Fruzsinak." />
+  <title>1600 kcal étrend és életmód segítő app Fruzsinak</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
@@ -19,8 +19,8 @@
     <header class="topbar" aria-label="Felső sáv">
       <button class="icon-btn" id="todayBtn" aria-label="Ugrás a mai napra">⌁</button>
       <div class="brand-block">
-        <div class="brand-title">Balance 1600</div>
-        <div class="brand-subtitle">Kímélő női étrend, 4 hétre</div>
+        <div class="brand-title soft-fruzsi-title">1600 kcal étrend és életmód segítő app Fruzsinak</div>
+        <div class="brand-subtitle">4 hét · napló · bevásárlás</div>
       </div>
       <button class="icon-btn" id="settingsBtn" aria-label="Beállítások">⚙︎</button>
     </header>
@@ -31,7 +31,7 @@
       <button class="tab-btn active" data-tab="today" aria-label="Ma"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8v2.1M12 18.1v2.1M4.7 12h2.1M17.2 12h2.1M6.8 6.8l1.5 1.5M15.7 15.7l1.5 1.5M17.2 6.8l-1.5 1.5M8.3 15.7l-1.5 1.5"/><circle cx="12" cy="12" r="4.2"/></svg><b>Ma</b></button>
       <button class="tab-btn" data-tab="weeks" aria-label="Hetek"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8v3M17 3.8v3M5.2 8.2h13.6"/><rect x="4.5" y="5.6" width="15" height="14.2" rx="3"/><path d="M8 12h.1M12 12h.1M16 12h.1M8 15.7h.1M12 15.7h.1"/></svg><b>Hetek</b></button>
       <button class="tab-btn" data-tab="recipes" aria-label="Receptek"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 11.8h11.6M7.2 11.8c.4-3.2 2.6-5.4 4.8-5.4s4.4 2.2 4.8 5.4M5.6 15.2h12.8c.5 0 .9.4.9.9v.1c0 1-.8 1.8-1.8 1.8h-11c-1 0-1.8-.8-1.8-1.8v-.1c0-.5.4-.9.9-.9ZM12 4.4v2"/></svg><b>Receptek</b></button>
-      <button class="tab-btn" data-tab="shopping" aria-label="Lista"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5h10l-.7 11H7.7l-.7-11Z"/><path d="M9 8.5a3 3 0 0 1 6 0M9.5 13l1.7 1.7 3.5-3.5"/></svg><b>Lista</b></button>
+      <button class="tab-btn" data-tab="shopping" aria-label="Bevásárlás"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5h10l-.7 11H7.7l-.7-11Z"/><path d="M9 8.5a3 3 0 0 1 6 0M9.5 13l1.7 1.7 3.5-3.5"/></svg><b>Bevásárlás</b></button>
       <button class="tab-btn" data-tab="tracking" aria-label="Napló"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="4.5" width="13" height="15" rx="3"/><path d="M8.8 9h6.4M8.8 12.2h3.8M8.8 15.4h5.4"/><path d="M16.5 4.5v3"/></svg><b>Napló</b></button>
     </nav>
   </div>
@@ -51,7 +51,7 @@
   <section id="onboarding" class="onboarding" aria-label="Első beállítás" hidden>
     <div class="onboarding-card">
       <div class="orb"></div>
-      <h1>Balance 1600</h1>
+      <h1>1600 kcal étrend és életmód segítő app Fruzsinak</h1>
       <p class="lead">Állítsuk be röviden, hogyan induljon a 4 hetes kímélő étrended.</p>
       <div class="form-grid">
         <label>Melyik napon kezded az étrendet?
@@ -71,12 +71,7 @@
         <label>Napi vízcél literben
           <input type="number" id="obWaterGoal" min="1" max="5" step="0.1" value="2.5" />
         </label>
-        <label>Naplózás módja
-          <select id="obTrackingMode">
-            <option value="simple">Egyszerű: étkezéspipák + víz</option>
-            <option value="detailed">Részletes: tünetek, energia, jegyzet</option>
-          </select>
-        </label>
+
       </div>
       <button id="startApp" class="primary-btn wide">Kezdjük</button>
       <p class="privacy-line">Minden naplód csak ezen a készüléken marad.</p>

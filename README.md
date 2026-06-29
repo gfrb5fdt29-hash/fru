@@ -1,4 +1,4 @@
-# Balance 1600 PWA — FIXED v4
+# Balance 1600 PWA — FIXED v5
 
 GitHub Pages-re feltölthető, statikus, offline-képes étrend PWA.
 
@@ -27,3 +27,12 @@ A ZIP tartalmát közvetlenül a repository gyökerébe töltsd fel. A belépés
 - `manifest.webmanifest`
 - `service-worker.js`
 - `icons/`
+
+
+## FIXED v5
+- Bevásárlás fül átnevezve.
+- Napló hetekre és napokra bontva, alapból részletes mezőkkel.
+- Receptkereső fókuszvesztés javítva.
+- Felső cím Fruzsinak szóló lágy, nőies stílusban.
+- Napi specifikus „Miért így?” magyarázatok.
+- V3.1 és hasonló technikai jelölések eltakarítva a felületről.

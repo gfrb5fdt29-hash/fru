@@ -128,3 +128,54 @@ html,body{width:100%;max-width:100%;}
   .form-grid input,.form-grid select{min-height:38px;padding:8px 10px;}
   .primary-btn,.ghost-btn{min-height:40px;}
 }
+
+/* v5: Fruzsi title, compact premium tabs, tracking redesign */
+:root{--pink:#ff8fc7;--pink2:#ffd1e6;--pinkGlow:rgba(255,143,199,.34)}
+.brand-title.soft-fruzsi-title{
+  font-size:12.6px;
+  line-height:1.08;
+  letter-spacing:-.16px;
+  max-width:250px;
+  margin:0 auto;
+  color:#ffeaf5;
+  text-shadow:0 0 12px var(--pinkGlow),0 0 20px rgba(255,143,199,.16);
+  background:linear-gradient(90deg,#fff7fb,#ffd1e6 52%,#f7c66a);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.topbar{height:calc(62px + env(safe-area-inset-top));padding-left:10px;padding-right:10px;gap:8px;}
+.topbar .icon-btn{width:40px;height:40px;border-radius:15px;min-width:40px;}
+.brand-subtitle{display:none!important}
+.tabbar{height:calc(64px + env(safe-area-inset-bottom));grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding-left:6px;padding-right:6px;}
+.tab-btn{min-width:0;padding:5px 1px;border-radius:16px;}
+.tab-icon{width:19px;height:19px;stroke-width:1.7;}
+.tab-btn b{font-size:8.9px;letter-spacing:-.24px;line-height:1.05;max-width:100%;white-space:normal;text-align:center;display:block;}
+.tab-btn.active{box-shadow:0 0 18px rgba(53,255,157,.23),inset 0 0 14px rgba(53,255,157,.10)}
+.onboarding{place-items:center;}
+.onboarding-card{width:min(358px,calc(100vw - 24px));max-height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px);}
+.onboarding h1{
+  font-size:20px;line-height:1.12;letter-spacing:-.35px;color:#ffeaf5;
+  text-shadow:0 0 14px var(--pinkGlow),0 0 24px rgba(255,143,199,.13);
+}
+.tracking-picker .uniform-week-tabs{margin-top:10px}
+.tracking-day-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:10px;}
+.tracking-day-btn{min-width:0;border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:15px;padding:7px 2px;color:var(--muted);display:grid;gap:2px;text-align:center;align-content:center;min-height:58px;}
+.tracking-day-btn b{font-size:11px;color:var(--soft);line-height:1;}
+.tracking-day-btn span{font-size:9px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tracking-day-btn em{font-style:normal;font-size:8.4px;line-height:1;color:rgba(247,251,255,.56);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tracking-day-btn.active{border-color:rgba(53,255,157,.48);background:rgba(53,255,157,.12);box-shadow:0 0 18px rgba(53,255,157,.17);}
+.tracking-day-btn.active b,.tracking-day-btn.active span{color:#d9ffe9;}
+@media (max-width:380px){
+  .brand-title.soft-fruzsi-title{font-size:11.7px;max-width:230px;}
+  .topbar{padding-left:8px;padding-right:8px;gap:6px;}
+  .topbar .icon-btn{width:38px;height:38px;min-width:38px;}
+  .tab-btn b{font-size:8.2px;}
+  .tab-icon{width:18px;height:18px;}
+  .tracking-day-grid{gap:4px;}
+  .tracking-day-btn{border-radius:13px;min-height:55px;padding:6px 1px;}
+  .tracking-day-btn b{font-size:10px;}.tracking-day-btn span{font-size:8.3px;}.tracking-day-btn em{display:none;}
+}
+@media (max-height:760px){
+  .onboarding-card{padding:11px 12px;}
+  .onboarding h1{font-size:18px;}
+  .lead{font-size:12px;}
+}
