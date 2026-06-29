@@ -1,8 +1,8 @@
-# Fruzsi 1600 PWA — FIXED v6
+# Fruzsi 1600 PWA — FIXED v7
 
 GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segítő app.
 
-## v6 fő javítások
+## v7 fő javítások
 
 - A Mai nap és a dátumhoz kötött nézetek az eszköz helyi naptárából számolnak.
 - Ha a kezdőnap kedd, akkor az 1. nap keddként jelenik meg, nem fix hétfőként.
@@ -17,3 +17,9 @@ GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segít
 ## Használat GitHub Pages-en
 
 A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd GitHub Pages-en a root mappát publikálni.
+
+
+## v7 gyorsjavítás
+- Javítva a Hetek fül renderhibája, amely miatt nem töltött be a heti nézet.
+- Javítva a Napló fül renderhibája, amely miatt nem töltött be a napló nézet.
+- Nézetvédő hibaüzenet hozzáadva, hogy egy esetleges jövőbeli nézethiba ne tüntesse el az egész appnavigációt.

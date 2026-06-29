@@ -205,12 +205,17 @@
   function render(options = {}){
     const activeKey = ui.activeTab === 'dayDetail' ? (ui.dayReturnTab || 'weeks') : ui.activeTab;
     $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === activeKey));
-    if(ui.activeTab === 'dayDetail') renderDayPage();
-    else if(ui.activeTab === 'weeks') renderWeeks();
-    else if(ui.activeTab === 'recipes') renderRecipes();
-    else if(ui.activeTab === 'shopping') renderShopping();
-    else if(ui.activeTab === 'tracking') renderTracking();
-    else renderToday();
+    try{
+      if(ui.activeTab === 'dayDetail') renderDayPage();
+      else if(ui.activeTab === 'weeks') renderWeeks();
+      else if(ui.activeTab === 'recipes') renderRecipes();
+      else if(ui.activeTab === 'shopping') renderShopping();
+      else if(ui.activeTab === 'tracking') renderTracking();
+      else renderToday();
+    }catch(err){
+      console.error('View render failed', err);
+      $('#view').innerHTML = `<section class="card section"><div class="card-pad stack"><h1 class="headline">Ez a nézet most nem töltődött be.</h1><p class="small-muted">Lépj vissza a főoldalra, majd próbáld újra. A többi fül továbbra is elérhető.</p><button class="primary-btn wide" data-action="goHome">Főoldal</button></div></section>`;
+    }
     writeStore(storeKeys.ui, ui);
     $('#view').focus({preventScroll:true});
     if(options.resetTop) scrollToViewTop();
@@ -339,7 +344,7 @@
                 <div class="day-n">${esc(day.day_number_in_week)}. nap · ${esc(dayDisplayName(day))}</div>
                 <div class="small-muted">${esc(day.daily_focus_hu || '')}</div>
               </div>
-              <div class="week-kcal"><b>${esc(d.daily_totals?.energy_kcal || 0)}</b><span>kcal</span></div>
+              <div class="week-kcal"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal</span></div>
             </div>
             <div class="metric-row compact-metrics">
               <div class="metric"><b>${esc(day.daily_totals?.protein || 0)}g</b><span>Feh.</span></div>
@@ -725,7 +730,7 @@
           <div class="metric"><b>${p.done}/${p.total}</b><span>Étkezés</span></div>
           <div class="metric"><b>${weekPct}%</b><span>Heti teljesítés</span></div>
           <div class="metric"><b>${Math.round((entry.waterMl||0)/100)/10} l</b><span>Víz</span></div>
-          <div class="metric"><b>${esc(d.daily_totals?.energy_kcal || 0)}</b><span>kcal terv</span></div>
+          <div class="metric"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal terv</span></div>
         </div>
       </div></section>
       <section class="card section"><div class="card-pad stack">
@@ -1047,6 +1052,7 @@
     if(action === 'restartOnboarding'){ closeSheet(); showOnboarding(); }
     if(action === 'confirmReset') openConfirmReset(el.dataset.reset);
     if(action === 'doReset') doReset(el.dataset.reset);
+    if(action === 'goHome'){ if(!$('#sheet').hidden) closeSheet(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); }
     if(action === 'openSettings') openSettingsSheet();
     if(action === 'closeSheet') closeSheet();
   }
