@@ -41,3 +41,11 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Jobb felső Beállítások és Home gomb nagyobb lett.
 - Receptek fülön csak a keresősáv marad sticky, a szűrők görgetéskor eltűnnek.
 - Napló csúszkák 0/10 formátumú, élő jobb oldali értéket és magyarázatot kaptak.
+
+
+## v13 javítások
+- Napló és Bevásárlás: 2×2 heti boxos napválasztó.
+- Napló: víz-kék vízbox, 0,5 literes csúszka.
+- Mai közérzet: testsúly mező eltávolítva.
+- App háttérszíne látványosan világosabb, de továbbra is prémium sötét hangulatú.
+- Service worker cache: balance1600-v13.

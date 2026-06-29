@@ -638,6 +638,26 @@
   function selectedShoppingDays(){
     return activeShoppingDayNumbers().map(n => allDays.find(d => d.globalDayNumber === n)).filter(Boolean);
   }
+  function compactDayName(day){
+    const name = dayDisplayName(day) || '';
+    const map = {Hétfő:'H', Kedd:'K', Szerda:'Sze', Csütörtök:'Cs', Péntek:'P', Szombat:'Szo', Vasárnap:'V'};
+    return map[name] || name.slice(0,3);
+  }
+  function weekBoxDaySelector(action, activeNums, extraClass=''){
+    const nums = new Set((activeNums || []).map(Number));
+    return `<div class="week-box-grid ${extraClass}">
+      ${weeks.map(w => {
+        const weekDays = allDays.filter(d => d.week === w.week);
+        const hasActive = weekDays.some(d => nums.has(d.globalDayNumber));
+        return `<div class="mini-week-box ${hasActive ? 'active' : ''}">
+          <div class="mini-week-title">${w.week}. hét</div>
+          <div class="mini-day-grid">
+            ${weekDays.map(d => `<button class="mini-day-btn ${nums.has(d.globalDayNumber) ? 'active' : ''}" data-action="${action}" data-daynum="${d.globalDayNumber}" aria-label="${d.day_number_in_week}. nap ${esc(dayDisplayName(d))}"><b>${d.day_number_in_week}</b><span>${esc(compactDayName(d))}</span></button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
   function shoppingDayButtons(activeWeek){
     const weekDays = allDays.filter(d => d.week === activeWeek);
     const activeNums = activeShoppingDayNumbers();
@@ -667,8 +687,7 @@
       <section class="card section shopping-select-card"><div class="card-pad">
         <h2 class="subhead">Napok kiválasztása</h2>
         <p class="small-muted">Egy kijelölt napnál napi lista látszik, több napnál automatikusan összevont lista készül.</p>
-        <div class="week-tabs uniform-week-tabs">${weeks.map(w=>`<button class="week-card week-select ${activeWeek===w.week?'active':''}" data-action="shoppingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
-        ${shoppingDayButtons(activeWeek)}
+        ${weekBoxDaySelector('toggleMergeDay', activeShoppingDayNumbers(), 'shopping-week-selector')}
         <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => `${d.week}.h/${d.day_number_in_week}.n`).join(', '))}</span></div>
       </div></section>
       <section class="section stack">${shoppingContent(selectedDays)}</section>`;
@@ -776,22 +795,18 @@
   }
   function renderTracking(){
     const day = selectedDay();
-    const activeWeek = ui.trackingWeek || day.week || 1;
-    const weekDays = allDays.filter(d => d.week === activeWeek);
     const key = day.day_id;
-    const entry = trackingEntries[key] || {waterMl:0, weight:'', reflux:0, bloating:0, histamine:0, energy:2, hunger:1, note:''};
+    const entry = trackingEntries[key] || {waterMl:0, reflux:0, bloating:0, histamine:0, energy:2, hunger:1, note:''};
     const p = progressForDay(day);
     const weekPct = weeklyProgress(day.week);
     const waterGoal = Number(settings.waterGoalMl || 2500);
-    const waterStep = Math.round(waterGoal / 5);
+    const waterLiters = Math.round(Number(entry.waterMl || 0) / 500) / 2;
+    const waterMaxLiters = Math.max(5, Math.ceil((waterGoal / 1000) * 2) / 2);
     $('#view').innerHTML = `
       <section class="section tracking-picker">
         <h1 class="headline">Napló</h1>
         <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
-        <div class="week-tabs uniform-week-tabs">${weeks.map(w => `<button class="week-card week-select ${w.week === activeWeek ? 'active' : ''}" data-action="trackingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
-        <div class="tracking-day-grid">
-          ${weekDays.map(d => `<button class="tracking-day-btn ${d.globalDayNumber === day.globalDayNumber ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`).join('')}
-        </div>
+        ${weekBoxDaySelector('trackingDay', [day.globalDayNumber], 'tracking-week-selector')}
       </section>
       <section class="card section"><div class="card-pad">
         <h2 class="headline">${esc(dayDisplayName(day))} naplója</h2>
@@ -799,14 +814,15 @@
         <div class="metric-row">
           <div class="metric"><b>${p.done}/${p.total}</b><span>Étkezés</span></div>
           <div class="metric"><b>${weekPct}%</b><span>Heti teljesítés</span></div>
-          <div class="metric"><b>${Math.round((entry.waterMl||0)/100)/10} l</b><span>Víz</span></div>
+          <div class="metric"><b>${formatHuNumber(waterLiters,1)} l</b><span>Víz</span></div>
           <div class="metric"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal terv</span></div>
         </div>
       </div></section>
-      <section class="card section"><div class="card-pad stack">
+      <section class="card section water-card"><div class="card-pad stack">
         <h2 class="subhead">Víz</h2>
-        <div class="water-pills">${[1,2,3,4,5].map(i => `<button class="water-pill ${(entry.waterMl||0) >= i*waterStep ? 'active' : ''}" data-action="setWater" data-value="${i*waterStep}">${Math.round(i*waterStep/100)/10} l</button>`).join('')}</div>
-        <button class="ghost-btn wide" data-action="setWater" data-value="0">Víz nullázása</button>
+        <p class="small-muted">Állítsd be csúszkával, mennyi folyadék ment le ma. A lépték 0,5 liter.</p>
+        <label class="range-row tracking-range water-range"><span>Mai víz</span><input id="waterRange" type="range" min="0" max="${waterMaxLiters}" step="0.5" value="${esc(waterLiters)}" /><small class="range-value" data-range-value-for="waterRange" data-range-unit="l" data-range-goal="${esc(waterGoal/1000)}">${formatHuNumber(waterLiters,1)} l / ${formatHuNumber(waterGoal/1000,1)} l</small><em class="range-help">0 l = még nincs rögzítve, ${formatHuNumber(waterGoal/1000,1)} l körül teljesül a napi cél.</em></label>
+        <button class="ghost-btn wide water-reset" data-action="setWater" data-value="0">Víz nullázása</button>
       </div></section>
       <section class="card section"><div class="card-pad stack">
         <h2 class="subhead">Mai közérzet</h2>
@@ -817,7 +833,6 @@
   }
   function detailedTrackingFields(entry){
     const rows = [
-      {id:'trackWeight', label:'Testsúly opcionálisan', type:'number', value: entry.weight || '', suffix:'kg'},
       {id:'trackReflux', label:'Reflux érzet', type:'range', value: entry.reflux ?? 0, help:'0/10 = nincs refluxérzet, 10/10 = nagyon erős / rossz.'},
       {id:'trackBloating', label:'Puffadás', type:'range', value: entry.bloating ?? 0, help:'0/10 = nincs puffadás, 10/10 = nagyon erős / zavaró.'},
       {id:'trackHistamine', label:'Hisztaminszerű reakció', type:'range', value: entry.histamine ?? 0, help:'0/10 = nincs reakció, 10/10 = nagyon erős tünetérzet.'},
@@ -1025,7 +1040,7 @@
     const current = trackingEntries[day.day_id] || {};
     trackingEntries[day.day_id] = {
       ...current,
-      weight: $('#trackWeight')?.value || current.weight || '',
+      waterMl: Math.round(Number($('#waterRange')?.value ?? ((current.waterMl || 0) / 1000)) * 1000),
       reflux: Number($('#trackReflux')?.value || current.reflux || 0),
       bloating: Number($('#trackBloating')?.value || current.bloating || 0),
       histamine: Number($('#trackHistamine')?.value || current.histamine || 0),
@@ -1159,7 +1174,15 @@
     document.addEventListener('input', e => {
       if(e.target && e.target.matches('input[type=range]')){
         const valueEl = document.querySelector(`[data-range-value-for="${e.target.id}"]`);
-        if(valueEl) valueEl.textContent = `${e.target.value}/10`;
+        if(valueEl){
+          if(valueEl.dataset.rangeUnit === 'l'){
+            const v = Number(e.target.value || 0);
+            const goal = Number(valueEl.dataset.rangeGoal || 2.5);
+            valueEl.textContent = `${formatHuNumber(v,1)} l / ${formatHuNumber(goal,1)} l`;
+          }else{
+            valueEl.textContent = `${e.target.value}/10`;
+          }
+        }
       }
     });
     document.addEventListener('keydown', e => { if(e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
