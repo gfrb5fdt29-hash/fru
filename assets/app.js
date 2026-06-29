@@ -426,7 +426,7 @@
     const weekDays = allDays.filter(d => d.week === (week?.week || ui.activeWeek));
     $('#view').innerHTML = `
       <section class="section">
-        <h1 class="headline">Hetek</h1>
+        <h1 class="headline">Naptár</h1>
         <p class="small-muted">Válassz hetet, majd nyisd meg a kívánt napot külön lapon.</p>
         <div class="week-tabs uniform-week-tabs">${weeks.map(w => `<button class="week-card week-select ${w.week === ui.activeWeek ? 'active' : ''}" data-action="selectWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
       </section>
@@ -1246,18 +1246,18 @@
     if(action === 'chooseDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); closeSheet(); render({resetTop:true}); }
     if(action === 'openDayDetails') openDayDetails();
     if(action === 'openTracking') openTrackingSheet();
-    if(action === 'selectWeek'){ ui.activeWeek = Number(el.dataset.week); render({resetTop:true}); }
+    if(action === 'selectWeek'){ ui.activeWeek = Number(el.dataset.week); render({noAnimate:true}); }
     if(action === 'weekDay') openDayPage(el.dataset.daynum);
     if(action === 'backFromDay'){ ui.activeTab = ui.dayReturnTab || 'weeks'; if(ui.dayReturnWeek) ui.activeWeek = ui.dayReturnWeek; render(); }
     if(action === 'toggleFilter'){
       const current = (ui.recipeFilters || [])[0] || '';
       const next = el.dataset.filter || '';
       ui.recipeFilters = current === next ? [] : [next];
-      render({resetTop:true}); writeStore(storeKeys.ui, ui);
+      render({noAnimate:true}); writeStore(storeKeys.ui, ui);
     }
     if(action === 'clearFilter'){
       ui.recipeFilters = [];
-      render({resetTop:true}); writeStore(storeKeys.ui, ui);
+      render({noAnimate:true}); writeStore(storeKeys.ui, ui);
     }
     if(action === 'toggleFavorite'){
       event.stopPropagation();

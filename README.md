@@ -28,7 +28,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 ## v10 ikonfrissítés
 - Alsó navigáció a választott B verzió szerint: kitöltött, lágy ikonok.
 - Ma: házikó szívvel.
-- Hetek: naptár.
+- Naptár: naptár.
 - Receptek: séfsapka szívvel.
 - Bevásárlás: bevásárlótáska szívvel.
 - Napló: naplófüzet szívvel.
@@ -126,7 +126,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Napló és Bevásárlás napválasztóiban a napgombok rövid magyar jelöléssel jelennek meg: H, K, Sze, Cs, P, Szo, V.
 - Az app dátumlogikája a diéta kezdőnapja és az eszköz aktuális dátuma alapján számol.
 - A 28 napos terv automatikusan újraindul az 1. naptól; a hetek továbbra is 1–4. hétként maradnak.
-- Hetek fül napkártyáin nagyban a valós nap + dátum látszik, alatta az étrendlogika: 1. hét · 3. nap.
+- Naptár fül napkártyáin nagyban a valós nap + dátum látszik, alatta az étrendlogika: 1. hét · 3. nap.
 
 
 ## v23 módosítások
@@ -139,7 +139,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 
 ## v24 módosítás
 
-- Alsó ikonsor kevésbé rózsaszínes, fülenként saját színnel: Ma vízzöld, Hetek fehér/kék naptár, Receptek narancs, Bevásárlás zöld, Napló kék.
+- Alsó ikonsor kevésbé rózsaszínes, fülenként saját színnel: Ma vízzöld, Naptár fehér/kék naptár, Receptek narancs, Bevásárlás zöld, Napló kék.
 - Aktív fül statikus, saját színű glow-val marad jelölt.
 - Service worker cache: balance1600-v24.
 
@@ -150,4 +150,11 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Jobb felső Home és Beállítások ikonok nagyobbak, a gombkeretet szorosabban kitöltik.
 - Napló fülön napra kattintáskor nincs külön nézetváltó animáció és nem ugrik fel/le a képernyő.
 - Az app animációi megmaradtak, de lassabbak és nyugodtabbak lettek.
-- Service worker cache: balance1600-v25.
+- Service worker cache: balance1600-v26.
+
+
+## v26 rövid módosítás
+- A Hetek fül neve Naptár lett.
+- Receptek szűrő kattintásakor nincs fel-le nézetanimáció és nincs automatikus felugrás.
+- Naptár felső hétválasztó kattintásakor nincs fel-le nézetanimáció.
+- Service worker cache: balance1600-v26.
