@@ -64,15 +64,37 @@
   function esc(v){
     return String(v ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   }
+  const HUMAN_TEXT_REPLACEMENTS = [
+    [/pms_kesoi_lutealis|kesoi_lutealis_pms/gi, 'PMS / késői luteális szakasz'],
+    [/kesoi_lutealis/gi, 'késői luteális szakasz'],
+    [/korai_lutealis/gi, 'korai luteális szakasz'],
+    [/korai_follikularis/gi, 'korai follikuláris szakasz'],
+    [/follikularis/gi, 'follikuláris szakasz'],
+    [/menstruacio/gi, 'menstruációs szakasz'],
+    [/ovulacio/gi, 'ovulációs szakasz'],
+    [/full_meat_free_day|full_dairy_free_day|full_plant_based_day/gi, 'speciális napi jelölés'],
+    [/has_pasta_or_noodle/gi, 'tésztás vagy rizstésztás nap'],
+    [/has_salty_dairy_free_breakfast/gi, 'sós tejmentes reggeli'],
+    [/raw_freeze_candidates/gi, 'nyersen porciózható fehérjék'],
+    [/same_day_fresh_dairy_items/gi, 'aznap fogyasztandó friss tejtermékek']
+  ];
+  function humanizeText(text){
+    let out = String(text || '');
+    HUMAN_TEXT_REPLACEMENTS.forEach(([pattern, replacement]) => { out = out.replace(pattern, replacement); });
+    return out
+      .replace(/[_]+/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
   function stripTechText(text){
-    return String(text || '')
+    return humanizeText(String(text || '')
       .replace(/PWA/gi, 'app')
       .replace(/JSON/gi, 'étrend')
       .replace(/adatlista/gi, 'étrend')
       .replace(/adatforrás/gi, 'tartalom')
       .replace(/validation report/gi, 'ellenőrzés')
       .replace(/schema/gi, 'felépítés')
-      .replace(/localStorage|IndexedDB/gi, 'a készülék');
+      .replace(/localStorage|IndexedDB/gi, 'a készülék'));
   }
   function humanAmount(item){
     const raw = item?.pwa_display_amount_hu || `${item?.amount ?? item?.net_amount ?? ''} ${item?.unit || ''}`;
@@ -100,12 +122,25 @@
     clearTimeout(toast._t);
     toast._t = setTimeout(()=>el.classList.remove('show'), 2100);
   }
+  if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  function forceTopOnce(){
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const view = $('#view');
+    if(view) view.scrollTop = 0;
+  }
   function scrollToViewTop(){
-    requestAnimationFrame(() => {
-      window.scrollTo({top:0, left:0, behavior:'auto'});
-      const view = $('#view');
-      if(view) view.scrollTop = 0;
-    });
+    forceTopOnce();
+    requestAnimationFrame(forceTopOnce);
+    setTimeout(forceTopOnce, 40);
+    setTimeout(forceTopOnce, 140);
+  }
+  function resetSheetTop(){
+    const sheet = $('#sheet');
+    const body = $('#sheetBody');
+    if(sheet) sheet.scrollTop = 0;
+    if(body) body.scrollTop = 0;
   }
   function parseDate(iso){ return new Date((iso || todayIso()) + 'T00:00:00'); }
   function dayDiff(a,b){ return Math.floor((parseDate(b) - parseDate(a)) / 86400000); }
@@ -122,8 +157,8 @@
     return allDays.find(d => d.globalDayNumber === n) || allDays[0];
   }
   function dayLabel(day){ return `${day.week}. hét · ${day.day_number_in_week}. nap · ${day.weekday_hu}`; }
-  function cycleLabels(tags){ return (tags || []).map(t => PHASE_LABELS[t] || tagLabels.get(t) || t).filter(Boolean); }
-  function tagLabel(tag){ return tagLabels.get(tag) || PHASE_LABELS[tag] || String(tag || '').replaceAll('_',' '); }
+  function cycleLabels(tags){ return (tags || []).map(t => PHASE_LABELS[t] || tagLabels.get(t) || humanizeText(t)).filter(Boolean); }
+  function tagLabel(tag){ return tagLabels.get(tag) || PHASE_LABELS[tag] || humanizeText(tag); }
   function riskText(level){
     const n = Number(level || 0);
     if(n <= 0) return 'kímélő';
@@ -412,7 +447,7 @@
   }
 
   function recipeCard(r){
-    const flags = r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids || []).slice(0,2).map(tagLabel);
+    const flags = (r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids || []).slice(0,2).map(tagLabel)).map(stripTechText);
     const fav = !!favorites[r.recipe_id];
     return `<article class="recipe-card" data-action="openRecipe" data-recipe="${esc(r.recipe_id)}">
       <div class="recipe-card-top">
@@ -576,13 +611,14 @@
       <div class="sheet-section"><div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')} ${usages[0] ? '· ' + esc(usages[0].week) + '. hét · ' + esc(usages[0].weekday_hu) : ''}</div><h3 class="headline">${esc(r.name_hu || r.pwa_title)}</h3></div>
       <div class="sheet-section"><div class="metric-row"><div class="metric"><b>${esc(r.energy_kcal)}</b><span>kcal</span></div><div class="metric"><b>${esc(r.macros_g?.protein)}g</b><span>Fehérje</span></div><div class="metric"><b>${esc(r.macros_g?.carbohydrate)}g</b><span>Szénhidrát</span></div><div class="metric"><b>${esc(r.macros_g?.fat)}g</b><span>Zsír</span></div></div></div>
       <div class="sheet-section"><p>${esc(stripTechText(r.pwa_short_note || r.compatibility_summary_hu?.reflux_logic_hu || ''))}</p></div>
-      <div class="sheet-section"><h3 class="subhead">Fő címkék</h3><div class="chip-row">${(r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids||[]).map(tagLabel)).slice(0,8).map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div></div>
+      <div class="sheet-section"><h3 class="subhead">Fő címkék</h3><div class="chip-row">${(r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids||[]).map(tagLabel)).map(stripTechText).slice(0,8).map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div></div>
       <div class="sheet-section"><h3 class="subhead">Kímélő jelzések</h3><div class="chip-row"><span class="chip green">Reflux: ${esc(riskText(risks.reflux_risk_level))}</span><span class="chip ${Number(risks.histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.histamine_caution_level))}</span><span class="chip ${Number(risks.purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.purine_caution_level))}</span>${risks.individual_test_required ? '<span class="chip warn">egyéni teszt</span>' : ''}</div>${risks.why_caution_hu ? `<p>${esc(stripTechText(risks.why_caution_hu))}</p>` : ''}</div>
       <div class="sheet-section"><h3 class="subhead">Hozzávalók</h3><ul>${(r.ingredients || []).map(i=>`<li>${esc(i.item)} — ${esc(i.amount)} ${esc(i.unit)}</li>`).join('') || '<li>Nincs megadott hozzávaló.</li>'}</ul></div>
       <div class="sheet-section"><h3 class="subhead">Elkészítés</h3>${r.prep_steps_structured?.length ? `<ol>${r.prep_steps_structured.map(s=>`<li><b>${esc(s.title_hu)}:</b> ${esc(stripTechText(s.instruction_hu))}</li>`).join('')}</ol>` : `<p>${esc(stripTechText(r.prep_steps_hu || 'Nincs külön leírás.'))}</p>`}</div>
       <div class="sheet-section"><h3 class="subhead">Idő és eszközök</h3><p>${esc(r.cooking_profile?.total_minutes || r.prep_minutes_estimate || '—')} perc · ${esc(r.cooking_profile?.difficulty_level || r.cooking_time_level || 'könnyű')}</p>${r.cooking_profile?.required_tools?.length ? `<div class="chip-row">${r.cooking_profile.required_tools.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div>` : ''}</div>
       <div class="sheet-section"><h3 class="subhead">Frissesség</h3><p>${esc(stripTechText(r.freshness_rule_hu || r.cooking_profile?.component_prep_note_hu || 'Frissen készítve a legjobb.'))}</p></div>
       <div class="sheet-section"><h3 class="subhead">Illeszkedés</h3>${compatibilityHtml(r.compatibility_summary_hu)}</div>
+      ${cycleFitHtml(r)}
       <div class="sheet-section"><h3 class="subhead">Csereopciók</h3>${subs.length || fallbacks.length ? substitutionHtml(subs, fallbacks) : '<p class="small-muted">Ehhez a fogáshoz nincs külön cserejavaslat.</p>'}</div>
       <div class="sheet-section"><h3 class="subhead">Melyik napokon szerepel?</h3><ul>${usages.map(u=>`<li>${esc(u.week)}. hét · ${esc(u.day_number_in_week)}. nap · ${esc(u.weekday_hu)} · ${esc(SLOT_LABELS[u.slot] || u.slot)}</li>`).join('') || '<li>A tervben egyszer szerepel.</li>'}</ul></div>
       <div class="grid2"><button class="primary-btn" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}">${favorites[r.recipe_id] ? 'Kedvencből leveszem' : 'Kedvencnek jelölöm'}</button><button class="ghost-btn" data-action="closeSheet">Bezárás</button></div>
@@ -590,7 +626,14 @@
   }
   function compatibilityHtml(c){
     if(!c) return '<p class="small-muted">Nincs külön összefoglaló.</p>';
-    return ['reflux_logic_hu','histamine_logic_hu','purine_logic_hu'].map(k => c[k] ? `<p>${esc(stripTechText(c[k]))}</p>` : '').join('');
+    return ['reflux_logic_hu','histamine_logic_hu','purine_logic_hu','cycle_logic_hu'].map(k => c[k] ? `<p>${esc(stripTechText(c[k]))}</p>` : '').join('');
+  }
+  function cycleFitHtml(recipe){
+    const fit = recipe.cycle_fit || {};
+    const phases = (fit.best_cycle_phases || fit.suitable_cycle_phases || []).map(tagLabel).filter(Boolean);
+    const note = stripTechText(fit.why_hu || fit.note_hu || '');
+    if(!phases.length && !note) return '';
+    return `<div class="sheet-section"><h3 class="subhead">Ciklushoz igazítva</h3>${phases.length ? `<div class="chip-row">${phases.map(p=>`<span class="chip blue">${esc(p)}</span>`).join('')}</div>` : ''}${note ? `<p>${esc(note)}</p>` : '<p class="small-muted">Ez a fogás ezekben a szakaszokban illeszkedik a legjobban.</p>'}</div>`;
   }
   function substitutionHtml(subs, fallbacks){
     const subHtml = subs.slice(0,4).map(s => `<li>${esc(s.replace_name_hu)} helyett: <b>${esc(s.with_name_hu)}</b> — ${esc(stripTechText(s.impact_hu || s.ratio_hint || 'hasonló mennyiségben'))}</li>`).join('');
@@ -605,7 +648,7 @@
   function openTrackingSheet(){
     ui.activeTab = 'tracking';
     closeSheet();
-    render();
+    render({resetTop:true});
   }
 
   function openSettingsSheet(){
@@ -659,20 +702,25 @@
     if(type === 'all'){ ui = {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, onlyOpen:false, recipeSearch:'', recipeFilters:[]}; localStorage.removeItem(storeKeys.ui); }
     saveAll();
     closeSheet();
-    render();
+    render({resetTop:true});
     toast('Törölve.');
   }
 
   function openSheet(title, html){
     $('#sheetTitle').textContent = title;
     $('#sheetBody').innerHTML = html;
-    $('#sheetBody').scrollTop = 0;
+    resetSheetTop();
     $('#sheetBackdrop').hidden = false;
     $('#sheet').hidden = false;
+    resetSheetTop();
     requestAnimationFrame(()=>{
+      resetSheetTop();
       $('#sheetBackdrop').classList.add('show');
       $('#sheet').classList.add('show');
+      requestAnimationFrame(resetSheetTop);
     });
+    setTimeout(resetSheetTop, 80);
+    setTimeout(resetSheetTop, 180);
     document.body.style.overflow = 'hidden';
     $('#sheetClose').focus({preventScroll:true});
   }
@@ -685,6 +733,8 @@
 
   function showOnboarding(){
     $('#onboarding').hidden = false;
+    $('#onboarding').scrollTop = 0;
+    scrollToViewTop();
     $('#obDietStart').value = settings.dietStartDate || todayIso();
     $('#obCycleEnabled').checked = !!settings.cycleModuleEnabled;
     $('#obCycleStart').value = settings.cycleStartDate || todayIso();
@@ -736,8 +786,8 @@
       if(meal){ const k = mealKey(day, meal); mealChecks[k] = !mealChecks[k]; writeStore(storeKeys.mealChecks, mealChecks); render(); }
     }
     if(action === 'openRecipe') openRecipe(el.dataset.recipe || el.closest('[data-recipe]')?.dataset.recipe);
-    if(action === 'prevDay'){ ui.selectedDayNumber = Math.max(1, (selectedDay().globalDayNumber || 1) - 1); render(); }
-    if(action === 'nextDay'){ ui.selectedDayNumber = Math.min(28, (selectedDay().globalDayNumber || 1) + 1); render(); }
+    if(action === 'prevDay'){ ui.selectedDayNumber = Math.max(1, (selectedDay().globalDayNumber || 1) - 1); render({resetTop:true}); }
+    if(action === 'nextDay'){ ui.selectedDayNumber = Math.min(28, (selectedDay().globalDayNumber || 1) + 1); render({resetTop:true}); }
     if(action === 'openDayPicker') openDayPicker();
     if(action === 'chooseDay'){ ui.selectedDayNumber = Number(el.dataset.daynum); closeSheet(); render({resetTop:true}); }
     if(action === 'openDayDetails') openDayDetails();
@@ -748,7 +798,7 @@
     if(action === 'toggleFilter'){
       const set = new Set(ui.recipeFilters || []);
       set.has(el.dataset.filter) ? set.delete(el.dataset.filter) : set.add(el.dataset.filter);
-      ui.recipeFilters = Array.from(set); renderRecipes(); writeStore(storeKeys.ui, ui);
+      ui.recipeFilters = Array.from(set); render({resetTop:true}); writeStore(storeKeys.ui, ui);
     }
     if(action === 'toggleFavorite'){
       event.stopPropagation();
@@ -759,8 +809,8 @@
       toast(favorites[id] ? 'Kedvenchez adva.' : 'Kedvenc levéve.');
       if(!$('#sheet').hidden && $('#sheetTitle').textContent) openRecipe(id); else render();
     }
-    if(action === 'shoppingView'){ ui.shoppingView = el.dataset.view; renderShopping(); }
-    if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); renderShopping(); }
+    if(action === 'shoppingView'){ ui.shoppingView = el.dataset.view; render({resetTop:true}); }
+    if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); render({resetTop:true}); }
     if(action === 'toggleShoppingItem'){
       const k = el.dataset.key; shoppingChecks[k] = !shoppingChecks[k]; if(!shoppingChecks[k]) delete shoppingChecks[k]; writeStore(storeKeys.shoppingChecks, shoppingChecks); renderShopping();
     }
@@ -786,7 +836,7 @@
       settings.cycleModuleEnabled = $('#setCycleEnabled').checked;
       settings.cycleStartDate = $('#setCycleStart').value || todayIso();
       settings.cycleLengthDays = Number($('#setCycleLength').value || 28);
-      writeStore(storeKeys.settings, settings); toast('Beállítások mentve.'); closeSheet(); render();
+      writeStore(storeKeys.settings, settings); toast('Beállítások mentve.'); closeSheet(); render({resetTop:true});
     }
     if(action === 'restartOnboarding'){ closeSheet(); showOnboarding(); }
     if(action === 'confirmReset') openConfirmReset(el.dataset.reset);
@@ -815,7 +865,8 @@
     sheet.addEventListener('touchmove', e => {
       if(startY === null) return;
       const delta = e.touches[0].clientY - startY;
-      if(delta > 90 && sheet.scrollTop === 0){ startY = null; closeSheet(); }
+      const body = $('#sheetBody');
+      if(delta > 90 && (!body || body.scrollTop === 0)){ startY = null; closeSheet(); }
     }, {passive:true});
   }
 
