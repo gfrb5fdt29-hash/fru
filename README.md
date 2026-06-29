@@ -49,3 +49,13 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Mai közérzet: testsúly mező eltávolítva.
 - App háttérszíne látványosan világosabb, de továbbra is prémium sötét hangulatú.
 - Service worker cache: balance1600-v13.
+
+
+## v14 módosítások
+
+- Belépő képernyő felső címe a fő fejléc stílusához igazítva.
+- Belépő képernyőn rövid appismertető és dátumlogikai segítség.
+- Napló vízcsúszka jobb oldali értéke csak az aktuális literértéket mutatja, napi cél nélkül.
+- Víz nullázása mellé külön Mentés gomb került.
+- Az app háttérszíne a v13-hoz képest kissé sötétebb, de továbbra is világosabb/prémium mélykék.
+- Service worker cache: balance1600-v14.

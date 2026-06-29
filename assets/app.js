@@ -821,8 +821,8 @@
       <section class="card section water-card"><div class="card-pad stack">
         <h2 class="subhead">Víz</h2>
         <p class="small-muted">Állítsd be csúszkával, mennyi folyadék ment le ma. A lépték 0,5 liter.</p>
-        <label class="range-row tracking-range water-range"><span>Mai víz</span><input id="waterRange" type="range" min="0" max="${waterMaxLiters}" step="0.5" value="${esc(waterLiters)}" /><small class="range-value" data-range-value-for="waterRange" data-range-unit="l" data-range-goal="${esc(waterGoal/1000)}">${formatHuNumber(waterLiters,1)} l / ${formatHuNumber(waterGoal/1000,1)} l</small><em class="range-help">0 l = még nincs rögzítve, ${formatHuNumber(waterGoal/1000,1)} l körül teljesül a napi cél.</em></label>
-        <button class="ghost-btn wide water-reset" data-action="setWater" data-value="0">Víz nullázása</button>
+        <label class="range-row tracking-range water-range"><span>Mai víz</span><input id="waterRange" type="range" min="0" max="${waterMaxLiters}" step="0.5" value="${esc(waterLiters)}" /><small class="range-value" data-range-value-for="waterRange" data-range-unit="l">${formatHuNumber(waterLiters,1)} l</small><em class="range-help">0 l = még nincs rögzítve. A csúszka 0,5 literenként állítható.</em></label>
+        <div class="water-actions"><button class="ghost-btn water-reset" data-action="setWater" data-value="0">Víz nullázása</button><button class="primary-btn water-save" data-action="saveWater">Mentés</button></div>
       </div></section>
       <section class="card section"><div class="card-pad stack">
         <h2 class="subhead">Mai közérzet</h2>
@@ -1147,6 +1147,14 @@
       const day = selectedDay(); const entry = trackingEntries[day.day_id] || {};
       entry.waterMl = Number(el.dataset.value || 0); trackingEntries[day.day_id] = entry; writeStore(storeKeys.tracking, trackingEntries); renderTracking();
     }
+    if(action === 'saveWater'){
+      const day = selectedDay(); const entry = trackingEntries[day.day_id] || {};
+      entry.waterMl = Math.round(Number($('#waterRange')?.value || 0) * 1000);
+      trackingEntries[day.day_id] = entry;
+      writeStore(storeKeys.tracking, trackingEntries);
+      toast('Víz mentve.');
+      renderTracking();
+    }
     if(action === 'saveTracking') saveTracking();
     if(action === 'saveSettings'){
       settings.dietStartDate = $('#setDietStart').value || todayIso();
@@ -1177,8 +1185,7 @@
         if(valueEl){
           if(valueEl.dataset.rangeUnit === 'l'){
             const v = Number(e.target.value || 0);
-            const goal = Number(valueEl.dataset.rangeGoal || 2.5);
-            valueEl.textContent = `${formatHuNumber(v,1)} l / ${formatHuNumber(goal,1)} l`;
+            valueEl.textContent = `${formatHuNumber(v,1)} l`;
           }else{
             valueEl.textContent = `${e.target.value}/10`;
           }
