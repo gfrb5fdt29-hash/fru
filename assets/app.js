@@ -216,19 +216,27 @@
   function parseDate(iso){ return new Date((iso || todayIso()) + 'T00:00:00'); }
   function dayDiff(a,b){ return Math.floor((parseDate(b) - parseDate(a)) / 86400000); }
   function addDays(date, days){ const d = new Date(date); d.setDate(d.getDate() + Number(days || 0)); return d; }
-  function actualDateForDay(day){ return addDays(parseDate(settings.dietStartDate || todayIso()), (Number(day?.globalDayNumber || 1) - 1)); }
+  function currentCycleOffsetDays(){
+    const diff = dayDiff(settings.dietStartDate, todayIso());
+    if(diff < 0) return 0;
+    return Math.floor(diff / 28) * 28;
+  }
+  function actualDateForDay(day){ return addDays(parseDate(settings.dietStartDate || todayIso()), currentCycleOffsetDays() + (Number(day?.globalDayNumber || 1) - 1)); }
   function weekdayHu(date){ return ['Vasárnap','Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat'][date.getDay()]; }
-  function calendarShort(date){ return date.toLocaleDateString('hu-HU', {month:'short', day:'numeric'}).replace('.', '.'); }
+  function weekdayLower(day){ return weekdayHu(actualDateForDay(day)).toLowerCase(); }
+  function calendarShort(date){ return date.toLocaleDateString('hu-HU', {month:'long', day:'numeric'}); }
   function dayDisplayName(day){ return weekdayHu(actualDateForDay(day)); }
   function dayCalendarShort(day){ return calendarShort(actualDateForDay(day)); }
+  function fullDateLabel(day){ return `${dayCalendarShort(day)} · ${weekdayLower(day)}`; }
+  function weekCardDateTitle(day){ return `${weekdayLower(day)} · ${dayCalendarShort(day)}`; }
+  function planDayLabel(day){ return `${day.week}. hét · ${day.day_number_in_week}. nap`; }
   function currentPlanDayNumber(){
     const diff = dayDiff(settings.dietStartDate, todayIso());
     if(diff < 0) return 1;
-    if(diff > 27) return 28;
-    return diff + 1;
+    return (diff % 28) + 1;
   }
   function planIsFuture(){ return dayDiff(settings.dietStartDate, todayIso()) < 0; }
-  function planIsFinished(){ return dayDiff(settings.dietStartDate, todayIso()) > 27; }
+  function planIsFinished(){ return false; }
   function selectedDay(){
     const n = ui.selectedDayNumber || currentPlanDayNumber();
     return allDays.find(d => d.globalDayNumber === n) || allDays[0];
@@ -236,8 +244,8 @@
   function dayForOccurrence(occ){
     return allDays.find(d => d.week === Number(occ?.week) && d.day_number_in_week === Number(occ?.day_number_in_week));
   }
-  function dayLabel(day){ return `${day.week}. hét · ${day.day_number_in_week}. nap · ${dayDisplayName(day)}`; }
-  function dayLabelWithDate(day){ return `${dayLabel(day)} · ${dayCalendarShort(day)}`; }
+  function dayLabel(day){ return planDayLabel(day); }
+  function dayLabelWithDate(day){ return `${fullDateLabel(day)} · ${planDayLabel(day)}`; }
   function cycleLabels(tags){ return (tags || []).map(t => PHASE_LABELS[t] || tagLabels.get(t) || humanizeText(t)).filter(Boolean); }
   function tagLabel(tag){ return tagLabels.get(tag) || PHASE_LABELS[tag] || humanizeText(tag); }
   function riskText(level){
@@ -303,8 +311,8 @@
         <div class="hero-top">
           <div>
             <div class="eyebrow">Tervezett mai érték</div>
-            <div class="day-label">${esc(dayLabel(day))}</div>
-            <div class="small-muted">${esc(motivation(p.done,p.total))} · ${p.done}/${p.total} étkezés</div>
+            <div class="day-label">${esc(fullDateLabel(day))}</div>
+            <div class="small-muted">${esc(planDayLabel(day))} · ${esc(motivation(p.done,p.total))} · ${p.done}/${p.total} étkezés</div>
           </div>
           <div class="kcal-bubble"><b>${esc(totals.energy_kcal || 0)}</b><span>kcal</span></div>
         </div>
@@ -427,8 +435,8 @@
           return `<article class="mini-day week-day-card ${selected ? 'active' : ''}" data-action="weekDay" data-daynum="${day.globalDayNumber}">
             <div class="week-day-head">
               <div>
-                <div class="day-n">${esc(day.day_number_in_week)}. nap · ${esc(dayDisplayName(day))}</div>
-                <div class="small-muted">${esc(day.daily_focus_hu || '')}</div>
+                <div class="day-n">${esc(weekCardDateTitle(day))}</div>
+                <div class="small-muted">${esc(planDayLabel(day))} · ${esc(day.daily_focus_hu || '')}</div>
               </div>
               <div class="week-kcal"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal</span></div>
             </div>
@@ -546,8 +554,8 @@
         <div class="hero-top">
           <div>
             <div class="eyebrow">Napi terv</div>
-            <div class="day-label">${esc(dayDisplayName(day))} · ${esc(day.day_number_in_week)}. nap</div>
-            <div class="small-muted">${esc(day.daily_focus_hu || 'Részletes napi nézet')}</div>
+            <div class="day-label">${esc(fullDateLabel(day))}</div>
+            <div class="small-muted">${esc(planDayLabel(day))} · ${esc(day.daily_focus_hu || 'Részletes napi nézet')}</div>
           </div>
           <div class="kcal-bubble"><b>${esc(totals.energy_kcal || 0)}</b><span>kcal</span></div>
         </div>
@@ -736,7 +744,26 @@
             <span>${w.week}. hét</span>
             <em>${open ? 'napok elrejtése' : 'napok megnyitása'}</em>
           </button>
-          ${open ? `<div class="tracking-week-days">${weekDays.map(d => `<button class="tracking-day-pill ${Number(d.globalDayNumber) === activeDayNum ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}</b><span>${esc(compactDayName(d))}</span></button>`).join('')}</div>` : ''}
+          ${open ? `<div class="tracking-week-days">${weekDays.map(d => `<button class="tracking-day-pill compact-day-only ${Number(d.globalDayNumber) === activeDayNum ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}" aria-label="${esc(planDayLabel(d))} · ${esc(fullDateLabel(d))}"><b>${esc(compactDayName(d))}</b></button>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function shoppingWeekAccordionSelector(activeNums){
+    const nums = new Set((activeNums || []).map(Number));
+    const activeWeek = Number(ui.shoppingWeek || (selectedShoppingDays()[0]?.week) || 1);
+    return `<div class="tracking-accordion shopping-accordion">
+      ${weeks.map(w => {
+        const weekDays = allDays.filter(d => d.week === w.week);
+        const open = Number(w.week) === activeWeek;
+        const hasActive = weekDays.some(d => nums.has(d.globalDayNumber));
+        return `<div class="tracking-week-row shopping-week-row ${open ? 'open active' : ''} ${hasActive ? 'has-selected' : ''}">
+          <button class="tracking-week-bar" data-action="shoppingWeekToggle" data-week="${w.week}" aria-expanded="${open ? 'true' : 'false'}">
+            <span>${w.week}. hét</span>
+            <em>${open ? 'napok elrejtése' : 'napok megnyitása'}</em>
+          </button>
+          ${open ? `<div class="tracking-week-days shopping-week-days">${weekDays.map(d => `<button class="tracking-day-pill compact-day-only ${nums.has(d.globalDayNumber) ? 'active' : ''}" data-action="toggleMergeDay" data-daynum="${d.globalDayNumber}" aria-label="${esc(planDayLabel(d))} · ${esc(fullDateLabel(d))}"><b>${esc(compactDayName(d))}</b></button>`).join('')}</div>` : ''}
         </div>`;
       }).join('')}
     </div>`;
@@ -758,7 +785,7 @@
     const activeWeek = ui.shoppingWeek || day.week || 1;
     const views = [['today','Kijelölt napok'],['weekly','Heti'],['pantry','Kamra'],['fresh','Frissen kezelendő']];
     const isWeekly = ui.shoppingView === 'weekly';
-    const selectedText = isWeekly ? `${activeWeek}. hét bevásárlása` : (selectedDays.length === 1 ? dayLabelWithDate(selectedDays[0]) : `${selectedDays.length} nap összevonva`);
+    const selectedText = isWeekly ? `${activeWeek}. hét bevásárlása` : (selectedDays.length === 1 ? `${compactDayName(selectedDays[0])} · ${planDayLabel(selectedDays[0])}` : `${selectedDays.length} nap összevonva`);
     const selectorHtml = isWeekly
       ? `<section class="card section shopping-select-card premium-selector-card"><div class="card-pad">
           <h2 class="subhead">Heti lista kiválasztása</h2>
@@ -768,8 +795,8 @@
       : `<section class="card section shopping-select-card premium-selector-card"><div class="card-pad">
           <h2 class="subhead">Napok kiválasztása</h2>
           <p class="small-muted">Egy kijelölt napnál napi lista látszik, több napnál automatikusan összevont lista készül.</p>
-          ${weekBoxDaySelector('toggleMergeDay', activeShoppingDayNumbers(), 'shopping-week-selector')}
-          <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => `${d.week}.h/${d.day_number_in_week}.n`).join(', '))}</span></div>
+          ${shoppingWeekAccordionSelector(activeShoppingDayNumbers())}
+          <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => compactDayName(d)).join(', '))}</span></div>
         </div></section>`;
     $('#view').innerHTML = `
       <section class="section shopping-head">
@@ -933,8 +960,8 @@
       </section>
       ${weeklyTrackingSummaryHtml(day.week)}
       <section class="card section"><div class="card-pad">
-        <h2 class="headline">${esc(dayDisplayName(day))} naplója</h2>
-        <p class="small-muted">${esc(dayLabel(day))} · ${esc(day.daily_focus_hu || 'részletes napi követés')}</p>
+        <h2 class="headline">${esc(fullDateLabel(day))} naplója</h2>
+        <p class="small-muted">${esc(planDayLabel(day))} · ${esc(day.daily_focus_hu || 'részletes napi követés')}</p>
         <div class="metric-row">
           <div class="metric"><b>${p.done}/${p.total}</b><span>Étkezés</span></div>
           <div class="metric"><b>${weekPct}%</b><span>Heti teljesítés</span></div>
@@ -1032,7 +1059,7 @@
       <div class="sheet-section"><h3 class="subhead">Illeszkedés</h3>${compatibilityHtml(r.compatibility_summary_hu)}</div>
       ${cycleFitHtml(r)}
       <div class="sheet-section"><h3 class="subhead">Csereopciók</h3>${subs.length || fallbacks.length ? substitutionHtml(subs, fallbacks) : '<p class="small-muted">Ehhez a fogáshoz nincs külön cserejavaslat.</p>'}</div>
-      <div class="sheet-section"><h3 class="subhead">Melyik napokon szerepel?</h3><ul>${usages.map(u=>{ const od = dayForOccurrence(u); return `<li>${esc(u.week)}. hét · ${esc(u.day_number_in_week)}. nap · ${esc(od ? dayDisplayName(od) : (u.weekday_hu || 'nap'))} · ${esc(SLOT_LABELS[u.slot] || u.slot)}</li>`; }).join('') || '<li>A tervben egyszer szerepel.</li>'}</ul></div>
+      <div class="sheet-section"><h3 class="subhead">Melyik napokon szerepel?</h3><ul>${usages.map(u=>{ const od = dayForOccurrence(u); return `<li>${esc(od ? planDayLabel(od) : (String(u.week) + '. hét · ' + String(u.day_number_in_week) + '. nap'))} · ${esc(od ? fullDateLabel(od) : (u.weekday_hu || 'nap'))} · ${esc(SLOT_LABELS[u.slot] || u.slot)}</li>`; }).join('') || '<li>A tervben egyszer szerepel.</li>'}</ul></div>
       <div class="grid2"><button class="primary-btn" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}">${favorites[r.recipe_id] ? 'Kedvencből leveszem' : 'Kedvencnek jelölöm'}</button><button class="ghost-btn" data-action="closeSheet">Bezárás</button></div>
     `);
   }
@@ -1054,7 +1081,7 @@
   }
 
   function openDayPicker(){
-    openSheet('Nap választása', `<div class="grid2">${allDays.map(d => `<button class="week-card ${d.globalDayNumber === selectedDay().globalDayNumber ? 'active' : ''}" data-action="chooseDay" data-daynum="${d.globalDayNumber}"><b>${d.week}. hét · ${d.day_number_in_week}. nap</b><br><span class="small-muted">${esc(dayDisplayName(d))} · ${esc(d.daily_totals?.energy_kcal)} kcal</span></button>`).join('')}</div>`);
+    openSheet('Nap választása', `<div class="grid2">${allDays.map(d => `<button class="week-card ${d.globalDayNumber === selectedDay().globalDayNumber ? 'active' : ''}" data-action="chooseDay" data-daynum="${d.globalDayNumber}"><b>${esc(weekCardDateTitle(d))}</b><br><span class="small-muted">${esc(planDayLabel(d))} · ${esc(d.daily_totals?.energy_kcal)} kcal</span></button>`).join('')}</div>`);
   }
 
   function openTrackingSheet(){
@@ -1249,6 +1276,12 @@
       const d = allDays.find(day => day.globalDayNumber === n);
       if(d){ ui.selectedDayNumber = n; ui.trackingWeek = d.week; render({resetTop:true}); }
     }
+    if(action === 'shoppingWeekToggle'){
+      const weekNo = Number(el.dataset.week);
+      ui.shoppingWeek = weekNo;
+      writeStore(storeKeys.ui, ui);
+      render({resetTop:true});
+    }
     if(action === 'shoppingView'){ ui.shoppingView = el.dataset.view; render({resetTop:true}); }
     if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); render({resetTop:true}); }
     if(action === 'setShoppingDay'){
@@ -1353,7 +1386,7 @@
   function initEvents(){
     window.addEventListener('scroll', updateHeaderCompact, {passive:true});
     updateHeaderCompact();
-    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; if(changed) pushNavState(); ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
+    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; if(changed) pushNavState(); ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'today') ui.selectedDayNumber = null; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
     $('#todayBtn').addEventListener('click', () => { if(!$('#sheet').hidden) closeSheet(); if(ui.activeTab !== 'today') pushNavState(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); });
     $('#settingsBtn').addEventListener('click', openSettingsSheet);
     $('#sheetClose').addEventListener('click', closeSheet);
@@ -1416,6 +1449,7 @@
   }
 
   function init(){
+    if(ui.activeTab === 'today') ui.selectedDayNumber = null;
     initEvents();
     registerOffline();
     render();

@@ -1409,3 +1409,25 @@ body{
   .tracking-week-days{gap:4px;padding-left:8px;padding-right:8px;}
   .tracking-day-pill{min-height:43px;border-radius:12px;}
 }
+
+/* v22 dátum- és napválasztó finomítások */
+.tracking-day-pill.compact-day-only{
+  min-width:42px;
+  min-height:42px;
+  padding:8px 10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.tracking-day-pill.compact-day-only b{
+  font-size:13px;
+  line-height:1;
+  letter-spacing:.01em;
+}
+.shopping-accordion .tracking-week-row.has-selected:not(.active) .tracking-week-bar{
+  border-color:rgba(82,255,214,.28);
+  box-shadow:0 0 20px rgba(39,218,170,.12);
+}
+.week-day-card .day-n{
+  text-transform:none;
+}
