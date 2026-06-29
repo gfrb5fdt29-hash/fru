@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Fruzsi 1600" />
-  <meta name="description" content="1600 kcal étrend és életmód segítő app Fruzsinak." />
-  <title>1600 kcal étrend és életmód segítő app Fruzsinak</title>
+  <meta name="description" content="1600kcal étrend és életmód segítő app Fruzsinak." />
+  <title>1600kcal étrend és életmód segítő app Fruzsinak</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
@@ -17,12 +17,18 @@
 <body>
   <div class="app-shell" id="appShell">
     <header class="topbar" aria-label="Felső sáv">
-      <button class="icon-btn" id="todayBtn" aria-label="Ugrás a mai napra">⌁</button>
-      <div class="brand-block">
-        <div class="brand-title soft-fruzsi-title">1600 kcal étrend és életmód segítő app Fruzsinak</div>
+      <div class="brand-block brand-box">
+        <div class="brand-title soft-fruzsi-title">1600kcal étrend és életmód segítő app Fruzsinak</div>
         <div class="brand-subtitle">4 hét · napló · bevásárlás</div>
       </div>
-      <button class="icon-btn" id="settingsBtn" aria-label="Beállítások">⚙︎</button>
+      <div class="top-actions" aria-label="Gyorsgombok">
+        <button class="icon-btn glow-icon" id="settingsBtn" aria-label="Beállítások">
+          <svg class="top-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="M19.2 13.4c.1-.46.1-.92 0-1.4l1.55-1.2-1.55-2.7-1.92.78a7.56 7.56 0 0 0-1.2-.7L15.8 6.1h-3.1l-.28 2.08c-.42.18-.82.42-1.2.7L9.3 8.1l-1.55 2.7L9.3 12c-.06.48-.06.94 0 1.4l-1.55 1.2 1.55 2.7 1.92-.78c.38.28.78.52 1.2.7l.28 2.08h3.1l.28-2.08c.42-.18.82-.42 1.2-.7l1.92.78 1.55-2.7-1.55-1.2Z"/></svg>
+        </button>
+        <button class="icon-btn glow-icon home-glow" id="todayBtn" aria-label="Főoldal">
+          <svg class="top-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11.2 12 4.8l7.5 6.4"/><path d="M6.8 10.4v8.2c0 .55.45 1 1 1h8.4c.55 0 1-.45 1-1v-8.2"/><path d="M10 19.6v-5.1h4v5.1"/></svg>
+        </button>
+      </div>
     </header>
 
     <main id="view" class="view" tabindex="-1"></main>
@@ -51,7 +57,7 @@
   <section id="onboarding" class="onboarding" aria-label="Első beállítás" hidden>
     <div class="onboarding-card">
       <div class="orb"></div>
-      <h1>1600 kcal étrend és életmód segítő app Fruzsinak</h1>
+      <h1>1600kcal étrend és életmód segítő app Fruzsinak</h1>
       <p class="lead">Állítsuk be röviden, hogyan induljon a 4 hetes kímélő étrended.</p>
       <div class="form-grid">
         <label>Melyik napon kezded az étrendet?

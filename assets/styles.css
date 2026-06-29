@@ -179,3 +179,84 @@ html,body{width:100%;max-width:100%;}
   .onboarding h1{font-size:18px;}
   .lead{font-size:12px;}
 }
+
+/* v6: eszközdátumos naplogika, erősebb Fruzsi fejléc, home glow, bevásárlás összevonás */
+.topbar{
+  align-items:center;
+  padding:calc(8px + env(safe-area-inset-top)) 10px 8px;
+  gap:8px;
+}
+.brand-block.brand-box{
+  flex:1;
+  min-width:0;
+  padding:8px 9px;
+  border:1px solid rgba(255,126,203,.34);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(255,80,180,.22), transparent 62%),
+    linear-gradient(145deg, rgba(255,143,210,.16), rgba(255,255,255,.055));
+  box-shadow:0 0 26px rgba(255,75,180,.26), inset 0 0 18px rgba(255,177,220,.10);
+  backdrop-filter:blur(18px);
+}
+.brand-title.soft-fruzsi-title{
+  max-width:none;
+  font-family:"Snell Roundhand","Apple Chancery","Segoe Script",cursive,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  font-size:18px;
+  line-height:1.05;
+  font-weight:800;
+  letter-spacing:-.35px;
+  color:#ff7bc9;
+  background:linear-gradient(90deg,#fff3fb 0%,#ff8ad0 34%,#ff4fb7 70%,#ffd2eb 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:0 0 18px rgba(255,79,183,.70),0 0 34px rgba(255,79,183,.30),0 0 54px rgba(255,185,224,.16);
+}
+.top-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto;}
+.topbar .icon-btn.glow-icon{
+  width:39px;height:39px;min-width:39px;border-radius:15px;
+  border-color:rgba(255,143,210,.26);
+  background:linear-gradient(145deg,rgba(255,143,210,.13),rgba(255,255,255,.055));
+  color:#ffeaf7;
+  box-shadow:0 0 16px rgba(255,116,200,.19), inset 0 0 12px rgba(255,255,255,.055);
+}
+.topbar .icon-btn.home-glow{
+  border-color:rgba(53,255,157,.34);
+  box-shadow:0 0 18px rgba(53,255,157,.24), inset 0 0 13px rgba(53,255,157,.08);
+}
+.top-icon{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(255,143,210,.45));}
+.home-glow .top-icon{filter:drop-shadow(0 0 7px rgba(53,255,157,.65));}
+.shopping-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0;}
+.shopping-mode-grid button{
+  min-width:0;min-height:42px;border:1px solid var(--line);border-radius:17px;
+  padding:9px 6px;color:var(--muted);background:rgba(255,255,255,.06);
+  font-size:12px;line-height:1.05;text-align:center;white-space:normal;
+}
+.shopping-mode-grid button.active{color:#1a0c00;background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;font-weight:850;box-shadow:0 0 18px rgba(255,159,28,.18)}
+.shopping-actions{margin-top:6px;}
+.shopping-actions .ghost-btn{font-size:12px;padding-left:8px;padding-right:8px;}
+.shopping-day-grid{margin-top:10px;}
+.merge-summary{display:grid;gap:4px;padding:10px 12px;border:1px solid rgba(255,255,255,.10);border-radius:18px;background:rgba(255,255,255,.045);font-size:12px;color:var(--muted);}
+.merge-summary span:first-child{color:#ffe6bb;font-weight:780;}
+.primary-btn[disabled]{opacity:.45;filter:saturate(.55);pointer-events:none;}
+.onboarding-card{border-color:rgba(255,126,203,.24);box-shadow:0 0 42px rgba(255,79,183,.12), var(--shadow);}
+.onboarding h1{
+  font-family:"Snell Roundhand","Apple Chancery","Segoe Script",cursive,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  color:#ff8ad0;
+  text-shadow:0 0 20px rgba(255,79,183,.58),0 0 36px rgba(255,79,183,.22);
+}
+@media (max-width:390px){
+  .brand-block.brand-box{padding:7px 7px;border-radius:18px;}
+  .brand-title.soft-fruzsi-title{font-size:16px;line-height:1.04;}
+  .top-actions{gap:5px;}
+  .topbar .icon-btn.glow-icon{width:36px;height:36px;min-width:36px;border-radius:14px;}
+  .top-icon{width:19px;height:19px;}
+  .shopping-mode-grid{gap:6px;}
+  .shopping-mode-grid button{font-size:11.2px;min-height:40px;padding:8px 4px;}
+}
+@media (max-width:360px){
+  .brand-title.soft-fruzsi-title{font-size:14.3px;}
+  .topbar .icon-btn.glow-icon{width:34px;height:34px;min-width:34px;}
+  .top-icon{width:18px;height:18px;}
+}
+.topbar{z-index:96;}

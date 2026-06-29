@@ -1,38 +1,19 @@
-# Balance 1600 PWA — FIXED v5
+# Fruzsi 1600 PWA — FIXED v6
 
-GitHub Pages-re feltölthető, statikus, offline-képes étrend PWA.
+GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segítő app.
 
-## v4 javítások
+## v6 fő javítások
 
-- Új nézetek és újonnan nyíló tartalmak keményebb felső pozícióra állítása.
-- Bottom sheetek, különösen a recept részletek és napi részletek, megnyitáskor felülről indulnak.
-- Sheet belső görgetése javítva: a görgethető rész külön kezelt, nem örökli a korábbi pozíciót.
-- Ciklushoz kapcsolódó technikai címkék emberibb magyar formára alakítva, például `kesoi_lutealis_pms` helyett PMS / késői luteális szakasz.
-- Receptilleszkedésnél külön, emberi „Ciklushoz igazítva” blokk.
-- Alsó navigáció prémiumabb SVG ikonokra cserélve.
-- Aktív tab neon zöld glowing hatása megtartva, de kompaktabb méretre optimalizálva.
-- Első indítási beállító oldal kompaktabb iPhone-nézetet kapott, belső görgetéssel és kisebb spacinggel.
-- Service worker cache verzió frissítve: `balance1600-v4`.
+- A Mai nap és a dátumhoz kötött nézetek az eszköz helyi naptárából számolnak.
+- Ha a kezdőnap kedd, akkor az 1. nap keddként jelenik meg, nem fix hétfőként.
+- Erősebb, nőiesebb, rózsaszín glowing fejlécbox: „1600kcal étrend és életmód segítő app Fruzsinak”.
+- Felső home gomb házikó ikonnal, külön glow effekttel.
+- Beállítás fogaskerék gomb glow effekttel.
+- Bevásárlás fül felső szűrői iPhone-on egy képernyőre optimalizálva.
+- Bevásárlásnál bármelyik nap kiválasztható.
+- Több tetszőleges nap összevonható, a közös lista bottom sheetben nyílik meg.
+- Napló, Receptek, Hetek és korábbi v5 javítások megtartva.
 
 ## Használat GitHub Pages-en
 
-A ZIP tartalmát közvetlenül a repository gyökerébe töltsd fel. A belépési pont: `index.html`.
-
-## Fájlok
-
-- `index.html`
-- `assets/styles.css`
-- `assets/app.js`
-- `data/app-data.js`
-- `manifest.webmanifest`
-- `service-worker.js`
-- `icons/`
-
-
-## FIXED v5
-- Bevásárlás fül átnevezve.
-- Napló hetekre és napokra bontva, alapból részletes mezőkkel.
-- Receptkereső fókuszvesztés javítva.
-- Felső cím Fruzsinak szóló lágy, nőies stílusban.
-- Napi specifikus „Miért így?” magyarázatok.
-- V3.1 és hasonló technikai jelölések eltakarítva a felületről.
+A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd GitHub Pages-en a root mappát publikálni.
