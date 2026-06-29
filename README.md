@@ -51,11 +51,18 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Service worker cache: balance1600-v13.
 
 
-## v14 módosítások
+## v15 módosítások
 
 - Belépő képernyő felső címe a fő fejléc stílusához igazítva.
 - Belépő képernyőn rövid appismertető és dátumlogikai segítség.
 - Napló vízcsúszka jobb oldali értéke csak az aktuális literértéket mutatja, napi cél nélkül.
 - Víz nullázása mellé külön Mentés gomb került.
 - Az app háttérszíne a v13-hoz képest kissé sötétebb, de továbbra is világosabb/prémium mélykék.
-- Service worker cache: balance1600-v14.
+- Service worker cache: balance1600-v15.
+
+
+## v15 változások
+
+- Beépítve a v3.2 részletes elkészítési adatforrás.
+- A receptlapokon az Elkészítés rész lépéskártyákban, részletesebben jelenik meg.
+- A korábbi v14 funkciók és ikonok megtartva.

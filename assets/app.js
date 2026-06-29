@@ -874,6 +874,20 @@
     return ({why_this_day_works_hu:'Miért így?', reflux_logic_hu:'Reflux logika', histamine_logic_hu:'Frissesség és hisztamin', purine_logic_hu:'Purin kontroll', cycle_logic_hu:'Ciklushoz igazítva', evening_tip_hu:'Esti tipp'})[k] || 'Részlet';
   }
 
+  function recipePrepHtml(recipe){
+    const steps = Array.isArray(recipe.prep_steps_structured) ? recipe.prep_steps_structured.filter(s => (s.instruction_hu || '').trim()) : [];
+    if(steps.length){
+      return `<div class="sheet-section recipe-prep-section"><h3 class="subhead">Elkészítés lépésről lépésre</h3><div class="prep-step-list">${steps.map((step, idx) => {
+        const no = step.step || (idx + 1);
+        const title = stripTechText(step.title_hu || `${idx + 1}. lépés`);
+        const instruction = stripTechText(step.instruction_hu || '');
+        return `<div class="prep-step"><div class="prep-step-no">${esc(no)}</div><div class="prep-step-copy"><b>${esc(title)}</b><p>${esc(instruction)}</p></div></div>`;
+      }).join('')}</div></div>`;
+    }
+    const fallback = stripTechText(recipe.prep_steps_hu || 'Ehhez a fogáshoz nincs külön részletes elkészítési leírás.');
+    return `<div class="sheet-section recipe-prep-section"><h3 class="subhead">Elkészítés</h3><p>${esc(fallback)}</p></div>`;
+  }
+
   function openRecipe(recipeId){
     const r = recipesById.get(recipeId);
     if(!r) return;
@@ -888,7 +902,7 @@
       <div class="sheet-section"><h3 class="subhead">Fő címkék</h3><div class="chip-row">${(r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids||[]).map(tagLabel)).map(stripTechText).slice(0,8).map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div></div>
       <div class="sheet-section"><h3 class="subhead">Kímélő jelzések</h3><div class="chip-row"><span class="chip green">Reflux: ${esc(riskText(risks.reflux_risk_level))}</span><span class="chip ${Number(risks.histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.histamine_caution_level))}</span><span class="chip ${Number(risks.purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.purine_caution_level))}</span>${risks.individual_test_required ? '<span class="chip warn">egyéni teszt</span>' : ''}</div>${risks.why_caution_hu ? `<p>${esc(stripTechText(risks.why_caution_hu))}</p>` : ''}</div>
       <div class="sheet-section"><h3 class="subhead">Hozzávalók</h3><ul>${(r.ingredients || []).map(i=>`<li>${esc(i.item)} — ${esc(i.amount)} ${esc(i.unit)}</li>`).join('') || '<li>Nincs megadott hozzávaló.</li>'}</ul></div>
-      <div class="sheet-section"><h3 class="subhead">Elkészítés</h3>${r.prep_steps_structured?.length ? `<ol>${r.prep_steps_structured.map(s=>`<li><b>${esc(s.title_hu)}:</b> ${esc(stripTechText(s.instruction_hu))}</li>`).join('')}</ol>` : `<p>${esc(stripTechText(r.prep_steps_hu || 'Nincs külön leírás.'))}</p>`}</div>
+      ${recipePrepHtml(r)}
       <div class="sheet-section"><h3 class="subhead">Idő és eszközök</h3><p>${esc(r.cooking_profile?.total_minutes || r.prep_minutes_estimate || '—')} perc · ${esc(r.cooking_profile?.difficulty_level || r.cooking_time_level || 'könnyű')}</p>${r.cooking_profile?.required_tools?.length ? `<div class="chip-row">${r.cooking_profile.required_tools.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div>` : ''}</div>
       <div class="sheet-section"><h3 class="subhead">Frissesség</h3><p>${esc(stripTechText(r.freshness_rule_hu || r.cooking_profile?.component_prep_note_hu || 'Frissen készítve a legjobb.'))}</p></div>
       <div class="sheet-section"><h3 class="subhead">Illeszkedés</h3>${compatibilityHtml(r.compatibility_summary_hu)}</div>
