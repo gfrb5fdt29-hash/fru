@@ -66,3 +66,16 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Beépítve a v3.2 részletes elkészítési adatforrás.
 - A receptlapokon az Elkészítés rész lépéskártyákban, részletesebben jelenik meg.
 - A korábbi v14 funkciók és ikonok megtartva.
+
+
+## v16 módosítások
+- Belépő beállítás képernyő finomhangolva: nincs külön ciklusmodul be/ki kérdés.
+- Ciklusfókusz automatikusan aktív, a kezdőnap és ciklushossz mezők közvetlenül látszanak.
+- Új app használati segédlet kártya a Kezdjük gomb fölött.
+- Onboarding boxok, gombok és sávok iPhone méretre kompaktabbra igazítva.
+- Service worker cache: balance1600-v16.
+
+## v17 módosítások
+- Bevásárlás fül: heti nézetben már csak hétválasztó boxok jelennek meg, napgombok nem.
+- Bevásárlás és Napló: prémiumabb 2×2 heti box design, egységesebb glass/glow hatással.
+- Service worker cache: balance1600-v17.

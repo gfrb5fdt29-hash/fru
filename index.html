@@ -112,14 +112,13 @@
         <b>Hogyan állítsd be először?</b>
         <span>Válaszd ki azt a dátumot, amikor ténylegesen kezded az étrendet. Az app az iPhone aktuális dátumából számolja, hogy ma a 28 napos terv hányadik napja fut. Ha kedden kezded, akkor az 1. nap keddi kezdésként jelenik meg, nem fix hétfőként.</span>
       </div>
-      <div class="form-grid">
+      <div class="form-grid onboarding-form-grid">
         <label>Melyik napon kezded az étrendet?
           <input type="date" id="obDietStart" />
         </label>
-        <label class="switch-row"><span>Szeretnéd használni a ciklusmodult?</span>
-          <input type="checkbox" id="obCycleEnabled" />
-        </label>
-        <div id="obCycleFields" class="nested-fields" hidden>
+        <div id="obCycleFields" class="nested-fields cycle-fields-open">
+          <div class="mini-card-title">Ciklushoz igazított segítség</div>
+          <p class="mini-card-text">A ciklusfókusz automatikusan aktív, ezért nem kell külön bekapcsolni. Add meg a kezdőnapot és a ciklushosszt, hogy a napi javaslatok pontosabban igazodjanak.</p>
           <label>Ciklus kezdőnapja
             <input type="date" id="obCycleStart" />
           </label>
@@ -131,6 +130,10 @@
           <input type="number" id="obWaterGoal" min="1" max="5" step="0.1" value="2.5" />
         </label>
 
+      </div>
+      <div class="onboarding-help onboarding-use-card">
+        <b>App használati segédlet</b>
+        <span>Alul válthatsz a fő részek között: Ma, Hetek, Receptek, Bevásárlás és Napló. A Mai nap mutatja az aktuális étrendnapot, a Hetekben előre böngészhetsz, a Receptekben megnyithatod az elkészítést, a Bevásárlásban napokat is összevonhatsz, a Naplóban pedig víz- és közérzetadatokat vezethetsz.</span>
       </div>
       <button id="startApp" class="primary-btn wide">Kezdjük</button>
       <p class="privacy-line">Minden naplód csak ezen a készüléken marad.</p>

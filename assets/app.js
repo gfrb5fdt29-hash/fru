@@ -33,7 +33,7 @@
   let settings = readStore(storeKeys.settings, {
     onboardingCompleted:false,
     dietStartDate: todayIso(),
-    cycleModuleEnabled:false,
+    cycleModuleEnabled:true,
     cycleStartDate: todayIso(),
     cycleLengthDays:28,
     waterGoalMl:2500,
@@ -645,17 +645,26 @@
   }
   function weekBoxDaySelector(action, activeNums, extraClass=''){
     const nums = new Set((activeNums || []).map(Number));
-    return `<div class="week-box-grid ${extraClass}">
+    return `<div class="week-box-grid premium-week-grid ${extraClass}">
       ${weeks.map(w => {
         const weekDays = allDays.filter(d => d.week === w.week);
         const hasActive = weekDays.some(d => nums.has(d.globalDayNumber));
-        return `<div class="mini-week-box ${hasActive ? 'active' : ''}">
-          <div class="mini-week-title">${w.week}. hét</div>
+        return `<div class="mini-week-box premium-week-box ${hasActive ? 'active' : ''}">
+          <div class="mini-week-title"><span>${w.week}. hét</span><em>${weekDays.length} nap</em></div>
           <div class="mini-day-grid">
             ${weekDays.map(d => `<button class="mini-day-btn ${nums.has(d.globalDayNumber) ? 'active' : ''}" data-action="${action}" data-daynum="${d.globalDayNumber}" aria-label="${d.day_number_in_week}. nap ${esc(dayDisplayName(d))}"><b>${d.day_number_in_week}</b><span>${esc(compactDayName(d))}</span></button>`).join('')}
           </div>
         </div>`;
       }).join('')}
+    </div>`;
+  }
+  function weekOnlySelector(action, activeWeek, extraClass=''){
+    const active = Number(activeWeek || 1);
+    return `<div class="week-box-grid premium-week-grid week-only-grid ${extraClass}">
+      ${weeks.map(w => `<button class="mini-week-box premium-week-box week-only-box ${Number(w.week) === active ? 'active' : ''}" data-action="${action}" data-week="${w.week}" aria-label="${w.week}. hét kiválasztása">
+        <div class="mini-week-title"><span>${w.week}. hét</span><em>heti lista</em></div>
+        <div class="week-only-meta">${esc((w.theme || '').replace(/\s*\+.*/, '').slice(0,42) || 'Bevásárlás')}</div>
+      </button>`).join('')}
     </div>`;
   }
   function shoppingDayButtons(activeWeek){
@@ -673,23 +682,31 @@
     const day = selectedDays[0] || shoppingDay();
     const activeWeek = ui.shoppingWeek || day.week || 1;
     const views = [['today','Kijelölt napok'],['weekly','Heti'],['pantry','Kamra'],['fresh','Frissen kezelendő']];
-    const selectedText = selectedDays.length === 1 ? dayLabelWithDate(selectedDays[0]) : `${selectedDays.length} nap összevonva`;
+    const isWeekly = ui.shoppingView === 'weekly';
+    const selectedText = isWeekly ? `${activeWeek}. hét bevásárlása` : (selectedDays.length === 1 ? dayLabelWithDate(selectedDays[0]) : `${selectedDays.length} nap összevonva`);
+    const selectorHtml = isWeekly
+      ? `<section class="card section shopping-select-card premium-selector-card"><div class="card-pad">
+          <h2 class="subhead">Heti lista kiválasztása</h2>
+          <p class="small-muted">Heti nézetben csak a hetek közül válassz. A napok kijelölése ilyenkor nem jelenik meg.</p>
+          ${weekOnlySelector('shoppingWeek', activeWeek, 'shopping-week-selector')}
+        </div></section>`
+      : `<section class="card section shopping-select-card premium-selector-card"><div class="card-pad">
+          <h2 class="subhead">Napok kiválasztása</h2>
+          <p class="small-muted">Egy kijelölt napnál napi lista látszik, több napnál automatikusan összevont lista készül.</p>
+          ${weekBoxDaySelector('toggleMergeDay', activeShoppingDayNumbers(), 'shopping-week-selector')}
+          <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => `${d.week}.h/${d.day_number_in_week}.n`).join(', '))}</span></div>
+        </div></section>`;
     $('#view').innerHTML = `
       <section class="section shopping-head">
         <h1 class="headline">Bevásárlás</h1>
-        <p class="small-muted">${esc(selectedText)} · egy nap vagy több nap kijelölése</p>
+        <p class="small-muted">${esc(selectedText)}</p>
         <div class="shopping-mode-grid">${views.map(v=>`<button class="${ui.shoppingView===v[0]?'active':''}" data-action="shoppingView" data-view="${v[0]}">${v[1]}</button>`).join('')}</div>
-        <div class="grid2 shopping-actions">
+        <div class="grid2 shopping-actions ${isWeekly ? 'single-action' : ''}">
           <button class="ghost-btn" data-action="toggleOnlyOpen">${ui.onlyOpen ? 'Minden tétel' : 'Csak még nem pipált'}</button>
-          <button class="ghost-btn" data-action="clearMergeDays">Mai napra vissza</button>
+          ${isWeekly ? '' : `<button class="ghost-btn" data-action="clearMergeDays">Mai napra vissza</button>`}
         </div>
       </section>
-      <section class="card section shopping-select-card"><div class="card-pad">
-        <h2 class="subhead">Napok kiválasztása</h2>
-        <p class="small-muted">Egy kijelölt napnál napi lista látszik, több napnál automatikusan összevont lista készül.</p>
-        ${weekBoxDaySelector('toggleMergeDay', activeShoppingDayNumbers(), 'shopping-week-selector')}
-        <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => `${d.week}.h/${d.day_number_in_week}.n`).join(', '))}</span></div>
-      </div></section>
+      ${selectorHtml}
       <section class="section stack">${shoppingContent(selectedDays)}</section>`;
   }
   function shoppingContent(selectedDays){
@@ -983,7 +1000,7 @@
     if(type === 'favorites' || type === 'all'){ favorites = {}; localStorage.removeItem(storeKeys.favorites); }
     if(type === 'tracking' || type === 'all'){ trackingEntries = {}; localStorage.removeItem(storeKeys.tracking); }
     if(type === 'settings' || type === 'all'){
-      settings = {...settings, onboardingCompleted:false, dietStartDate:todayIso(), cycleModuleEnabled:false, cycleStartDate:todayIso(), cycleLengthDays:28, waterGoalMl:2500, trackingMode:'detailed'};
+      settings = {...settings, onboardingCompleted:false, dietStartDate:todayIso(), cycleModuleEnabled:true, cycleStartDate:todayIso(), cycleLengthDays:28, waterGoalMl:2500, trackingMode:'detailed'};
       localStorage.removeItem(storeKeys.settings);
       showOnboarding();
     }
@@ -1026,18 +1043,18 @@
     $('#onboarding').scrollTop = 0;
     scrollToViewTop();
     $('#obDietStart').value = settings.dietStartDate || todayIso();
-    $('#obCycleEnabled').checked = !!settings.cycleModuleEnabled;
     $('#obCycleStart').value = settings.cycleStartDate || todayIso();
     $('#obCycleLength').value = settings.cycleLengthDays || 28;
     $('#obWaterGoal').value = (settings.waterGoalMl || 2500) / 1000;
-    $('#obCycleFields').hidden = !$('#obCycleEnabled').checked;
+    const cycleFields = $('#obCycleFields');
+    if(cycleFields) cycleFields.hidden = false;
   }
   function finishOnboarding(){
     settings = {
       ...settings,
       onboardingCompleted:true,
       dietStartDate: $('#obDietStart').value || todayIso(),
-      cycleModuleEnabled: $('#obCycleEnabled').checked,
+      cycleModuleEnabled: true,
       cycleStartDate: $('#obCycleStart').value || todayIso(),
       cycleLengthDays: Number($('#obCycleLength').value || 28),
       waterGoalMl: Math.round(Number($('#obWaterGoal').value || 2.5) * 1000),
@@ -1211,7 +1228,6 @@
       const el = e.target.closest('[data-action]');
       if(el) handleAction(el.dataset.action, el, e);
     });
-    $('#obCycleEnabled').addEventListener('change', () => { $('#obCycleFields').hidden = !$('#obCycleEnabled').checked; });
     $('#startApp').addEventListener('click', finishOnboarding);
 
     let startY = null;
