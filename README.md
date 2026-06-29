@@ -23,7 +23,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - A PWA főképernyő/app ikonja a kiválasztott A3 terv alapján frissítve.
 - Nem készült új ikonvariáció: a tervlap A3 ikonja lett kivágva és méretezve.
 - Frissített ikonok: icon-192.png, icon-512.png, apple-touch-icon.png.
-- Service worker cache: balance1600-v11.
+- Service worker cache: balance1600-v12.
 
 ## v10 ikonfrissítés
 - Alsó navigáció a választott B verzió szerint: kitöltött, lágy ikonok.
@@ -33,4 +33,11 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Bevásárlás: bevásárlótáska szívvel.
 - Napló: naplófüzet szívvel.
 - Nem került be új, eltérő ikonkoncepció.
-- Service worker cache: balance1600-v11.
+- Service worker cache: balance1600-v12.
+
+
+## v12 javítások
+- Felső Fruzsi box új szöveggel, két sorra optimalizálva, visszafogottabb glow-val.
+- Jobb felső Beállítások és Home gomb nagyobb lett.
+- Receptek fülön csak a keresősáv marad sticky, a szűrők görgetéskor eltűnnek.
+- Napló csúszkák 0/10 formátumú, élő jobb oldali értéket és magyarázatot kaptak.

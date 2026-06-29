@@ -571,8 +571,10 @@
     const shown = recipes.filter(recipeMatches);
     const activeFilter = (ui.recipeFilters || [])[0] || '';
     $('#view').innerHTML = `
-      <section class="searchbar">
+      <section class="searchbar recipe-search-only">
         <input id="recipeSearch" type="search" placeholder="Keresés receptnévben vagy alapanyagban" value="${esc(ui.recipeSearch || '')}" aria-label="Receptkeresés" autocomplete="off" />
+      </section>
+      <section class="section recipe-filter-section">
         <div class="recipe-filter-grid" aria-label="Receptszűrők">
           <button class="filter-chip all-filter ${!activeFilter ? 'active' : ''}" data-action="clearFilter">Mind</button>
           ${[...filterDefs, ...phaseDefs].map(([id,label]) => `<button class="filter-chip ${activeFilter === id ? 'active' : ''}" data-action="toggleFilter" data-filter="${esc(id)}">${esc(label)}</button>`).join('')}
@@ -815,14 +817,20 @@
   }
   function detailedTrackingFields(entry){
     const rows = [
-      ['trackWeight','Testsúly opcionálisan','number', entry.weight || '', 'kg'],
-      ['trackReflux','Reflux érzet','range', entry.reflux || 0, '0–10'],
-      ['trackBloating','Puffadás','range', entry.bloating || 0, '0–10'],
-      ['trackHistamine','Hisztaminszerű reakció','range', entry.histamine || 0, '0–10'],
-      ['trackEnergy','Energia','range', entry.energy ?? 5, '0–10'],
-      ['trackHunger','Éhség / jóllakottság','range', entry.hunger ?? 5, '0–10']
+      {id:'trackWeight', label:'Testsúly opcionálisan', type:'number', value: entry.weight || '', suffix:'kg'},
+      {id:'trackReflux', label:'Reflux érzet', type:'range', value: entry.reflux ?? 0, help:'0/10 = nincs refluxérzet, 10/10 = nagyon erős / rossz.'},
+      {id:'trackBloating', label:'Puffadás', type:'range', value: entry.bloating ?? 0, help:'0/10 = nincs puffadás, 10/10 = nagyon erős / zavaró.'},
+      {id:'trackHistamine', label:'Hisztaminszerű reakció', type:'range', value: entry.histamine ?? 0, help:'0/10 = nincs reakció, 10/10 = nagyon erős tünetérzet.'},
+      {id:'trackEnergy', label:'Energia', type:'range', value: entry.energy ?? 5, help:'0/10 = nagyon alacsony energia, 10/10 = nagyon jó energiaszint.'},
+      {id:'trackHunger', label:'Éhség / jóllakottság', type:'range', value: entry.hunger ?? 5, help:'0/10 = egyáltalán nem vagy éhes, 10/10 = nagyon éhes vagy.'}
     ];
-    return rows.map(([id,label,type,val,suf]) => `<label class="${type==='range'?'range-row':''}"><span>${label}</span><input id="${id}" type="${type}" ${type==='range'?'min="0" max="10" step="1"':''} value="${esc(val)}" /> <small class="small-muted">${suf}</small></label>`).join('');
+    return rows.map(row => {
+      if(row.type === 'range'){
+        const val = Number(row.value || 0);
+        return `<label class="range-row tracking-range"><span>${esc(row.label)}</span><input id="${row.id}" type="range" min="0" max="10" step="1" value="${esc(val)}" /> <small class="range-value" data-range-value-for="${row.id}">${val}/10</small><em class="range-help">${esc(row.help)}</em></label>`;
+      }
+      return `<label><span>${esc(row.label)}</span><input id="${row.id}" type="${row.type}" value="${esc(row.value)}" /> <small class="small-muted">${esc(row.suffix)}</small></label>`;
+    }).join('');
   }
   function weeklyProgress(weekNo){
     const ds = allDays.filter(d => d.week === weekNo);
@@ -906,7 +914,7 @@
   function openSettingsSheet(){
     const copy = DATA.app_copy_hu || {};
     openSheet('Beállítások', `
-      <div class="sheet-section"><h3 class="headline">1600kcal étrend és életmód segítő app Fruzsinak</h3><p>Kímélő női étrend, 4 hétre. Internet nélkül is használható, és nincs bejelentkezés.</p><p><b>Minden naplód csak ezen a készüléken marad.</b></p></div>
+      <div class="sheet-section"><h3 class="headline">Étrend- és életmód segítő APP Fruzsinak</h3><p>Kímélő női étrend, 4 hétre. Internet nélkül is használható, és nincs bejelentkezés.</p><p><b>Minden naplód csak ezen a készüléken marad.</b></p></div>
       <div class="sheet-section stack">
         <label>Kezdőnap<input type="date" id="setDietStart" value="${esc(settings.dietStartDate)}"></label>
         <label>Napi vízcél literben<input type="number" id="setWaterGoal" min="1" max="5" step="0.1" value="${esc((settings.waterGoalMl||2500)/1000)}"></label>
@@ -1148,6 +1156,12 @@
     $('#settingsBtn').addEventListener('click', openSettingsSheet);
     $('#sheetClose').addEventListener('click', closeSheet);
     $('#sheetBackdrop').addEventListener('click', closeSheet);
+    document.addEventListener('input', e => {
+      if(e.target && e.target.matches('input[type=range]')){
+        const valueEl = document.querySelector(`[data-range-value-for="${e.target.id}"]`);
+        if(valueEl) valueEl.textContent = `${e.target.value}/10`;
+      }
+    });
     document.addEventListener('keydown', e => { if(e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
     document.addEventListener('click', e => {
       const el = e.target.closest('[data-action]');
