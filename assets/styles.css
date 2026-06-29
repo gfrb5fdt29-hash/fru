@@ -260,3 +260,44 @@ html,body{width:100%;max-width:100%;}
   .top-icon{width:18px;height:18px;}
 }
 .topbar{z-index:96;}
+
+
+/* v8: olvasható Fruzsi fejléc, meal-szintű jelzések, 0–10 napló, dupla koppintás tiltás */
+html,body,.app-shell{touch-action:manipulation;overscroll-behavior-y:none;}
+button,a,.tab-btn,.meal-card,.week-card,.tracking-day-btn,.filter-chip,.ghost-btn,.primary-btn{touch-action:manipulation;}
+input,select,textarea{font-size:16px;}
+.brand-block.brand-box{
+  padding:9px 10px;
+  border-color:rgba(255,88,188,.48);
+  background:
+    radial-gradient(circle at 50% -12%, rgba(255,86,190,.35), transparent 68%),
+    linear-gradient(145deg, rgba(255,120,205,.22), rgba(255,255,255,.07));
+  box-shadow:0 0 34px rgba(255,74,184,.34),0 0 68px rgba(255,74,184,.12), inset 0 0 20px rgba(255,201,232,.12);
+}
+.brand-title.soft-fruzsi-title{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Avenir Next","Nunito",system-ui,sans-serif;
+  font-size:17.2px;
+  line-height:1.12;
+  font-weight:900;
+  letter-spacing:-.45px;
+  color:#ff5fbd;
+  background:linear-gradient(90deg,#fff6fc 0%,#ff9bd8 30%,#ff4fb8 65%,#ffe0f1 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 16px rgba(255,79,183,.72),0 0 34px rgba(255,79,183,.42),0 0 62px rgba(255,185,224,.20);
+}
+.meal-indicators{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.meal-risk-chip{font-size:10.5px;min-height:25px;padding:5px 7px;}
+.tracking-day-btn{min-height:48px;padding:7px 2px;}
+.tracking-day-btn em{display:none!important;}
+.range-row{grid-template-columns:96px 1fr 42px;gap:10px;}
+.range-row input[type=range]{min-width:0;}
+.range-row small{text-align:right;}
+@media (max-width:390px){
+  .brand-title.soft-fruzsi-title{font-size:15.6px;line-height:1.1;}
+  .brand-block.brand-box{padding:8px 8px;}
+  .meal-risk-chip{font-size:10px;padding:5px 6px;}
+  .range-row{grid-template-columns:86px 1fr 38px;}
+}
+@media (max-width:360px){
+  .brand-title.soft-fruzsi-title{font-size:14.4px;}
+}

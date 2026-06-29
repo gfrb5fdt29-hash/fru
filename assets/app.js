@@ -1,5 +1,7 @@
 (function(){
   'use strict';
+  // Mobilon ne nagyítson rá dupla koppintásra az app felülete.
+  document.addEventListener('dblclick', function(e){ e.preventDefault(); }, {passive:false});
 
   const DATA = window.BALANCE_DATA || {};
   const $ = (sel, root=document) => root.querySelector(sel);
@@ -267,20 +269,30 @@
       </div></section>`;
   }
 
+  function mealRiskChips(meal){
+    const badges = meal.meal_card?.risk_badges || {};
+    const rows = [
+      ['Reflux', badges.reflux, 'green'],
+      ['Hisztamin', badges.histamine, Number(badges.histamine||0) >= 2 ? 'warn' : 'green'],
+      ['Purin', badges.purine, Number(badges.purine||0) >= 2 ? 'warn' : 'green']
+    ];
+    return rows
+      .filter(([,v]) => v !== undefined && v !== null && v !== '')
+      .map(([label,v,cls]) => `<span class="chip ${cls} meal-risk-chip">${esc(label)}: ${esc(riskText(v))}</span>`)
+      .join('');
+  }
+
   function mealCard(day, meal){
     const checked = !!mealChecks[mealKey(day,meal)];
-    const tags = (meal.meal_card?.primary_tags || []).slice(0,3);
-    const risk = maxMealRisk(meal);
-    return `
-      <article class="meal-card ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
-        <div class="meal-slot">${esc(SLOT_ICON[meal.slot] || meal.slot?.[0] || '•')}</div>
-        <div>
-          <div class="small-muted">${esc(SLOT_LABELS[meal.slot] || meal.slot)}</div>
-          <div class="meal-title">${esc(meal.name_hu || meal.meal_card?.pwa_title)}</div>
-          <div class="meal-meta"><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(macroLine(meal.macros_g))}</span></div>
-          <div class="chip-row" style="margin-top:8px">
+    const tags = (meal.meal_card?.primary_tags || []).slice(0,3).map(stripTechText);
+    return `<article class="meal-card ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
+        <div class="meal-slot">${esc((SLOT_LABELS[meal.slot] || meal.slot || '?').slice(0,2))}</div>
+        <div class="meal-body">
+          <div class="meal-title">${esc(meal.name_hu)}</div>
+          <div class="meal-meta"><span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span></div>
+          <div class="meal-indicators">
             ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
-            <span class="chip ${risk >= 2 ? 'warn' : 'green'}">${esc(riskText(risk))}</span>
+            ${mealRiskChips(meal)}
           </div>
         </div>
         <button class="check ${checked ? 'checked' : ''}" data-action="toggleMeal" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}" data-recipe="${esc(meal.recipe_id)}" aria-label="Étkezés kipipálása"></button>
@@ -387,37 +399,53 @@
   function dailyWhySections(day){
     const totals = day.daily_totals || {};
     const flags = dayFlagLabels(day);
-    const meals = mealSummary(day);
-    const proteins = mainProteinMeals(day);
-    const dinner = (day.meals || []).find(m => m.slot === 'vacsora') || (day.meals || [])[3];
-    const breakfast = (day.meals || []).find(m => m.slot === 'reggeli');
-    const lunch = (day.meals || []).find(m => m.slot === 'ebéd' || m.slot === 'ebed');
-    const freshItems = (day.shopping_micro_plan?.daily_fresh_items || []).slice(0,5).map(i => i.item).filter(Boolean);
+    const meals = day.meals || [];
+    const dinner = meals.find(m => m.slot === 'vacsora') || meals[3];
+    const breakfast = meals.find(m => m.slot === 'reggeli');
+    const lunch = meals.find(m => m.slot === 'ebéd' || m.slot === 'ebed');
+    const snack = meals.find(m => m.slot === 'uzsonna');
+    const highest = [...meals].sort((a,b)=>Number(b.energy_kcal||0)-Number(a.energy_kcal||0))[0];
+    const freshItems = (day.shopping_micro_plan?.daily_fresh_items || []).slice(0,6).map(i => i.item).filter(Boolean);
+    const pantryItems = (day.shopping_micro_plan?.daily_pantry_or_stable_items || []).slice(0,4).map(i => i.item).filter(Boolean);
     const risk = day.day_risk_overview || {};
+    const cycle = cycleLabels(day.cycle_phase_tags || []).join(' és ');
+    const mealLine = meals.map(m => `${SLOT_LABELS[m.slot] || m.slot}: ${m.name_hu} (${m.energy_kcal} kcal)`).join('; ');
+    const dinnerShare = totals.energy_kcal ? Math.round(Number(dinner?.energy_kcal || 0) / Number(totals.energy_kcal) * 100) : 0;
+    const proteinFocus = mainProteinMeals(day);
+    const carbNames = ['rizs','burgonya','zab','quinoa','köles','hajdina','tészta','rizstészta','édesburgonya'];
+    const carbFocus = [...new Set(meals.flatMap(m => carbNames.filter(c => (m.name_hu || '').toLowerCase().includes(c))))].slice(0,4);
+    const special = flags.length ? flags.join(', ') : (day.daily_focus_hu || 'kímélő, egyszerű napi ritmus');
+    const eveningText = dinner
+      ? `Ma az esti lezárás konkrétan a(z) ${dinner.name_hu.toLowerCase()} (${dinner.energy_kcal} kcal). Ez a napi energia kb. ${dinnerShare}%-a, ezért az este nem kap túl nagy terhelést. ${snack ? `Az uzsonna (${snack.name_hu.toLowerCase()}) segít, hogy a vacsora ne éhségből legyen túl nagy.` : 'Uzsonna nélkül is érdemes nyugodt, korai vacsoraidőt tartani.'}`
+      : `Ma nincs külön kiemelt vacsoraadat, ezért az esti cél a nyugodt, nem kapkodós lezárás.`;
     return [
       {
         title:'Miért így?',
-        text:`${dayDisplayName(day)} napi fókusza: ${day.daily_focus_hu || 'kímélő, jól követhető étkezési ritmus'}. A terv ${totals.energy_kcal || 0} kcal körül van, ${totals.protein || 0} g fehérjével, ${totals.carbohydrate || 0} g szénhidráttal és ${totals.fat || 0} g zsírral. A napi étkezések: ${meals}. ${flags.length ? 'Kiemelés: ' + flags.join(', ') + '.' : 'A nap egyszerű, alap kímélő felépítésű.'}`
+        text:`${dayLabel(day)} fő fókusza: ${day.daily_focus_hu || 'kímélő, jól követhető nap'}. A napi terv ${totals.energy_kcal || 0} kcal, makróban ${totals.protein || 0} g fehérje, ${totals.carbohydrate || 0} g szénhidrát és ${totals.fat || 0} g zsír. A legnagyobb energiaadag ma: ${highest ? `${SLOT_LABELS[highest.slot] || highest.slot} – ${highest.name_hu} (${highest.energy_kcal} kcal)` : 'nincs kiemelve'}. Külön napi jelleg: ${special}.`
+      },
+      {
+        title:'Étkezési ritmus',
+        text:`A nap négy konkrét fogásra van bontva: ${mealLine}. ${breakfast ? `A reggeli (${breakfast.name_hu.toLowerCase()}) adja az indulást,` : 'A reggeli adja az indulást,'} ${lunch ? `az ebéd (${lunch.name_hu.toLowerCase()}) a főbb nappali energiát,` : 'az ebéd a főbb nappali energiát,'} ${dinner ? `a vacsora pedig (${dinner.name_hu.toLowerCase()}) az esti lezárást.` : 'a vacsora az esti lezárást.'}`
       },
       {
         title:'Reflux logika',
-        text:`A nap paradicsom, citrus, csípős és bő olajban sütött fogás nélkül épül fel. ${dinner ? `A vacsora erre a napra: ${dinner.name_hu} (${dinner.energy_kcal} kcal), ezért az esti terhelés jól tervezhető.` : 'A vacsora könnyebb esti lezárásként szerepel.'} Lefekvés előtt érdemes 2,5–3 órával lezárni az evést.`
+        text:`Ma a reflux-jelzés: ${riskText(risk.max_reflux_risk_level)}. A tervben nincs paradicsom, citrus, csípős vagy bő olajban sült elem. ${dinner ? `A vacsora ${dinner.energy_kcal} kcal, ezért érdemes ezt korábban, nyugodt tempóban lezárni.` : 'Az esti étkezést érdemes korábban lezárni.'}`
       },
       {
         title:'Frissesség és hisztamin',
-        text:`Erre a napra a frissességi figyelem szintje: ${riskText(risk.max_histamine_caution_level)}. ${freshItems.length ? `A napi friss tételek közül kiemelten: ${freshItems.join(', ')}.` : 'Nincs külön nagy friss tétel kiemelve.'} Készétel-maradék helyett az aznapi elkészítés vagy a nyers porciózás illeszkedik jobban.`
+        text:`Hisztamin szempontból a napi jelzés: ${riskText(risk.max_histamine_caution_level)}. ${freshItems.length ? `A frissen kezelendő tételek ma: ${freshItems.join(', ')}.` : 'Ma nincs külön erősen kiemelt friss tétel.'} ${pantryItems.length ? `Kamrából/stabil alapból főleg ezek kapcsolódnak hozzá: ${pantryItems.join(', ')}.` : ''} A készétel-maradék helyett az aznapi készítés vagy nyers porciózás illik jobban a tervhez.`
       },
       {
         title:'Purin kontroll',
-        text:`A nap purin szempontból ${riskText(risk.max_purine_caution_level)} jelzésű. ${proteins.length ? `A húsos/fehérjés pontok: ${proteins.join('; ')}. Ezek adagkontrollal szerepelnek.` : 'Ez a nap húsmentes vagy könnyebb fehérjeforrásra épül.'} Belsőség, hal, tenger gyümölcsei és koncentrált húslé nincs a tervben.`
+        text:`Purin szempontból a napi jelzés: ${riskText(risk.max_purine_caution_level)}. ${proteinFocus.length ? `A fehérjés pontok ma: ${proteinFocus.join('; ')}.` : 'Ma nincs nagy húsos fókusz, a nap könnyebb fehérje- és szénhidrátalapokra épül.'} ${carbFocus.length ? `A kímélő köret/energia alap: ${carbFocus.join(', ')}.` : ''} Belsőség, hal, tenger gyümölcsei és koncentrált húslé nincs benne.`
       },
       {
         title:'Ciklushoz igazítva',
-        text:cycleSuggestionText(day)
+        text:`${cycle ? `Mai ciklusfókusz: ${cycle}. ` : ''}${cycleSuggestionText(day)} A napi ételválasztásnál ezért a konkrét hangsúly ma: ${day.daily_focus_hu || 'stabil, kímélő energia'}.`
       },
       {
         title:'Esti tipp',
-        text:`${stripTechText(day.evening_tip_hu || '') || 'Vacsora után hagyj nyugodt emésztési időt.'} ${breakfast ? `A napindító ${breakfast.name_hu.toLowerCase()},` : 'A reggeli'} ${lunch ? `az ebéd pedig ${lunch.name_hu.toLowerCase()},` : 'az ebéd'} így a nap fő energiája nem az estére tolódik.`
+        text: eveningText
       }
     ];
   }
@@ -456,11 +484,6 @@
           <div class="metric"><b>${progressForDay(day).done}/${progressForDay(day).total}</b><span>Haladás</span></div>
         </div>
       </section>
-      <section class="card section"><div class="card-pad">
-        <h2 class="headline">Címkék és kímélő jelzések</h2>
-        <div class="chip-row">${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div>
-        <div class="chip-row" style="margin-top:10px"><span class="chip green">Reflux: ${esc(riskText(risks.max_reflux_risk_level))}</span><span class="chip ${Number(risks.max_histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.max_histamine_caution_level))}</span><span class="chip ${Number(risks.max_purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.max_purine_caution_level))}</span></div>
-      </div></section>
       <section class="section stack" aria-label="Napi étkezések">
         ${(day.meals || []).map(m => mealCard(day,m)).join('')}
       </section>
@@ -578,7 +601,7 @@
       ${weekDays.map(d => {
         const active = mode === 'single' ? d.globalDayNumber === shoppingDay().globalDayNumber : (ui.shoppingMergeDays || []).map(Number).includes(d.globalDayNumber);
         const action = mode === 'single' ? 'setShoppingDay' : 'toggleMergeDay';
-        return `<button class="tracking-day-btn ${active ? 'active' : ''}" data-action="${action}" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span><em>${esc(d.daily_totals?.energy_kcal || 0)} kcal</em></button>`;
+        return `<button class="tracking-day-btn ${active ? 'active' : ''}" data-action="${action}" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`;
       }).join('')}
     </div>`;
   }
@@ -720,7 +743,7 @@
         <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
         <div class="week-tabs uniform-week-tabs">${weeks.map(w => `<button class="week-card week-select ${w.week === activeWeek ? 'active' : ''}" data-action="trackingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
         <div class="tracking-day-grid">
-          ${weekDays.map(d => `<button class="tracking-day-btn ${d.globalDayNumber === day.globalDayNumber ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span><em>${esc(d.daily_totals?.energy_kcal || 0)} kcal</em></button>`).join('')}
+          ${weekDays.map(d => `<button class="tracking-day-btn ${d.globalDayNumber === day.globalDayNumber ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`).join('')}
         </div>
       </section>
       <section class="card section"><div class="card-pad">
@@ -748,13 +771,13 @@
   function detailedTrackingFields(entry){
     const rows = [
       ['trackWeight','Testsúly opcionálisan','number', entry.weight || '', 'kg'],
-      ['trackReflux','Reflux érzet','range', entry.reflux || 0, '0–3'],
-      ['trackBloating','Puffadás','range', entry.bloating || 0, '0–3'],
-      ['trackHistamine','Hisztaminszerű reakció','range', entry.histamine || 0, '0–3'],
-      ['trackEnergy','Energia','range', entry.energy ?? 2, '0–3'],
-      ['trackHunger','Éhség / jóllakottság','range', entry.hunger ?? 1, '0–3']
+      ['trackReflux','Reflux érzet','range', entry.reflux || 0, '0–10'],
+      ['trackBloating','Puffadás','range', entry.bloating || 0, '0–10'],
+      ['trackHistamine','Hisztaminszerű reakció','range', entry.histamine || 0, '0–10'],
+      ['trackEnergy','Energia','range', entry.energy ?? 5, '0–10'],
+      ['trackHunger','Éhség / jóllakottság','range', entry.hunger ?? 5, '0–10']
     ];
-    return rows.map(([id,label,type,val,suf]) => `<label class="${type==='range'?'range-row':''}"><span>${label}</span><input id="${id}" type="${type}" ${type==='range'?'min="0" max="3" step="1"':''} value="${esc(val)}" /> <small class="small-muted">${suf}</small></label>`).join('');
+    return rows.map(([id,label,type,val,suf]) => `<label class="${type==='range'?'range-row':''}"><span>${label}</span><input id="${id}" type="${type}" ${type==='range'?'min="0" max="10" step="1"':''} value="${esc(val)}" /> <small class="small-muted">${suf}</small></label>`).join('');
   }
   function weeklyProgress(weekNo){
     const ds = allDays.filter(d => d.week === weekNo);
@@ -773,8 +796,6 @@
         <div class="kcal-bubble" style="margin-bottom:12px"><b>${esc(totals.energy_kcal)}</b><span>tervezett kcal</span></div>
         <div class="metric-row"><div class="metric"><b>${esc(totals.protein)}g</b><span>Fehérje</span></div><div class="metric"><b>${esc(totals.carbohydrate)}g</b><span>Szénhidrát</span></div><div class="metric"><b>${esc(totals.fat)}g</b><span>Zsír</span></div><div class="metric"><b>${progressForDay(day).done}/${progressForDay(day).total}</b><span>Haladás</span></div></div>
       </div>
-      <div class="sheet-section"><h3 class="subhead">Mai címkék</h3><div class="chip-row">${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div></div>
-      <div class="sheet-section"><h3 class="subhead">Kímélő jelzések</h3><div class="chip-row"><span class="chip green">Reflux: ${esc(riskText(risks.max_reflux_risk_level))}</span><span class="chip ${Number(risks.max_histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.max_histamine_caution_level))}</span><span class="chip ${Number(risks.max_purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.max_purine_caution_level))}</span></div></div>
       ${dailyWhySheetHtml(day)}
       <div class="sheet-section"><h3 class="subhead">Mai frissesség</h3><p>${esc(humanNote(mp.freshness_logic_note_hu || 'Friss készítés, készétel-maradék nélkül.'))}</p></div>
       <div class="sheet-section"><h3 class="subhead">Napi vásárlási áttekintés</h3><ul>${(mp.daily_fresh_items || []).slice(0,8).map(it=>`<li>${esc(it.item)} — ${esc(humanAmount(it))}</li>`).join('') || '<li>Nincs külön napi friss tétel.</li>'}</ul></div>
@@ -955,8 +976,8 @@
       reflux: Number($('#trackReflux')?.value || current.reflux || 0),
       bloating: Number($('#trackBloating')?.value || current.bloating || 0),
       histamine: Number($('#trackHistamine')?.value || current.histamine || 0),
-      energy: Number($('#trackEnergy')?.value || current.energy || 2),
-      hunger: Number($('#trackHunger')?.value || current.hunger || 1),
+      energy: Number($('#trackEnergy')?.value || current.energy || 5),
+      hunger: Number($('#trackHunger')?.value || current.hunger || 5),
       note: $('#trackNote')?.value || ''
     };
     writeStore(storeKeys.tracking, trackingEntries);
