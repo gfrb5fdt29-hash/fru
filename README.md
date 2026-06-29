@@ -1,4 +1,4 @@
-# Fruzsi 1600 PWA — FIXED v9
+# 28 napos étrend PWA — FIXED v9
 
 GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segítő app.
 
@@ -7,7 +7,7 @@ GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segít
 - Bevásárlás fülön a súlyok magyar formátumban jelennek meg: például 1200 g helyett 1,2 kg, 1250 g helyett 1,25 kg.
 - A külön „Napi lista napja” blokk kikerült. Egyetlen napkijelölő rendszer maradt: egy nap = napi lista, több nap = összevont lista.
 - A Receptek fül szűrői kompaktabbak lettek, és egyszerre csak egy szűrő lehet aktív.
-- A felső Fruzsi box visszafogottabb glow-t kapott, a szöveg előtt és után piros szívecskével.
+- A felső felső box visszafogottabb glow-t kapott, a szöveg előtt és után piros szívecskével.
 - A beállítások gomb egyértelmű fogaskerék ikon lett narancssárga kerettel.
 - A home gomb megmaradt.
 - A v8 összes korábbi javítása megmaradt.
@@ -37,7 +37,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 
 
 ## v12 javítások
-- Felső Fruzsi box új szöveggel, két sorra optimalizálva, visszafogottabb glow-val.
+- Felső felső box új szöveggel, két sorra optimalizálva, visszafogottabb glow-val.
 - Jobb felső Beállítások és Home gomb nagyobb lett.
 - Receptek fülön csak a keresősáv marad sticky, a szűrők görgetéskor eltűnnek.
 - Napló csúszkák 0/10 formátumú, élő jobb oldali értéket és magyarázatot kaptak.
@@ -84,11 +84,11 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 ## v18 módosítások
 - Onboarding dátummezők szélességjavítása, nagyobb belépő betűméret, ciklussegéd szöveg eltávolítva.
 - Jobb felső Home és Beállítások ikon nagyobb, erősebb prémium glow-val.
-- Fruzsi fejléc görgetéskor kisebbre zsugorodik.
+- felső fejléc görgetéskor kisebbre zsugorodik.
 - Receptkártyákon főzési jelzés: Gyors / Általános / Hosszabb.
 - Bevásárlásnál a csoportosított lista nyitott kártyákban marad, a pipált elemek elrejthetők.
 - Napló fülön kiválasztott hét alá részletes, áttekinthető heti mini összegzés került.
-- „Miért így?” szövegek személyesebbek, Fruzsinak szólóbbak.
+- „Miért így?” szövegek személyesebbek, személyesebbak.
 - Nézet- és sheet-animációk egységesebb, látványosabb iPhone-szerű mozgást kaptak.
 
 
@@ -100,7 +100,7 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Bottom sheet nyitás látványosabb, rugósabb iPhone-szerű animációval és erősebb blur háttérrel.
 - Nézetváltás fade + enyhe felúszás animációra hangolva.
 - Aktív alsó fül lassú, finom pulzáló glow-t kapott.
-- Miért így? szövegek személyesebb, Fruzsinak szólóbb hangvételt kaptak.
+- Miért így? szövegek személyesebb, személyesebb hangvételt kaptak.
 - Napló vízbox kékebb, vizesebb, csillogóbb lett.
 - Korábbi vízbox duplikációs HTML-hiba javítva.
 

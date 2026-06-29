@@ -1,6 +1,6 @@
 {
-  "name": "1600 kcal étrend Fruzsinak",
-  "short_name": "Fruzsi 1600",
+  "name": "28 napos étrend",
+  "short_name": "Étrend",
   "description": "Kímélő női étrend, 4 hétre",
   "start_url": "./index.html",
   "display": "standalone",
