@@ -301,3 +301,75 @@ input,select,textarea{font-size:16px;}
 @media (max-width:360px){
   .brand-title.soft-fruzsi-title{font-size:14.4px;}
 }
+
+
+/* v9: finomabb Fruzsi box, szívek, narancssárga fogaskerék, kompakt receptszűrők, egyszerűsített bevásárlás */
+.brand-block.brand-box{
+  padding:8px 9px;
+  border-color:rgba(255,112,194,.34);
+  background:
+    radial-gradient(circle at 50% -16%, rgba(255,90,184,.20), transparent 62%),
+    linear-gradient(145deg, rgba(255,112,194,.13), rgba(255,255,255,.060));
+  box-shadow:0 0 18px rgba(255,74,184,.16), inset 0 0 14px rgba(255,201,232,.075);
+}
+.brand-title.soft-fruzsi-title{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  font-size:15.8px;
+  line-height:1.12;
+  text-shadow:0 0 10px rgba(255,79,183,.38),0 0 22px rgba(255,79,183,.14);
+}
+.brand-title .brand-text{
+  min-width:0;
+  background:linear-gradient(90deg,#fff5fb 0%,#ff9bd8 36%,#ff5fbf 72%,#ffe2f1 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.heart-mark{
+  flex:0 0 auto;
+  color:#ff334f;
+  background:none;
+  -webkit-text-fill-color:#ff334f;
+  text-shadow:0 0 8px rgba(255,51,79,.36);
+  font-size:.92em;
+  line-height:1;
+}
+.topbar .icon-btn.settings-glow{
+  border-color:rgba(255,159,28,.78);
+  background:linear-gradient(145deg,rgba(255,159,28,.16),rgba(255,255,255,.06));
+  color:#ffd28a;
+  box-shadow:0 0 14px rgba(255,159,28,.24), inset 0 0 10px rgba(255,199,106,.08);
+}
+.settings-glow .top-icon{filter:drop-shadow(0 0 6px rgba(255,159,28,.52));}
+.recipe-filter-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin-top:8px;
+}
+.recipe-filter-grid .filter-chip{
+  min-width:0;
+  min-height:34px;
+  padding:7px 5px;
+  border-radius:14px;
+  font-size:11px;
+  line-height:1.05;
+  text-align:center;
+  white-space:normal;
+}
+.recipe-filter-grid .filter-chip.all-filter{font-weight:800;}
+.shopping-select-card .subhead{margin-bottom:4px;}
+.shopping-select-card .tracking-day-grid{margin-top:8px;}
+.shopping-select-card .tracking-day-btn{min-height:46px;}
+.selection-summary{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:10px;padding:9px 10px;border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(255,255,255,.045);font-size:12px;color:var(--muted);}
+.selection-summary b{color:#ffe6bb;}
+@media (max-width:390px){
+  .brand-title.soft-fruzsi-title{font-size:14.3px;gap:4px;}
+  .recipe-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}
+  .recipe-filter-grid .filter-chip{font-size:10.4px;padding:7px 3px;}
+}
+@media (max-width:360px){
+  .brand-title.soft-fruzsi-title{font-size:13.1px;}
+  .heart-mark{font-size:.84em;}
+}

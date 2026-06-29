@@ -1,34 +1,17 @@
-# Fruzsi 1600 PWA — FIXED v8
+# Fruzsi 1600 PWA — FIXED v9
 
 GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segítő app.
 
-## v8 fő javítások
+## v9 fő javítások
 
-- A Mai nap és a dátumhoz kötött nézetek az eszköz helyi naptárából számolnak.
-- Ha a kezdőnap kedd, akkor az 1. nap keddként jelenik meg, nem fix hétfőként.
-- Erősebb, nőiesebb, rózsaszín glowing fejlécbox: „1600kcal étrend és életmód segítő app Fruzsinak”.
-- Felső home gomb házikó ikonnal, külön glow effekttel.
-- Beállítás fogaskerék gomb glow effekttel.
-- Bevásárlás fül felső szűrői iPhone-on egy képernyőre optimalizálva.
-- Bevásárlásnál bármelyik nap kiválasztható.
-- Több tetszőleges nap összevonható, a közös lista bottom sheetben nyílik meg.
-- Napló, Receptek, Hetek és korábbi v5 javítások megtartva.
+- Bevásárlás fülön a súlyok magyar formátumban jelennek meg: például 1200 g helyett 1,2 kg, 1250 g helyett 1,25 kg.
+- A külön „Napi lista napja” blokk kikerült. Egyetlen napkijelölő rendszer maradt: egy nap = napi lista, több nap = összevont lista.
+- A Receptek fül szűrői kompaktabbak lettek, és egyszerre csak egy szűrő lehet aktív.
+- A felső Fruzsi box visszafogottabb glow-t kapott, a szöveg előtt és után piros szívecskével.
+- A beállítások gomb egyértelmű fogaskerék ikon lett narancssárga kerettel.
+- A home gomb megmaradt.
+- A v8 összes korábbi javítása megmaradt.
 
 ## Használat GitHub Pages-en
 
 A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd GitHub Pages-en a root mappát publikálni.
-
-
-## v8 gyorsjavítás
-- Javítva a Hetek fül renderhibája, amely miatt nem töltött be a heti nézet.
-- Javítva a Napló fül renderhibája, amely miatt nem töltött be a napló nézet.
-- Nézetvédő hibaüzenet hozzáadva, hogy egy esetleges jövőbeli nézethiba ne tüntesse el az egész appnavigációt.
-
-
-## v8 javítások
-- Olvashatóbb Fruzsi fejlécbox.
-- Meal-kártyákon egyértelmű kímélő jelzések, külön napi címkeblokk nélkül.
-- Napló közérzet csúszkák 0–10 skálán.
-- Bevásárlás/Napló napválasztók kcal nélkül.
-- Erősebb napi specifikus Miért így? szövegek.
-- Dupla koppintásos nagyítás tiltva mobilon.

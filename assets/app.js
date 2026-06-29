@@ -103,7 +103,38 @@
       .replace(/schema/gi, 'felépítés')
       .replace(/localStorage|IndexedDB/gi, 'a készülék'));
   }
+  function formatHuNumber(value, maxDecimals=2){
+    const n = Number(value);
+    if(!Number.isFinite(n)) return String(value ?? '');
+    return n.toLocaleString('hu-HU', {minimumFractionDigits:0, maximumFractionDigits:maxDecimals});
+  }
+  function formatAmountValue(value, unit){
+    const n = Number(value);
+    const u = String(unit || '').trim();
+    if(!Number.isFinite(n)) return `${value ?? ''}${u ? ' ' + u : ''}`.trim();
+    if(u.toLowerCase() === 'g' && Math.abs(n) >= 1000){
+      return `${formatHuNumber(n / 1000, 2)} kg`;
+    }
+    if(u.toLowerCase() === 'ml' && Math.abs(n) >= 1000){
+      return `${formatHuNumber(n / 1000, 2)} l`;
+    }
+    return `${formatHuNumber(n, n % 1 ? 1 : 0)}${u ? ' ' + u : ''}`;
+  }
+  function itemNetAmount(item){
+    return Number(item?.net_amount ?? item?.amount ?? 0);
+  }
+  function itemBuyAmount(item){
+    return Number(item?.recommended_purchase_amount ?? item?.amount ?? item?.net_amount ?? 0);
+  }
   function humanAmount(item){
+    if(item && (item.net_amount !== undefined || item.recommended_purchase_amount !== undefined || item.amount !== undefined)){
+      const unit = item.unit || '';
+      const net = itemNetAmount(item);
+      const buy = itemBuyAmount(item);
+      const netPart = Number.isFinite(net) && net > 0 ? `Recepthez ${formatAmountValue(net, unit)}` : '';
+      const buyPart = Number.isFinite(buy) && buy > 0 ? `Vedd meg kb. ${formatAmountValue(buy, unit)}` : '';
+      return [netPart, buyPart].filter(Boolean).join('; ');
+    }
     const raw = item?.pwa_display_amount_hu || `${item?.amount ?? item?.net_amount ?? ''} ${item?.unit || ''}`;
     return stripTechText(raw)
       .replace(/nettó/gi, 'Recepthez')
@@ -534,15 +565,17 @@
 
   function renderRecipes(){
     const filterDefs = [
-      ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi napba illik'], ['sos','Sós reggeli'], ['teszta','Tésztás / rizstésztás'], ['gyors','Gyors'], ['kozepes','Közepes'], ['hosszabb','Hosszabb főzés'], ['ovatos','Egyéni teszt']
+      ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi'], ['sos','Sós reggeli'], ['teszta','Tészta'], ['gyors','Gyors'], ['kozepes','Közepes'], ['hosszabb','Hosszabb'], ['ovatos','Egyéni teszt']
     ];
     const phaseDefs = ['menstruacio','follikularis','ovulacio','korai_lutealis','pms_kesoi_lutealis'].map(p => [`phase:${p}`, PHASE_LABELS[p] || p]);
     const shown = recipes.filter(recipeMatches);
+    const activeFilter = (ui.recipeFilters || [])[0] || '';
     $('#view').innerHTML = `
       <section class="searchbar">
         <input id="recipeSearch" type="search" placeholder="Keresés receptnévben vagy alapanyagban" value="${esc(ui.recipeSearch || '')}" aria-label="Receptkeresés" autocomplete="off" />
-        <div class="h-scroll" style="margin-top:8px">
-          ${[...filterDefs, ...phaseDefs].map(([id,label]) => `<button class="filter-chip ${(ui.recipeFilters||[]).includes(id) ? 'active' : ''}" data-action="toggleFilter" data-filter="${esc(id)}">${esc(label)}</button>`).join('')}
+        <div class="recipe-filter-grid" aria-label="Receptszűrők">
+          <button class="filter-chip all-filter ${!activeFilter ? 'active' : ''}" data-action="clearFilter">Mind</button>
+          ${[...filterDefs, ...phaseDefs].map(([id,label]) => `<button class="filter-chip ${activeFilter === id ? 'active' : ''}" data-action="toggleFilter" data-filter="${esc(id)}">${esc(label)}</button>`).join('')}
         </div>
       </section>
       <section class="section">
@@ -595,52 +628,54 @@
     ui.shoppingMergeDays = nums;
     return nums.map(n => allDays.find(d => d.globalDayNumber === n)).filter(Boolean);
   }
-  function shoppingDayButtons(activeWeek, mode){
+  function activeShoppingDayNumbers(){
+    let nums = Array.from(new Set((ui.shoppingMergeDays || []).map(Number))).filter(n => n >= 1 && n <= 28).sort((a,b)=>a-b);
+    if(!nums.length) nums = [Number(ui.shoppingDayNumber || currentPlanDayNumber())];
+    return nums;
+  }
+  function selectedShoppingDays(){
+    return activeShoppingDayNumbers().map(n => allDays.find(d => d.globalDayNumber === n)).filter(Boolean);
+  }
+  function shoppingDayButtons(activeWeek){
     const weekDays = allDays.filter(d => d.week === activeWeek);
+    const activeNums = activeShoppingDayNumbers();
     return `<div class="tracking-day-grid shopping-day-grid">
       ${weekDays.map(d => {
-        const active = mode === 'single' ? d.globalDayNumber === shoppingDay().globalDayNumber : (ui.shoppingMergeDays || []).map(Number).includes(d.globalDayNumber);
-        const action = mode === 'single' ? 'setShoppingDay' : 'toggleMergeDay';
-        return `<button class="tracking-day-btn ${active ? 'active' : ''}" data-action="${action}" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`;
+        const active = activeNums.includes(d.globalDayNumber);
+        return `<button class="tracking-day-btn ${active ? 'active' : ''}" data-action="toggleMergeDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`;
       }).join('')}
     </div>`;
   }
   function renderShopping(){
-    const day = shoppingDay();
+    const selectedDays = selectedShoppingDays();
+    const day = selectedDays[0] || shoppingDay();
     const activeWeek = ui.shoppingWeek || day.week || 1;
-    const views = [['today','Napi friss'],['weekly','Heti'],['pantry','Kamra'],['fresh','Frissen kezelendő']];
+    const views = [['today','Kijelölt napok'],['weekly','Heti'],['pantry','Kamra'],['fresh','Frissen kezelendő']];
+    const selectedText = selectedDays.length === 1 ? dayLabelWithDate(selectedDays[0]) : `${selectedDays.length} nap összevonva`;
     $('#view').innerHTML = `
       <section class="section shopping-head">
         <h1 class="headline">Bevásárlás</h1>
-        <p class="small-muted">${esc(dayLabelWithDate(day))} · választható napi és összevont lista</p>
+        <p class="small-muted">${esc(selectedText)} · egy nap vagy több nap kijelölése</p>
         <div class="shopping-mode-grid">${views.map(v=>`<button class="${ui.shoppingView===v[0]?'active':''}" data-action="shoppingView" data-view="${v[0]}">${v[1]}</button>`).join('')}</div>
         <div class="grid2 shopping-actions">
           <button class="ghost-btn" data-action="toggleOnlyOpen">${ui.onlyOpen ? 'Minden tétel' : 'Csak még nem pipált'}</button>
-          <button class="ghost-btn" data-action="resetShoppingDaily">Napi lista visszaállítása</button>
+          <button class="ghost-btn" data-action="clearMergeDays">Mai napra vissza</button>
         </div>
       </section>
-      <section class="card section"><div class="card-pad">
-        <h2 class="subhead">Napi lista napja</h2>
-        <p class="small-muted">Nem csak a mai napot nézheted: bármelyik étrendnaphoz kérhetsz bevásárlást.</p>
+      <section class="card section shopping-select-card"><div class="card-pad">
+        <h2 class="subhead">Napok kiválasztása</h2>
+        <p class="small-muted">Egy kijelölt napnál napi lista látszik, több napnál automatikusan összevont lista készül.</p>
         <div class="week-tabs uniform-week-tabs">${weeks.map(w=>`<button class="week-card week-select ${activeWeek===w.week?'active':''}" data-action="shoppingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
-        ${shoppingDayButtons(activeWeek, 'single')}
+        ${shoppingDayButtons(activeWeek)}
+        <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => `${d.week}.h/${d.day_number_in_week}.n`).join(', '))}</span></div>
       </div></section>
-      <section class="card section"><div class="card-pad stack">
-        <div>
-          <h2 class="subhead">Több nap összevonása</h2>
-          <p class="small-muted">Jelölj ki tetszőleges napokat, és az app összeadja az alapanyagokat egy közös listába.</p>
-        </div>
-        ${shoppingDayButtons(activeWeek, 'merge')}
-        <div class="merge-summary"><span>${selectedMergeDays().length} nap kijelölve</span><span>${selectedMergeDays().map(d => `${d.week}.h/${d.day_number_in_week}.n`).join(', ') || 'Válassz napokat'}</span></div>
-        <div class="grid2">
-          <button class="primary-btn" data-action="openMergedShopping" ${selectedMergeDays().length ? '' : 'disabled'}>Összevont lista</button>
-          <button class="ghost-btn" data-action="clearMergeDays">Kijelölés törlése</button>
-        </div>
-      </div></section>
-      <section class="section stack">${shoppingContent(day)}</section>`;
+      <section class="section stack">${shoppingContent(selectedDays)}</section>`;
   }
-  function shoppingContent(day){
+  function shoppingContent(selectedDays){
+    const days = Array.isArray(selectedDays) && selectedDays.length ? selectedDays : [shoppingDay()];
+    const day = days[0];
     if(ui.shoppingView === 'weekly') return weeklyShopping();
+    if(days.length > 1 && ui.shoppingView === 'today') return mergedShoppingHtml(days);
     if(ui.shoppingView === 'pantry') return pantryShopping(day);
     if(ui.shoppingView === 'fresh') return freshHandling(day);
     return dailyFreshShopping(day);
@@ -713,8 +748,18 @@
     }));
     return Array.from(map.values()).sort((a,b) => a.group.localeCompare(b.group, 'hu') || a.name.localeCompare(b.name, 'hu'));
   }
+  function mergedShoppingHtml(days){
+    const rows = aggregateShopping(days);
+    const groups = rows.reduce((acc,item) => { (acc[item.group] ||= []).push(item); return acc; }, {});
+    return `<div class="card"><div class="card-pad"><h2 class="subhead">Összevont lista</h2><p class="small-muted">Kijelölt napok: ${esc(days.map(dayLabel).join(' · '))}</p><button class="ghost-btn wide" data-action="openMergedShopping">Megnyitás felcsúszó listában</button></div></div>` +
+      (Object.entries(groups).map(([group,items]) => `<div class="card"><div class="card-pad"><h3 class="subhead">${esc(group)}</h3>${items.map((it,idx) => {
+        const key = shoppingKey('merged', [group, idx, it.name, it.unit, days.map(d=>d.day_id).join('-')]);
+        const checked = !!shoppingChecks[key];
+        return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(formatAmountValue(it.buy, it.unit))} · recepthez összesen ${esc(formatAmountValue(it.net, it.unit))}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
+      }).join('')}</div></div>`).join('') || '<div class="empty">Nincs összeadható tétel.</div>');
+  }
   function openMergedShopping(){
-    const days = selectedMergeDays();
+    const days = selectedShoppingDays();
     if(!days.length){ toast('Válassz ki legalább egy napot.'); return; }
     const rows = aggregateShopping(days);
     const groups = rows.reduce((acc,item) => { (acc[item.group] ||= []).push(item); return acc; }, {});
@@ -723,7 +768,7 @@
       ${Object.entries(groups).map(([group,items]) => `<div class="sheet-section"><h3 class="subhead">${esc(group)}</h3>${items.map((it,idx) => {
         const key = shoppingKey('merged', [group, idx, it.name, it.unit, days.map(d=>d.day_id).join('-')]);
         const checked = !!shoppingChecks[key];
-        return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(Math.round(it.buy*10)/10)} ${esc(it.unit)} · recepthez összesen ${esc(Math.round(it.net*10)/10)} ${esc(it.unit)}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
+        return `<div class="list-item ${checked?'checked':''}"><button class="small-check ${checked?'checked':''}" data-action="toggleShoppingItem" data-key="${esc(key)}" aria-label="Tétel kipipálása"></button><div class="item-main"><div class="item-title">${esc(it.name)}</div><div class="item-note">Vedd meg kb. ${esc(formatAmountValue(it.buy, it.unit))} · recepthez összesen ${esc(formatAmountValue(it.net, it.unit))}</div><div class="item-note">Napok: ${esc([...new Set(it.days)].join(', '))}</div></div></div>`;
       }).join('')}</div>`).join('') || '<div class="empty">Nincs összeadható tétel.</div>'}
     `);
   }
@@ -1003,9 +1048,14 @@
     if(action === 'weekDay') openDayPage(el.dataset.daynum);
     if(action === 'backFromDay'){ ui.activeTab = ui.dayReturnTab || 'weeks'; if(ui.dayReturnWeek) ui.activeWeek = ui.dayReturnWeek; render(); }
     if(action === 'toggleFilter'){
-      const set = new Set(ui.recipeFilters || []);
-      set.has(el.dataset.filter) ? set.delete(el.dataset.filter) : set.add(el.dataset.filter);
-      ui.recipeFilters = Array.from(set); render({resetTop:true}); writeStore(storeKeys.ui, ui);
+      const current = (ui.recipeFilters || [])[0] || '';
+      const next = el.dataset.filter || '';
+      ui.recipeFilters = current === next ? [] : [next];
+      render({resetTop:true}); writeStore(storeKeys.ui, ui);
+    }
+    if(action === 'clearFilter'){
+      ui.recipeFilters = [];
+      render({resetTop:true}); writeStore(storeKeys.ui, ui);
     }
     if(action === 'toggleFavorite'){
       event.stopPropagation();
@@ -1036,12 +1086,26 @@
     }
     if(action === 'toggleMergeDay'){
       const n = Number(el.dataset.daynum);
-      const set = new Set((ui.shoppingMergeDays || []).map(Number));
-      set.has(n) ? set.delete(n) : set.add(n);
+      const current = activeShoppingDayNumbers();
+      const set = new Set(current.map(Number));
+      if(set.has(n)){
+        if(set.size > 1) set.delete(n);
+      }else{
+        set.add(n);
+      }
       ui.shoppingMergeDays = Array.from(set).sort((a,b)=>a-b);
+      const d = allDays.find(day => day.globalDayNumber === n);
+      if(d){ ui.shoppingWeek = d.week; ui.shoppingDayNumber = n; }
       writeStore(storeKeys.ui, ui); renderShopping();
     }
-    if(action === 'clearMergeDays'){ ui.shoppingMergeDays = []; writeStore(storeKeys.ui, ui); renderShopping(); }
+    if(action === 'clearMergeDays'){
+      const n = currentPlanDayNumber();
+      const d = allDays.find(day => day.globalDayNumber === n) || selectedDay();
+      ui.shoppingMergeDays = [d.globalDayNumber];
+      ui.shoppingDayNumber = d.globalDayNumber;
+      ui.shoppingWeek = d.week;
+      writeStore(storeKeys.ui, ui); renderShopping();
+    }
     if(action === 'openMergedShopping') openMergedShopping();
     if(action === 'toggleShoppingItem'){
       const k = el.dataset.key; shoppingChecks[k] = !shoppingChecks[k]; if(!shoppingChecks[k]) delete shoppingChecks[k]; writeStore(storeKeys.shoppingChecks, shoppingChecks); if(!$('#sheet').hidden && $('#sheetTitle').textContent === 'Összevont bevásárlás') openMergedShopping(); else renderShopping();
