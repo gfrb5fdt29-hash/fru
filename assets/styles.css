@@ -2164,3 +2164,243 @@ body[data-active-tab] :is(.card.section:nth-of-type(4n+1),.card.section:nth-of-t
     radial-gradient(circle at 91% 10%, color-mix(in srgb, var(--tab-accent-2) 14%, transparent), transparent 34%),
     linear-gradient(145deg,var(--tab-surface-a),var(--tab-surface-b) 55%,var(--tab-surface-c))!important;
 }
+
+/* v31 — OLED Jewelry: közös mély OLED alap, finom glass surface, ékszer-akcentusok.
+   Fontos: nem kap minden szöveg külön színboxot; csak valódi kártyák/interaktív elemek emelkednek ki. */
+body[data-active-tab]{
+  --j-bg-0:#030711;
+  --j-bg-1:#06101a;
+  --j-bg-2:#081724;
+  --j-surface-1:rgba(255,255,255,.070);
+  --j-surface-2:rgba(255,255,255,.045);
+  --j-surface-3:rgba(255,255,255,.025);
+  --j-line:rgba(255,255,255,.14);
+  --j-line-strong:rgba(255,255,255,.22);
+  --j-accent:#7fffe5;
+  --j-accent-2:#0f766e;
+  --j-accent-3:#cffff5;
+  --j-accent-rgb:127,255,229;
+  --j-accent2-rgb:15,118,110;
+  --j-text:#f7fbff;
+  --j-muted:#aebdcc;
+  --j-on:#021d1a;
+  --tab-accent:var(--j-accent);
+  --tab-accent-2:var(--j-accent-2);
+  --tab-accent-3:var(--j-accent-3);
+  --tab-card-line:rgba(var(--j-accent-rgb),.20);
+  --tab-card-line-strong:rgba(var(--j-accent-rgb),.36);
+  --tab-glow:rgba(var(--j-accent-rgb),.16);
+  --tab-glow-soft:rgba(var(--j-accent-rgb),.075);
+  --tab-text:var(--j-text);
+  --tab-muted:var(--j-muted);
+  --tab-on-accent:var(--j-on);
+}
+body[data-active-tab="today"]{
+  --j-bg-0:#061F24; --j-bg-1:#082C31; --j-bg-2:#04161B;
+  --j-accent:#7FFFE5; --j-accent-2:#0F766E; --j-accent-3:#D6FFF6;
+  --j-accent-rgb:127,255,229; --j-accent2-rgb:15,118,110; --j-on:#03241F;
+}
+body[data-active-tab="weeks"]{
+  --j-bg-0:#201A11; --j-bg-1:#2A2114; --j-bg-2:#120E08;
+  --j-accent:#FFF0C2; --j-accent-2:#D6B56D; --j-accent-3:#FFF7DE;
+  --j-accent-rgb:255,240,194; --j-accent2-rgb:214,181,109; --j-on:#261A07;
+  --j-muted:#d5c6a4;
+}
+body[data-active-tab="recipes"]{
+  --j-bg-0:#241304; --j-bg-1:#351B06; --j-bg-2:#130902;
+  --j-accent:#FFBF6B; --j-accent-2:#B86B1D; --j-accent-3:#FFE8BD;
+  --j-accent-rgb:255,191,107; --j-accent2-rgb:184,107,29; --j-on:#2B1200;
+  --j-muted:#deb98a;
+}
+body[data-active-tab="shopping"]{
+  --j-bg-0:#06292E; --j-bg-1:#07373D; --j-bg-2:#03181B;
+  --j-accent:#7DF9FF; --j-accent-2:#00B8C4; --j-accent-3:#D9FDFF;
+  --j-accent-rgb:125,249,255; --j-accent2-rgb:0,184,196; --j-on:#00282B;
+  --j-muted:#b7e5e8;
+}
+body[data-active-tab="tracking"]{
+  --j-bg-0:#1E1433; --j-bg-1:#2A1C46; --j-bg-2:#100A1D;
+  --j-accent:#D6BCFA; --j-accent-2:#7C3AED; --j-accent-3:#F1E8FF;
+  --j-accent-rgb:214,188,250; --j-accent2-rgb:124,58,237; --j-on:#23113B;
+  --j-muted:#d1c0ea;
+}
+
+html, body[data-active-tab]{background:var(--j-bg-2)!important;}
+body[data-active-tab]{
+  color:var(--j-text)!important;
+  background:
+    radial-gradient(circle at 78% 4%,rgba(var(--j-accent-rgb),.16),transparent 22rem),
+    radial-gradient(circle at 5% 18%,rgba(var(--j-accent2-rgb),.17),transparent 26rem),
+    radial-gradient(circle at 50% 112%,rgba(var(--j-accent-rgb),.07),transparent 24rem),
+    linear-gradient(180deg,var(--j-bg-0) 0%,var(--j-bg-1) 46%,var(--j-bg-2) 100%)!important;
+}
+body[data-active-tab] .app-shell{
+  background:linear-gradient(180deg,rgba(255,255,255,.010),rgba(0,0,0,.035))!important;
+}
+
+/* Fejléc: ugyanaz az ékszer-akcentus, de nem különálló, rikító dobozként. */
+body[data-active-tab] .topbar{
+  background:linear-gradient(180deg,rgba(3,7,17,.88),rgba(3,7,17,.62) 76%,transparent)!important;
+  border-bottom-color:rgba(var(--j-accent-rgb),.12)!important;
+}
+body[data-active-tab] .brand-block.brand-box{
+  background:
+    radial-gradient(circle at 50% -34%,rgba(var(--j-accent-rgb),.20),transparent 58%),
+    linear-gradient(145deg,rgba(255,255,255,.080),rgba(var(--j-accent2-rgb),.070) 58%,rgba(255,255,255,.035))!important;
+  border-color:rgba(var(--j-accent-rgb),.20)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.28),0 0 22px rgba(var(--j-accent-rgb),.10),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+body[data-active-tab] .brand-title .brand-text{
+  background:linear-gradient(90deg,var(--j-text),var(--j-accent-3) 44%,var(--j-accent) 72%,var(--j-text))!important;
+  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+}
+body[data-active-tab] .topbar .icon-btn.glow-icon{
+  background:linear-gradient(145deg,rgba(var(--j-accent-rgb),.105),rgba(255,255,255,.038))!important;
+  border-color:rgba(var(--j-accent-rgb),.24)!important;
+  color:var(--j-accent-3)!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.30),0 0 18px rgba(var(--j-accent-rgb),.13),inset 0 0 10px rgba(var(--j-accent-rgb),.055)!important;
+}
+
+/* Kártyák: finom surface, közel a háttérhez. Nincs túl élesen leváló színfolt. */
+body[data-active-tab] :is(
+  .card,.hero,.detail-hero,.recipe-card,.meal-card,.mini-day,.week-day-card,
+  .week-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,
+  .shopping-select-card,.shopping-group-card,.tracking-week-row,.weekly-summary-card,
+  .water-card,.list-item,.metric,.kcal-bubble,.prep-step,.prep-step-card,
+  .date-logic-help,.card-soft-note,.selection-summary
+){
+  color:var(--j-text)!important;
+  border-color:rgba(var(--j-accent-rgb),.18)!important;
+  background:
+    radial-gradient(circle at 10% 0,rgba(var(--j-accent-rgb),.080),transparent 34%),
+    radial-gradient(circle at 96% 0,rgba(var(--j-accent2-rgb),.060),transparent 33%),
+    linear-gradient(145deg,rgba(255,255,255,.073),rgba(255,255,255,.042) 56%,rgba(var(--j-accent2-rgb),.033))!important;
+  box-shadow:0 22px 54px rgba(0,0,0,.30),0 0 22px rgba(var(--j-accent-rgb),.060),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+body[data-active-tab] :is(.hero,.detail-hero){
+  background:
+    radial-gradient(circle at 14% -2%,rgba(var(--j-accent-rgb),.12),transparent 45%),
+    linear-gradient(145deg,rgba(255,255,255,.082),rgba(var(--j-accent2-rgb),.080) 54%,rgba(255,255,255,.040))!important;
+}
+body[data-active-tab] :is(.card,.meal-card,.water-card,.premium-week-box)::before,
+body[data-active-tab] :is(.card,.meal-card,.water-card,.premium-week-box)::after{
+  background:radial-gradient(circle at 10% 0,rgba(var(--j-accent-rgb),.08),transparent 30%)!important;
+}
+
+/* Bottom sheet: a felület igazodik a fülhöz, de a sima szöveges részek nem kapnak ráerőltetett boxot. */
+body[data-active-tab] .sheet{
+  color:var(--j-text)!important;
+  border-color:rgba(var(--j-accent-rgb),.20)!important;
+  background:
+    radial-gradient(circle at 50% -12%,rgba(var(--j-accent-rgb),.13),transparent 42%),
+    linear-gradient(180deg,rgba(8,14,24,.985),rgba(4,8,16,.992))!important;
+  box-shadow:0 -24px 80px rgba(0,0,0,.50),0 0 28px rgba(var(--j-accent-rgb),.090)!important;
+}
+body[data-active-tab] .sheet .sheet-section{
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+  color:var(--j-text)!important;
+}
+body[data-active-tab] .sheet .sheet-section.card-pad,
+body[data-active-tab] .sheet .sheet-section.danger-zone{
+  border-color:rgba(var(--j-accent-rgb),.16)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(var(--j-accent2-rgb),.030))!important;
+  box-shadow:0 14px 36px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+body[data-active-tab] .sheet .list-item,
+body[data-active-tab] .sheet .prep-step,
+body[data-active-tab] .sheet .prep-step-card,
+body[data-active-tab] .sheet .metric{
+  border-color:rgba(var(--j-accent-rgb),.17)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.064),rgba(var(--j-accent2-rgb),.035))!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.24),0 0 16px rgba(var(--j-accent-rgb),.050),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+body[data-active-tab] .sheet-backdrop{background:rgba(0,0,0,.56)!important;}
+body[data-active-tab] .sheet-header{border-bottom-color:rgba(var(--j-accent-rgb),.14)!important;}
+body[data-active-tab] .sheet-handle{background:rgba(var(--j-accent-rgb),.34)!important;}
+
+/* Szövegek, kisebb magyarázatok: elegáns tipográfia, nem külön színbox. */
+body[data-active-tab] .sheet-section p,
+body[data-active-tab] .sheet-section ul,
+body[data-active-tab] .sheet-section ol{color:rgba(247,251,255,.88)!important;}
+body[data-active-tab] .small-muted,
+body[data-active-tab] .item-note,
+body[data-active-tab] .meal-meta,
+body[data-active-tab] .range-help,
+body[data-active-tab] .tracking-week-bar em,
+body[data-active-tab] .tracking-day-pill span{color:var(--j-muted)!important;}
+body[data-active-tab] :is(.headline,.subhead,.item-title,.meal-title,.tracking-week-bar span,.mini-week-title,.day-n){color:var(--j-text)!important;}
+body[data-active-tab] .eyebrow,
+body[data-active-tab] .sheet-section .subhead,
+body[data-active-tab] .recipe-prep-section .subhead{color:var(--j-accent-3)!important;}
+
+/* Interaktív elemek: fülhöz illő akcentus, de kevesebb harsány kitöltéssel. */
+body[data-active-tab] :is(.week-card,.premium-week-box,.tracking-day-btn,.tracking-day-pill,.mini-day-btn,.segmented button,.filter-chip,.ghost-btn,.chip,.fav-btn,.water-pill){
+  border-color:rgba(var(--j-accent-rgb),.16)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(var(--j-accent2-rgb),.035))!important;
+  color:var(--j-muted)!important;
+  box-shadow:none!important;
+}
+body[data-active-tab] :is(.week-card.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.fav-btn.active,.water-pill.active),
+body[data-active-tab] .tracking-week-row.active .tracking-week-bar{
+  color:var(--j-accent-3)!important;
+  border-color:rgba(var(--j-accent-rgb),.34)!important;
+  background:linear-gradient(145deg,rgba(var(--j-accent-rgb),.135),rgba(var(--j-accent2-rgb),.085))!important;
+  box-shadow:0 0 22px rgba(var(--j-accent-rgb),.12),inset 0 1px 0 rgba(255,255,255,.11)!important;
+}
+body[data-active-tab] :is(.primary-btn,.check.checked,.small-check.checked){
+  color:var(--j-on)!important;
+  background:linear-gradient(135deg,var(--j-accent),var(--j-accent-2))!important;
+  border-color:transparent!important;
+  box-shadow:0 14px 30px rgba(0,0,0,.24),0 0 18px rgba(var(--j-accent-rgb),.18)!important;
+}
+body[data-active-tab] input[type="range"]{accent-color:var(--j-accent)!important;}
+body[data-active-tab] .progress-fill{background:linear-gradient(90deg,var(--j-accent),var(--j-accent-2))!important;box-shadow:0 0 20px rgba(var(--j-accent-rgb),.18)!important;}
+body[data-active-tab] .meal-slot{background:rgba(var(--j-accent-rgb),.105)!important;color:var(--j-accent-3)!important;}
+
+/* Fülsáv: OLED Jewelry akcentus az aktív lap szerint, rózsaszín nélkül. */
+body[data-active-tab] .b-soft-tabbar{
+  background:linear-gradient(180deg,rgba(6,10,18,.78),rgba(3,6,12,.90))!important;
+  border-top-color:rgba(var(--j-accent-rgb),.16)!important;
+  box-shadow:0 -18px 54px rgba(0,0,0,.46),0 0 20px rgba(var(--j-accent-rgb),.055),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+body[data-active-tab] .b-soft-tabbar .tab-btn.active{
+  color:var(--j-accent-3)!important;
+  background:radial-gradient(circle at 50% 8%,rgba(var(--j-accent-rgb),.16),rgba(var(--j-accent-rgb),.055) 54%,rgba(255,255,255,.015))!important;
+  border-color:rgba(var(--j-accent-rgb),.20)!important;
+  box-shadow:0 0 18px rgba(var(--j-accent-rgb),.12),inset 0 0 12px rgba(var(--j-accent-rgb),.045)!important;
+}
+body[data-active-tab] .b-soft-tabbar .tab-btn.active b{color:var(--j-accent-3)!important;text-shadow:0 0 8px rgba(var(--j-accent-rgb),.28)!important;}
+body[data-active-tab] .b-soft-tabbar .tab-btn.active::after{background:var(--j-accent)!important;box-shadow:0 0 10px rgba(var(--j-accent-rgb),.42)!important;}
+body[data-active-tab] .b-soft-tabbar .tab-btn.active .b-tab-icon{filter:drop-shadow(0 0 7px rgba(var(--j-accent-rgb),.35)) drop-shadow(0 8px 10px rgba(0,0,0,.30))!important;}
+
+/* Chip színek: az aktív fül ékszer-akcentusából, nem kevert régi színekből. */
+body[data-active-tab] :is(.chip.green,.chip.blue,.chip.warn,.chip.soft){
+  background:rgba(var(--j-accent-rgb),.075)!important;
+  border-color:rgba(var(--j-accent-rgb),.16)!important;
+  color:var(--j-accent-3)!important;
+}
+
+/* Korábbi v29/v30 erős, ráragasztott dobozhatásának visszavétele a sima sheet-szekciókon. */
+body[data-active-tab] .sheet :is(.sheet-section:nth-of-type(4n+1),.sheet-section:nth-of-type(4n+2),.sheet-section:nth-of-type(4n+3),.sheet-section:nth-of-type(4n+4)){
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+body[data-active-tab] .sheet :is(.sheet-section:nth-of-type(4n+1),.sheet-section:nth-of-type(4n+2),.sheet-section:nth-of-type(4n+3),.sheet-section:nth-of-type(4n+4)) :is(.list-item,.prep-step,.prep-step-card,.metric,.chip){
+  /* a valódi belső kártyák maradnak finoman felületen */
+}
+
+/* Onboarding: OLED Jewelry alap, de olvasható, nem túldobozolt. */
+.onboarding{
+  background:
+    radial-gradient(circle at 78% 5%,rgba(127,255,229,.14),transparent 22rem),
+    radial-gradient(circle at 5% 18%,rgba(124,58,237,.13),transparent 26rem),
+    linear-gradient(180deg,#06101a,#040913)!important;
+}
+.onboarding-card{
+  border-color:rgba(127,255,229,.18)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.078),rgba(255,255,255,.040))!important;
+  box-shadow:0 28px 78px rgba(0,0,0,.44),0 0 24px rgba(127,255,229,.070)!important;
+}

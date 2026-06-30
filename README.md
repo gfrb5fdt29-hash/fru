@@ -174,7 +174,17 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Service worker cache: balance1600-v29.
 
 
-## v30 módosítás
+## v31 módosítás
 - Fülönként teljesen összehangolt színrendszer: háttér, fejléc, kártyák, pipák, kijelölések, bottom sheetek és alsó fülsáv az aktív fül palettáját követik.
 - Ma: karakteres kék-zöld; Naptár: champagne/pezsgő; Receptek: borostyán-méz-karamell; Bevásárlás: vízkék/türkiz/smaragd; Napló: levendula/lila.
-- Service worker cache: balance1600-v30.
+- Service worker cache: balance1600-v31.
+
+
+## v31 — OLED Jewelry finomhangolás
+
+- A kiválasztott OLED Jewelry irány beépítve.
+- Közös mély OLED háttér, fülönként ékszer-akcentusok.
+- Ma: smaragd-teal; Naptár: pezsgőarany; Receptek: borostyán; Bevásárlás: türkizkő; Napló: ametiszt.
+- A kártyák finom glass/surface kezelést kaptak, nem durván leváló színdobozokat.
+- Bottom sheeteknél a sima szöveges részek nem kapnak külön színboxot; csak a valódi interaktív/tartalmi blokkok emelkednek ki.
+- Service worker cache: balance1600-v31.
