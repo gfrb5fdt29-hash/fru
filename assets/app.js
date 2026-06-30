@@ -554,7 +554,7 @@ function heroFullDateLabel(day){
       ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
       ${mealRiskChips(meal)}
      </div>
-     <div class="meal-swap-row">${meal._swapped ? '<span class="chip soft swapped">Lecserélve</span>' : ''}<button class="meal-swap-btn" data-action="openSwap" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}">Csere</button></div>
+     <div class="meal-swap-row">${meal._swapped ? '<span class="chip soft swapped">Lecserélve</span>' : ''}<button class="meal-swap-btn" data-action="openSwap" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}">⇄ Csere másik fogásra</button></div>
     </div>
     <button class="check ${checked ? 'checked' : ''}" data-action="toggleMeal" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}" data-recipe="${esc(meal.recipe_id)}" aria-label="Étkezés kipipálása"></button>
    </article>`;
@@ -1071,7 +1071,6 @@ function heroFullDateLabel(day){
      <button class="ghost-btn" data-action="toggleOnlyOpen">${ui.onlyOpen ? 'Minden tétel' : 'Csak még nem pipált'}</button>
      ${isWeekly ? '' : `<button class="ghost-btn" data-action="clearMergeDays">Mai napra vissza</button>`}
     </div>
-    <button class="ghost-btn wide share-shopping-btn" data-action="shareShopping">Lista megosztása szövegként</button>
    </section>
    ${selectorHtml}
    <section class="section stack">${shoppingContent(selectedDays)}</section>`;
@@ -1429,54 +1428,19 @@ function heroFullDateLabel(day){
   render({resetTop:true});
   toast('Új 28 napos kör elindítva.');
  }
- function buildShoppingText(){
-  const lines = [];
-  if(ui.shoppingView === 'weekly'){
-   const week = DATA.weekly_shopping_lists?.find(w => w.week === ui.shoppingWeek) || DATA.weekly_shopping_lists?.[0];
-   lines.push(`Bevásárlás – ${ui.shoppingWeek || 1}. hét`);
-   (week?.shopping_groups || []).forEach(g => {
-    lines.push('', g.category + ':');
-    (g.items || []).forEach(it => lines.push(`- ${it.item || it.name_hu || 'Tétel'} (${humanAmount(it)})`));
-   });
-  } else {
-   const days = selectedShoppingDays();
-   const rows = aggregateShopping(days);
-   lines.push(`Bevásárlás – ${days.map(dayLabel).join(', ')}`);
-   const groups = rows.reduce((acc,item)=>{(acc[item.group] ||= []).push(item);return acc;},{});
-   Object.entries(groups).forEach(([group,items]) => {
-    lines.push('', group + ':');
-    items.forEach(it => lines.push(`- ${it.name} (vedd meg kb. ${formatAmountValue(it.buy, it.unit)})`));
-   });
-  }
-  return lines.join('\n').trim();
- }
- function shareShopping(){
-  const text = buildShoppingText();
-  if(!text){ toast('Nincs megosztható tétel.'); return; }
-  if(navigator.share){ navigator.share({title:'Bevásárlólista', text}).catch(()=>{}); return; }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-   navigator.clipboard.writeText(text).then(()=>toast('Lista a vágólapra másolva.')).catch(()=>toast('A megosztás nem érhető el.'));
-   return;
-  }
-  toast('A megosztás nem érhető el ezen a készüléken.');
- }
  function trendChartHtml(weekNo){
   const ds = allDays.filter(d => Number(d.week) === Number(weekNo));
   const entries = ds.map(d => trackingEntries[d.day_id] || {});
   const hasAny = entries.some(e => Object.keys(e).length);
-  const W = 320, H = 190, padL = 26, padR = 10, padB = 34, padT = 12;
   const n = ds.length || 7;
+  const W = 320, padL = 24, padR = 12;
+  // --- Közérzet vonaldiagram (0-10) ---
+  const H = 168, padB = 26, padT = 10;
   const plotW = W - padL - padR, plotH = H - padT - padB;
-  const x = i => padL + (n <= 1 ? plotW / 2 : (plotW * i / (n - 1)));
+  const x = i => padL + (n <= 1 ? plotW / 2 : plotW * i / (n - 1));
   const y = v => padT + plotH * (1 - Math.max(0, Math.min(10, v)) / 10);
-  const waterMaxL = Math.max(3, Number(settings.waterGoalMl || 2500) / 1000);
-  const barW = Math.max(6, plotW / n * 0.5);
-  const bars = ds.map((d, i) => {
-   const w = (entries[i].waterMl || 0) / 1000;
-   const bh = plotH * (Math.min(w, waterMaxL) / waterMaxL);
-   const bx = x(i) - barW / 2, by = padT + plotH - bh;
-   return w > 0 ? `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="rgba(141,185,255,.22)"></rect>` : '';
-  }).join('');
+  const grid = [0, 5, 10].map(v => `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${W - padR}" y2="${y(v).toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"></line><text x="2" y="${(y(v) + 3).toFixed(1)}" font-size="9" fill="rgba(255,255,255,.4)">${v}</text>`).join('');
+  const xlabels = ds.map((d, i) => `<text x="${x(i).toFixed(1)}" y="${H - padB + 15}" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">${esc(compactDayName(d))}</text>`).join('');
   function line(key, color){
    const pts = ds.map((d, i) => ({ i, v: Number(entries[i][key]) })).filter(p => Number.isFinite(p.v) && p.v > 0);
    if(!pts.length) return '';
@@ -1484,11 +1448,30 @@ function heroFullDateLabel(day){
    const dots = pts.map(p => `<circle cx="${x(p.i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.6" fill="${color}"></circle>`).join('');
    return `<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
   }
-  const grid = [0, 5, 10].map(v => `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${W - padR}" y2="${y(v).toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"></line><text x="2" y="${(y(v) + 3).toFixed(1)}" font-size="9" fill="rgba(255,255,255,.4)">${v}</text>`).join('');
-  const xlabels = ds.map((d, i) => `<text x="${x(i).toFixed(1)}" y="${H - padB + 16}" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">${esc(compactDayName(d))}</text>`).join('');
-  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Heti közérzet trend">${grid}${bars}${line('energy', '#43f2c1')}${line('reflux', '#ff8a8a')}${line('bloating', '#ffb35d')}${xlabels}</svg>`;
-  const legend = `<div class="trend-legend"><span class="tl-item"><i style="background:#43f2c1"></i>Energia</span><span class="tl-item"><i style="background:#ff8a8a"></i>Reflux</span><span class="tl-item"><i style="background:#ffb35d"></i>Puffadás</span><span class="tl-item"><i style="background:rgba(141,185,255,.6)"></i>Víz</span></div>`;
-  return `<section class="card section trend-card"><div class="card-pad stack"><h2 class="subhead">${esc(weekNo)}. heti trend</h2>${hasAny ? svg + legend + '<p class="small-muted">A vonalak a közérzet 0–10 skálán, az oszlopok a napi vízbevitel. Csak a rögzített napok jelennek meg.</p>' : '<p class="small-muted">Ehhez a héthez még nincs naplóadat. Ahogy rögzíted a vizet és a közérzetet, itt jelenik meg a heti trend.</p>'}</div></section>`;
+  const lineSvg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Heti közérzet trend">${grid}${line('energy', '#43f2c1')}${line('reflux', '#ff8a8a')}${line('bloating', '#ffb35d')}${line('histamine', '#c89bff')}${xlabels}</svg>`;
+  const lineLegend = `<div class="trend-legend"><span class="tl-item"><i style="background:#43f2c1"></i>Energia</span><span class="tl-item"><i style="background:#ff8a8a"></i>Reflux</span><span class="tl-item"><i style="background:#ffb35d"></i>Puffadás</span><span class="tl-item"><i style="background:#c89bff"></i>Hisztamin</span></div>`;
+  // --- Vízbevitel oszlopdiagram (liter, saját skála + célvonal) ---
+  const WH = 124, wT = 14, wB = 26, wPlotH = WH - wT - wB;
+  const goalL = Math.max(0.5, Number(settings.waterGoalMl || 2500) / 1000);
+  const waterVals = ds.map((d, i) => (entries[i].waterMl || 0) / 1000);
+  const maxW = Math.max(goalL, ...waterVals);
+  const barW = Math.max(8, plotW / n * 0.55);
+  const goalY = wT + wPlotH * (1 - goalL / maxW);
+  const bars = ds.map((d, i) => {
+   const w = waterVals[i];
+   if(!(w > 0)) return '';
+   const bh = wPlotH * (w / maxW);
+   const bx = x(i) - barW / 2, by = wT + wPlotH - bh;
+   const met = w >= goalL;
+   return `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="${met ? 'rgba(67,242,193,.55)' : 'rgba(141,185,255,.5)'}"></rect><text x="${x(i).toFixed(1)}" y="${(by - 3).toFixed(1)}" font-size="8.5" fill="rgba(255,255,255,.7)" text-anchor="middle">${formatHuNumber(w, 1)}</text>`;
+  }).join('');
+  const wxlabels = ds.map((d, i) => `<text x="${x(i).toFixed(1)}" y="${WH - wB + 15}" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">${esc(compactDayName(d))}</text>`).join('');
+  const goalLine = `<line x1="${padL}" y1="${goalY.toFixed(1)}" x2="${W - padR}" y2="${goalY.toFixed(1)}" stroke="rgba(67,242,193,.5)" stroke-width="1" stroke-dasharray="4 3"></line><text x="${W - padR}" y="${Math.max(8, goalY - 3).toFixed(1)}" font-size="8.5" fill="rgba(67,242,193,.85)" text-anchor="end">cél ${formatHuNumber(goalL, 1)} l</text>`;
+  const waterSvg = `<svg viewBox="0 0 ${W} ${WH}" width="100%" role="img" aria-label="Heti vízbevitel">${goalLine}${bars}${wxlabels}</svg>`;
+  const body = hasAny
+   ? `<h3 class="subhead trend-sub">Közérzet (0–10)</h3>${lineSvg}${lineLegend}<h3 class="subhead trend-sub">Vízbevitel (liter)</h3>${waterSvg}<p class="small-muted">Csak a rögzített napok jelennek meg. A szaggatott vonal a napi vízcél; a zöld oszlop azt jelzi, hogy elérted a célt.</p>`
+   : '<p class="small-muted">Ehhez a héthez még nincs naplóadat. Ahogy rögzíted a vizet és a közérzetet, itt jelenik meg a heti trend.</p>';
+  return `<section class="card section trend-card"><div class="card-pad stack"><h2 class="subhead">${esc(weekNo)}. heti trend</h2>${body}</div></section>`;
  }
  function openSwap(dayId, slot){
   const day = allDays.find(d => d.day_id === dayId) || selectedDay();
@@ -1868,7 +1851,6 @@ function heroFullDateLabel(day){
   if(action === 'chooseSwap') chooseSwap(el.dataset.day, el.dataset.slot, el.dataset.recipe);
   if(action === 'resetSwap') resetSwap(el.dataset.day, el.dataset.slot);
   if(action === 'exportData') exportData();
-  if(action === 'shareShopping') shareShopping();
   if(action === 'openRoundEnd') openRoundEnd();
   if(action === 'restartRoundFresh') restartRound(true);
   if(action === 'restartRoundKeep') restartRound(false);
