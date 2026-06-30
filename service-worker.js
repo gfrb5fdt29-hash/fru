@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v50-today-hero-gold';
+const CACHE_NAME = 'balance1600-v51-cycle-backup-swap';
 const APP_ASSETS = [
   './',
   './index.html',
