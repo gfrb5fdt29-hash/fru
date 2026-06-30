@@ -270,6 +270,12 @@
   return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}.`;
  }
  function fullDateLabel(day){ return `${dayCalendarShort(day)} · ${weekdayLower(day)}`; }
+function heroFullDateLabel(day){
+  const d = actualDateForDay(day);
+  const datePart = d.toLocaleDateString('hu-HU', {year:'numeric', month:'long', day:'numeric'}).trim();
+  const normalized = /\d\.$/.test(datePart) ? datePart : datePart.replace(/(\d)$/, '$1.');
+  return `${normalized} ${weekdayHu(d).toUpperCase()}`;
+}
  function weekCardDateTitle(day){ return `${weekdayLower(day)} · ${dayCalendarShort(day)}`; }
  function planDayLabel(day){ return `${day.week}. hét · ${day.day_number_in_week}. nap`; }
  function currentPlanDayNumber(){
@@ -363,17 +369,17 @@
    <section class="hero card section">
     <div class="hero-top">
      <div>
-      <div class="eyebrow">Tervezett mai érték</div>
-      <div class="day-label">${esc(fullDateLabel(day))}</div>
+      <div class="eyebrow today-hero-eyebrow">Mai nap</div>
+      <div class="day-label today-hero-date">${esc(heroFullDateLabel(day))}</div>
       <div class="small-muted">${esc(planDayLabel(day))} · ${esc(motivation(p.done,p.total))} · ${p.done}/${p.total} étkezés</div>
      </div>
      <div class="kcal-bubble"><b>${esc(totals.energy_kcal || 0)}</b><span>kcal</span></div>
     </div>
-    <div class="metric-row">
-     <div class="metric"><b>${esc(totals.protein || 0)}g</b><span>Fehérje</span></div>
-     <div class="metric"><b>${esc(totals.carbohydrate || 0)}g</b><span>Szénhidrát</span></div>
-     <div class="metric"><b>${esc(totals.fat || 0)}g</b><span>Zsír</span></div>
-     <div class="metric"><b>${p.done}/${p.total}</b><span>Haladás</span></div>
+    <div class="metric-row hero-metrics">
+     <div class="metric hero-metric"><b>${esc(totals.protein || 0)}g</b><span>Fehérje</span></div>
+     <div class="metric hero-metric"><b>${esc(totals.carbohydrate || 0)}g</b><span>Szénhidrát</span></div>
+     <div class="metric hero-metric"><b>${esc(totals.fat || 0)}g</b><span>Zsír</span></div>
+     <div class="metric hero-metric"><b>${p.done}/${p.total}</b><span>Haladás</span></div>
     </div>
     <div class="progress-track" aria-label="Napi haladás"><div class="progress-fill" style="width:${p.pct}%"></div></div>
     <div class="day-switch">
@@ -412,11 +418,14 @@
      ${chips.map(c=>`<span class="chip soft">${esc(c)}</span>`).join('') || '<span class="chip soft">egyszerű kímélő nap</span>'}
      ${riskChips.map(([label,value,cls])=>`<span class="chip ${cls}">${esc(label)}: ${esc(riskText(value))}</span>`).join('')}
     </div>
-    <div class="today-focus-actions" aria-label="Mai gyorsműveletek">
-     <button class="primary-btn" data-action="openDayDetails">Mai részletek</button>
-     <button class="ghost-btn" data-action="openTracking">Mai napló</button>
-    </div>
    </div></section>`;
+ }
+
+ function todayQuickActions(){
+  return `<section class="section today-quick-actions" aria-label="Mai gyorsműveletek">
+   <button class="today-quick-btn" data-action="openDayDetails">Mai részletek</button>
+   <button class="today-quick-btn" data-action="openTracking">Mai napló</button>
+  </section>`;
  }
 
  function mealRiskChips(meal){
@@ -465,6 +474,7 @@
   const day = selectedDay();
   $('#view').innerHTML = `
    ${statHero(day)}
+   ${todayQuickActions()}
    ${focusBlock(day)}
    <section class="section stack" aria-label="Mai étkezések">
     ${(day.meals || []).map(m => mealCard(day,m)).join('')}
@@ -816,9 +826,8 @@
   const weekAction = isShopping ? 'openShoppingWeekSheet' : 'openTrackingWeekSheet';
   const dayAction = isShopping ? 'openShoppingDaySheet' : 'openTrackingDaySheet';
   const title = isShopping ? 'Napok kiválasztása' : 'Napló napja';
-  const help = isShopping ? 'A napok külön alsó sheetben választhatók, így a fő felület tisztább marad.' : 'Válassz hetet és napot külön alsó sheetben, majd vezesd a napi naplót.';
   return `<section class="card section premium-selector-card ios-picker-card ${isShopping ? 'shopping-ios-picker' : 'tracking-ios-picker'}"><div class="card-pad ios-picker-pad">
-   <div class="ios-picker-head"><div><h2 class="subhead">${title}</h2><p class="small-muted">${help}</p></div><span class="ios-picker-current-week">${esc(activeWeek)}. hét</span></div>
+   <div class="ios-picker-head"><div><h2 class="subhead">${title}</h2></div><span class="ios-picker-current-week">${esc(activeWeek)}. hét</span></div>
    <button class="ios-picker-main" data-action="${weekAction}" aria-label="Hét választása"><span><b>Kiválasztott hét</b><em>${esc(activeWeek)}. hét · ${esc(weekDateRangeLabel(activeWeek))}</em></span><i>⌄</i></button>
    <button class="ios-picker-main ios-picker-day-main" data-action="${dayAction}" aria-label="Napok kiválasztása"><span><b>${isShopping ? 'Kiválasztott napok' : 'Kiválasztott nap'}</b><em>${selectedText}</em></span><i>⌄</i></button>
   </div></section>`;
@@ -1118,7 +1127,6 @@
   $('#view').innerHTML = `
    <section class="section tracking-picker">
     <h1 class="headline">Napló</h1>
-    <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
     ${selectorSummaryCard('tracking', Number(day.week || ui.trackingWeek || 1), `${esc(dayDisplayName(day))} · ${esc(dayCalendarShort(day))} · ${esc(planDayLabel(day))}`)}
    </section>
    <section class="card section"><div class="card-pad">

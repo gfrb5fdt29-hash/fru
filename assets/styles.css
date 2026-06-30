@@ -5413,3 +5413,129 @@ body[data-active-tab] .ios-picker-done{
   .sheet-week-chip span,
   body[data-active-tab] .sheet-week-chip span{font-size:7.8px!important;}
 }
+
+
+/* v49 — célzott tisztítás: napválasztó box leírás nélkül, Ma gyorsgombok a fókuszkártya felett arany jelöléssel. */
+.today-quick-actions,
+body[data-active-tab="today"] .today-quick-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;
+  margin:12px 0 10px!important;
+}
+.today-quick-btn,
+body[data-active-tab="today"] .today-quick-btn{
+  min-width:0!important;
+  min-height:48px!important;
+  width:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:11px 12px!important;
+  border-radius:20px!important;
+  color:var(--ocean-on-gold,#211100)!important;
+  font-size:13px!important;
+  font-weight:950!important;
+  letter-spacing:-.01em!important;
+  text-align:center!important;
+  background:linear-gradient(135deg,var(--ocean-gold,#ffd27c),var(--ocean-orange,#ff9d3d))!important;
+  border:1px solid rgba(var(--ocean-gold-rgb,255,210,124),.78)!important;
+  box-shadow:0 0 18px rgba(var(--ocean-gold-rgb,255,210,124),.20),0 12px 24px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.26)!important;
+}
+.today-quick-btn:active,
+body[data-active-tab="today"] .today-quick-btn:active{
+  transform:translateY(1px)!important;
+}
+.ios-picker-head .subhead,
+body[data-active-tab] .ios-picker-head .subhead{
+  margin:0!important;
+}
+.ios-picker-pad,
+body[data-active-tab] .ios-picker-pad{
+  gap:9px!important;
+}
+@media (max-width:340px){
+  .today-quick-actions,
+  body[data-active-tab="today"] .today-quick-actions{gap:8px!important;margin:10px 0 9px!important;}
+  .today-quick-btn,
+  body[data-active-tab="today"] .today-quick-btn{min-height:45px!important;font-size:12.4px!important;padding:10px 8px!important;border-radius:18px!important;}
+}
+
+
+/* v50 · Ma fül: finom arany 3D napi érték box */
+body[data-active-tab="today"] .hero .today-hero-eyebrow{
+  color:#ffcf7a!important;
+  text-shadow:0 0 14px rgba(255,182,72,.16)!important;
+}
+body[data-active-tab="today"] .hero .today-hero-date{
+  color:#eaffff!important;
+  font-size:19px!important;
+  line-height:1.12!important;
+  letter-spacing:-.18px!important;
+}
+body[data-active-tab="today"] .hero .hero-metrics{
+  gap:7px!important;
+}
+body[data-active-tab="today"] .hero .hero-metrics .hero-metric{
+  border-color:rgba(255,182,72,.30)!important;
+  background:
+    linear-gradient(180deg,rgba(255,196,96,.085),rgba(255,160,48,.035) 42%,rgba(0,0,0,.22)),
+    rgba(4,18,26,.56)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,239,194,.105),
+    inset 0 -10px 18px rgba(0,0,0,.16),
+    0 8px 18px rgba(0,0,0,.20),
+    0 0 0 1px rgba(255,182,72,.055)!important;
+  transform:translateY(-1px);
+}
+body[data-active-tab="today"] .hero .hero-metrics .hero-metric b{
+  color:#fff5d8!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.35)!important;
+}
+body[data-active-tab="today"] .hero .hero-metrics .hero-metric span{
+  color:#d7c3a1!important;
+}
+body[data-active-tab="today"] .hero .day-switch{
+  gap:9px!important;
+  margin-top:14px!important;
+}
+body[data-active-tab="today"] .hero .day-switch .ghost-btn{
+  border-color:rgba(255,182,72,.36)!important;
+  background:
+    linear-gradient(180deg,rgba(255,196,96,.12),rgba(255,147,39,.045) 48%,rgba(0,0,0,.25)),
+    rgba(5,20,28,.64)!important;
+  color:#ffe6b0!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,244,210,.12),
+    inset 0 -12px 22px rgba(0,0,0,.20),
+    0 9px 20px rgba(0,0,0,.24),
+    0 0 0 1px rgba(255,182,72,.06)!important;
+}
+body[data-active-tab="today"] .hero .day-switch .ghost-btn.wide{
+  border-color:rgba(255,190,88,.54)!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,211,126,.18),transparent 58%),
+    linear-gradient(180deg,rgba(255,183,72,.18),rgba(255,122,47,.075) 52%,rgba(7,23,30,.74))!important;
+  color:#fff3d2!important;
+  font-weight:850!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,244,210,.18),
+    inset 0 -14px 24px rgba(0,0,0,.22),
+    0 10px 24px rgba(0,0,0,.26),
+    0 0 20px rgba(255,168,52,.18),
+    0 0 0 1px rgba(255,182,72,.11)!important;
+}
+body[data-active-tab="today"] .hero .day-switch .ghost-btn:active{
+  transform:translateY(1px) scale(.99)!important;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.24),0 4px 12px rgba(0,0,0,.22)!important;
+}
+@media (max-width:380px){
+  body[data-active-tab="today"] .hero .today-hero-date{font-size:17.2px!important;}
+  body[data-active-tab="today"] .hero .hero-metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;}
+  body[data-active-tab="today"] .hero .hero-metrics .hero-metric{padding:7px 3px!important;border-radius:14px!important;}
+  body[data-active-tab="today"] .hero .hero-metrics .hero-metric b{font-size:13px!important;}
+  body[data-active-tab="today"] .hero .hero-metrics .hero-metric span{font-size:9.5px!important;}
+  body[data-active-tab="today"] .hero .day-switch{gap:6px!important;}
+  body[data-active-tab="today"] .hero .day-switch .ghost-btn{min-height:39px!important;padding:8px 10px!important;}
+  body[data-active-tab="today"] .hero .day-switch .ghost-btn.wide{padding-left:12px!important;padding-right:12px!important;font-size:12.2px!important;}
+}

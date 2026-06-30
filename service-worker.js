@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v48-ios-day-picker-sheets';
+const CACHE_NAME = 'balance1600-v50-today-hero-gold';
 const APP_ASSETS = [
   './',
   './index.html',
