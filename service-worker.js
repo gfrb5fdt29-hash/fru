@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v39';
+const CACHE_NAME = 'balance1600-v40';
 const APP_ASSETS = [
   './',
   './index.html',

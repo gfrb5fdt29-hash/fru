@@ -3165,3 +3165,124 @@ body[data-active-tab] .topbar .brand-title .brand-text{
   .week-day-card .week-meals .calendar-icon-only{width:37px!important;min-width:37px!important;height:37px!important;border-radius:14px!important;}
   .week-day-card .meal-calendar-icon{width:30px!important;height:30px!important;}
 }
+
+/* v40 — felső cím box újraszerkesztve: cím és dátum külön, nem összekeverve */
+.topbar{
+  padding:calc(7px + env(safe-area-inset-top)) 9px 7px!important;
+  gap:7px!important;
+  align-items:center!important;
+}
+.topbar .brand-block.brand-box{
+  min-width:0!important;
+  flex:1 1 auto!important;
+  padding:7px 8px!important;
+  border-radius:18px!important;
+  display:block!important;
+  min-height:48px!important;
+  background:
+    linear-gradient(135deg,rgba(var(--j-accent-rgb,255,211,137),.145),rgba(255,255,255,.060)),
+    rgba(18,16,12,.54)!important;
+  border-color:rgba(var(--j-accent-rgb,255,211,137),.34)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.20),0 0 18px rgba(var(--j-accent-rgb,255,211,137),.13),inset 0 1px 0 rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(22px)!important;
+}
+.topbar .brand-title.soft-diet-title.header-title-box,
+body[data-active-tab] .topbar .brand-title.soft-diet-title.header-title-box{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  column-gap:7px!important;
+  width:100%!important;
+  max-width:none!important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Avenir Next",system-ui,sans-serif!important;
+  line-height:1.05!important;
+  letter-spacing:-.18px!important;
+  color:var(--j-accent-3,#fff0c2)!important;
+  background:none!important;
+  -webkit-background-clip:initial!important;
+  background-clip:initial!important;
+  -webkit-text-fill-color:initial!important;
+  text-shadow:none!important;
+  text-align:left!important;
+}
+.topbar .brand-copy{
+  min-width:0!important;
+  display:grid!important;
+  grid-template-rows:auto auto!important;
+  gap:2px!important;
+  overflow:hidden!important;
+}
+.topbar .brand-title-main{
+  display:block!important;
+  min-width:0!important;
+  font-size:13.4px!important;
+  line-height:1.06!important;
+  font-weight:950!important;
+  color:#fff4d5!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  text-shadow:0 0 10px rgba(var(--j-accent-rgb,255,211,137),.23)!important;
+}
+.topbar .brand-title-sub{
+  display:block!important;
+  min-width:0!important;
+  font-size:10.2px!important;
+  line-height:1.08!important;
+  font-weight:760!important;
+  color:rgba(255,242,210,.78)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.topbar .header-date{
+  justify-self:end!important;
+  align-self:center!important;
+  white-space:nowrap!important;
+  max-width:86px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-size:10px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.01em!important;
+  padding:7px 7px!important;
+  border-radius:999px!important;
+  color:var(--j-on,#2f1b04)!important;
+  background:linear-gradient(135deg,var(--j-accent,#ffd389),var(--j-accent-2,#c9862f))!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.10) inset,0 8px 18px rgba(0,0,0,.18),0 0 18px rgba(var(--j-accent-rgb,255,211,137),.20)!important;
+}
+.topbar .top-actions{
+  gap:6px!important;
+  flex:0 0 auto!important;
+}
+.topbar .icon-btn.glow-icon{
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  border-radius:15px!important;
+}
+.topbar .top-icon{
+  width:27px!important;
+  height:27px!important;
+  stroke-width:1.65!important;
+}
+@media (max-width:390px){
+  .topbar{padding-left:7px!important;padding-right:7px!important;gap:6px!important;}
+  .topbar .brand-block.brand-box{padding:7px 7px!important;border-radius:17px!important;min-height:46px!important;}
+  .topbar .brand-title.soft-diet-title.header-title-box,
+  body[data-active-tab] .topbar .brand-title.soft-diet-title.header-title-box{column-gap:6px!important;}
+  .topbar .brand-title-main{font-size:12.7px!important;}
+  .topbar .brand-title-sub{font-size:9.7px!important;}
+  .topbar .header-date{font-size:9.4px!important;max-width:80px!important;padding:6px 6px!important;}
+  .topbar .icon-btn.glow-icon{width:38px!important;height:38px!important;min-width:38px!important;}
+  .topbar .top-icon{width:25px!important;height:25px!important;}
+}
+@media (max-width:360px){
+  .topbar .brand-title-main{font-size:12px!important;}
+  .topbar .brand-title-sub{font-size:9.1px!important;}
+  .topbar .header-date{font-size:8.8px!important;max-width:72px!important;padding:6px 5px!important;}
+  .topbar .icon-btn.glow-icon{width:36px!important;height:36px!important;min-width:36px!important;}
+  .topbar .top-icon{width:24px!important;height:24px!important;}
+}

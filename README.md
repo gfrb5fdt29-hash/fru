@@ -245,3 +245,10 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 ## v39 módosítás
 - Naptár napkártyáin az étkezéssorokban csak nagyobb étkezésikon jelenik meg, a reggeli/ebéd/uzsonna/vacsora szöveg nélkül.
 - A felső cím box jobb oldalán megjelenik az aktuális mai dátum a készülék naptára szerint, pl. június 17.
+
+
+## v40 header finomítás
+- A felső cím box szerkezete át lett rendezve: a cím két elkülönített sorban jelenik meg, a dátum külön jobb oldali dátum-badge-ként.
+- A mai dátum hónapneve nagybetűvel kezdődik, például: Június 17.
+- A fejléc kompakt maradt, de a cím és dátum nem keveredik egymással.
+- Service worker cache frissítve: `balance1600-v40`.
