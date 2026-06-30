@@ -696,18 +696,33 @@
  function recipeCard(r){
   const flags = (r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids || []).slice(0,2).map(tagLabel)).map(stripTechText);
   const fav = !!favorites[r.recipe_id];
-  return `<article class="recipe-card" data-action="openRecipe" data-recipe="${esc(r.recipe_id)}">
+  return `<article class="recipe-card ${fav ? 'favorite' : ''}" data-action="openRecipe" data-recipe="${esc(r.recipe_id)}">
    <div class="recipe-card-top">
     <div>
      <div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')}</div>
      <div class="meal-title">${esc(r.name_hu || r.pwa_title)}</div>
      <div class="meal-meta"><span>${esc(r.energy_kcal)} kcal</span><span>${esc(macroLine(r.macros_g))}</span></div>
     </div>
-    <button class="fav-btn ${fav ? 'active' : ''}" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}" aria-label="Kedvenc jelölése">★</button>
+    <button class="fav-btn ${fav ? 'active' : ''}" data-fav-control="true" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Kedvencnek jelölve' : 'Kedvenc jelölése'}" title="${fav ? 'Kedvencnek jelölve' : 'Kedvenc jelölése'}">★</button>
    </div>
    <div class="chip-row recipe-card-chips" style="margin-top:10px"><span class="chip cook-chip ${cookingSpeedClass(r)}">${esc(cookingSpeedLabel(r))}</span>${flags.slice(0,2).map(f=>`<span class="chip soft">${esc(f)}</span>`).join('')}<span class="chip ${maxRecipeRisk(r)>=2?'warn':'green'}">${esc(riskText(maxRecipeRisk(r)))}</span></div>
   </article>`;
  }
+
+ function updateFavoriteUi(recipeId){
+  const active = !!favorites[recipeId];
+  $$('[data-fav-control]').forEach(btn => {
+   if(btn.dataset.recipe !== recipeId) return;
+   btn.classList.toggle('active', active);
+   btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+   btn.setAttribute('aria-label', active ? 'Kedvencnek jelölve' : 'Kedvenc jelölése');
+   btn.setAttribute('title', active ? 'Kedvencnek jelölve' : 'Kedvenc jelölése');
+   if(btn.classList.contains('favorite-action-btn')) btn.textContent = active ? '★ Kedvencnek jelölve' : '☆ Kedvencnek jelölöm';
+  });
+  $$('.recipe-card[data-recipe]').forEach(card => {
+   if(card.dataset.recipe === recipeId) card.classList.toggle('favorite', active);
+  });
+}
 
  function shoppingDay(){
   const n = Number(ui.shoppingDayNumber || currentPlanDayNumber());
@@ -1083,7 +1098,7 @@
    ${cycleFitHtml(r)}
    <div class="sheet-section"><h3 class="subhead">Csereopciók</h3>${subs.length || fallbacks.length ? substitutionHtml(subs, fallbacks) : '<p class="small-muted">Ehhez a fogáshoz nincs külön cserejavaslat.</p>'}</div>
    <div class="sheet-section"><h3 class="subhead">Melyik napokon szerepel?</h3><ul>${usages.map(u=>{ const od = dayForOccurrence(u); return `<li>${esc(od ? planDayLabel(od) : (String(u.week) + '. hét · ' + String(u.day_number_in_week) + '. nap'))} · ${esc(od ? fullDateLabel(od) : (u.weekday_hu || 'nap'))} · ${esc(SLOT_LABELS[u.slot] || u.slot)}</li>`; }).join('') || '<li>A tervben egyszer szerepel.</li>'}</ul></div>
-   <div class="grid2"><button class="primary-btn" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}">${favorites[r.recipe_id] ? 'Kedvencből leveszem' : 'Kedvencnek jelölöm'}</button><button class="ghost-btn" data-action="closeSheet">Bezárás</button></div>
+   <div class="grid2"><button class="primary-btn favorite-action-btn ${favorites[r.recipe_id] ? 'active' : ''}" data-fav-control="true" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}" aria-pressed="${favorites[r.recipe_id] ? 'true' : 'false'}" aria-label="${favorites[r.recipe_id] ? 'Kedvencnek jelölve' : 'Kedvenc jelölése'}">${favorites[r.recipe_id] ? '★ Kedvencnek jelölve' : '☆ Kedvencnek jelölöm'}</button><button class="ghost-btn" data-action="closeSheet">Bezárás</button></div>
   `);
  }
  function compatibilityHtml(c){
@@ -1270,13 +1285,16 @@
    render({noAnimate:true}); writeStore(storeKeys.ui, ui);
   }
   if(action === 'toggleFavorite'){
+   event.preventDefault();
    event.stopPropagation();
    const id = el.dataset.recipe;
-   favorites[id] = !favorites[id];
-   if(!favorites[id]) delete favorites[id];
+   const next = !favorites[id];
+   if(next) favorites[id] = true;
+   else delete favorites[id];
    writeStore(storeKeys.favorites, favorites);
-   toast(favorites[id] ? 'Kedvenchez adva.' : 'Kedvenc levéve.');
-   if(!$('#sheet').hidden && $('#sheetTitle').textContent) openRecipe(id); else render();
+   updateFavoriteUi(id);
+   toast(next ? 'Kedvenchez adva.' : 'Kedvenc levéve.');
+   return;
   }
   if(action === 'trackingWeekToggle'){
    const weekNo = Number(el.dataset.week);

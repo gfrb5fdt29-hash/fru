@@ -218,3 +218,19 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - A korábban zölden maradt kártyafelületek felülírva az adott fül meleg palettájával.
 - Reggeli / ebéd / uzsonna / vacsora kártyák bal oldali kétbetűs jelölése prémium vonalas ikonokra cserélve.
 - Service worker cache: balance1600-v35.
+
+
+## v36 javítás
+- Ma és Bevásárlás fül kártyaszínei célzottan egységesítve meleg champagne / honey-gold / borostyán-arany irányra.
+- A régi zöld kártyafelületek erős CSS-felülírást kaptak a konkrét kártya-, lista-, étkezés- és választóelemekre.
+- Service worker cache: balance1600-v36.
+
+## v37 javítás
+- A kedvenc/csillag állapot minden kedvencelhető helyen egyértelműbb lett.
+- Kedvenc hozzáadás/eltávolítás nem indít teljes nézet-újrarajzolást, így nem okoz fel-le képernyőanimációt vagy scroll-ugrást.
+- Service worker cache: balance1600-v37.
+
+## v37 javítás
+- A kedvenc/csillag állapot minden kedvencelhető helyen egyértelműbb lett.
+- Kedvenc hozzáadás/eltávolítás nem indít teljes nézet-újrarajzolást, így nem okoz fel-le képernyőanimációt vagy scroll-ugrást.
+- Service worker cache: balance1600-v37.
