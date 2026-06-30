@@ -1219,7 +1219,8 @@ function heroFullDateLabel(day){
   $('#view').innerHTML = `
    <section class="section tracking-picker">
     <h1 class="headline">Napló</h1>
-    ${selectorSummaryCard('tracking', Number(day.week || ui.trackingWeek || 1), `${esc(dayDisplayName(day))} · ${esc(dayCalendarShort(day))} · ${esc(planDayLabel(day))}`)}
+    <div class="week-tabs uniform-week-tabs tracking-week-tabs">${weeks.map(w => `<button class="week-card week-select ${Number(w.week) === Number(day.week || ui.trackingWeek || 1) ? 'active' : ''}" data-action="trackingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
+    <div class="tracking-day-grid naplo-day-grid">${allDays.filter(d => Number(d.week) === Number(day.week || ui.trackingWeek || 1)).map(d => `<button class="tracking-day-btn ${Number(d.globalDayNumber) === Number(day.globalDayNumber) ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`).join('')}</div>
    </section>
    <section class="card section"><div class="card-pad">
     <h2 class="headline">${esc(fullDateLabel(day))} naplója</h2>
@@ -1431,47 +1432,53 @@ function heroFullDateLabel(day){
  function trendChartHtml(weekNo){
   const ds = allDays.filter(d => Number(d.week) === Number(weekNo));
   const entries = ds.map(d => trackingEntries[d.day_id] || {});
-  const hasAny = entries.some(e => Object.keys(e).length);
   const n = ds.length || 7;
-  const W = 320, padL = 24, padR = 12;
-  // --- Közérzet vonaldiagram (0-10) ---
-  const H = 168, padB = 26, padT = 10;
-  const plotW = W - padL - padR, plotH = H - padT - padB;
-  const x = i => padL + (n <= 1 ? plotW / 2 : plotW * i / (n - 1));
-  const y = v => padT + plotH * (1 - Math.max(0, Math.min(10, v)) / 10);
-  const grid = [0, 5, 10].map(v => `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${W - padR}" y2="${y(v).toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"></line><text x="2" y="${(y(v) + 3).toFixed(1)}" font-size="9" fill="rgba(255,255,255,.4)">${v}</text>`).join('');
-  const xlabels = ds.map((d, i) => `<text x="${x(i).toFixed(1)}" y="${H - padB + 15}" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">${esc(compactDayName(d))}</text>`).join('');
-  function line(key, color){
-   const pts = ds.map((d, i) => ({ i, v: Number(entries[i][key]) })).filter(p => Number.isFinite(p.v) && p.v > 0);
-   if(!pts.length) return '';
-   const path = pts.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
-   const dots = pts.map(p => `<circle cx="${x(p.i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.6" fill="${color}"></circle>`).join('');
-   return `<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
+  const logged = entries.map(e => e && Object.keys(e).length > 0);
+  const hasAny = logged.some(Boolean);
+  const W = 280, padX = 2, plotW = W - 2 * padX, band = plotW / n, barW = Math.min(24, band * 0.62);
+  const H = 40, top = 5, baseline = H - 5, plotH = baseline - top;
+  const cx = i => padX + band * (i + 0.5);
+  function avg(key, isWater){
+   const vals = entries.map(e => isWater ? (e.waterMl != null ? e.waterMl / 1000 : null) : (key in e ? Number(e[key]) : null)).filter(v => Number.isFinite(v));
+   if(!vals.length) return null;
+   return vals.reduce((a, b) => a + b, 0) / vals.length;
   }
-  const lineSvg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Heti közérzet trend">${grid}${line('energy', '#43f2c1')}${line('reflux', '#ff8a8a')}${line('bloating', '#ffb35d')}${line('histamine', '#c89bff')}${xlabels}</svg>`;
-  const lineLegend = `<div class="trend-legend"><span class="tl-item"><i style="background:#43f2c1"></i>Energia</span><span class="tl-item"><i style="background:#ff8a8a"></i>Reflux</span><span class="tl-item"><i style="background:#ffb35d"></i>Puffadás</span><span class="tl-item"><i style="background:#c89bff"></i>Hisztamin</span></div>`;
-  // --- Vízbevitel oszlopdiagram (liter, saját skála + célvonal) ---
-  const WH = 124, wT = 14, wB = 26, wPlotH = WH - wT - wB;
-  const goalL = Math.max(0.5, Number(settings.waterGoalMl || 2500) / 1000);
-  const waterVals = ds.map((d, i) => (entries[i].waterMl || 0) / 1000);
-  const maxW = Math.max(goalL, ...waterVals);
-  const barW = Math.max(8, plotW / n * 0.55);
-  const goalY = wT + wPlotH * (1 - goalL / maxW);
-  const bars = ds.map((d, i) => {
-   const w = waterVals[i];
-   if(!(w > 0)) return '';
-   const bh = wPlotH * (w / maxW);
-   const bx = x(i) - barW / 2, by = wT + wPlotH - bh;
-   const met = w >= goalL;
-   return `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="${met ? 'rgba(67,242,193,.55)' : 'rgba(141,185,255,.5)'}"></rect><text x="${x(i).toFixed(1)}" y="${(by - 3).toFixed(1)}" font-size="8.5" fill="rgba(255,255,255,.7)" text-anchor="middle">${formatHuNumber(w, 1)}</text>`;
+  function bars(key, color, max, isWater){
+   const cells = ds.map((d, i) => {
+    const e = entries[i];
+    const has = isWater ? (e.waterMl != null) : (key in e);
+    const bx = cx(i) - barW / 2;
+    const track = `<rect x="${bx.toFixed(1)}" y="${top}" width="${barW.toFixed(1)}" height="${plotH}" rx="2" fill="rgba(255,255,255,.05)"></rect>`;
+    if(!has) return track;
+    const val = isWater ? (e.waterMl / 1000) : Number(e[key]);
+    const ratio = max > 0 ? Math.max(0, Math.min(1, val / max)) : 0;
+    const bh = Math.max(2.5, plotH * ratio);
+    return `${track}<rect x="${bx.toFixed(1)}" y="${(baseline - bh).toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${color}"></rect>`;
+   }).join('');
+   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(key)} heti oszlopok">${cells}</svg>`;
+  }
+  const waterGoalL = Math.max(0.5, Number(settings.waterGoalMl || 2500) / 1000);
+  const waterMax = Math.max(waterGoalL, ...entries.map(e => (e.waterMl || 0) / 1000));
+  const metrics = [
+   { key:'energy', label:'Energia', color:'#43f2c1', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
+   { key:'hunger', label:'Éhség / jóllakottság', color:'#ffd66b', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
+   { key:'reflux', label:'Reflux', color:'#ff8a8a', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
+   { key:'bloating', label:'Puffadás', color:'#ffb35d', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
+   { key:'histamine', label:'Hisztamin', color:'#c89bff', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
+   { key:'water', label:'Vízbevitel', color:'#8db9ff', max:waterMax, isWater:true, fmt:v=>`átl. ${formatHuNumber(v,1)} l` }
+  ];
+  const rows = metrics.map(m => {
+   const a = avg(m.key, m.isWater);
+   return `<div class="trend-row"><div class="trend-row-head"><span class="trend-dot" style="background:${m.color}"></span><b>${esc(m.label)}</b><em>${a == null ? 'nincs adat' : m.fmt(a)}</em></div>${bars(m.key, m.color, m.max, m.isWater)}</div>`;
   }).join('');
-  const wxlabels = ds.map((d, i) => `<text x="${x(i).toFixed(1)}" y="${WH - wB + 15}" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">${esc(compactDayName(d))}</text>`).join('');
-  const goalLine = `<line x1="${padL}" y1="${goalY.toFixed(1)}" x2="${W - padR}" y2="${goalY.toFixed(1)}" stroke="rgba(67,242,193,.5)" stroke-width="1" stroke-dasharray="4 3"></line><text x="${W - padR}" y="${Math.max(8, goalY - 3).toFixed(1)}" font-size="8.5" fill="rgba(67,242,193,.85)" text-anchor="end">cél ${formatHuNumber(goalL, 1)} l</text>`;
-  const waterSvg = `<svg viewBox="0 0 ${W} ${WH}" width="100%" role="img" aria-label="Heti vízbevitel">${goalLine}${bars}${wxlabels}</svg>`;
+  const dayLabels = `<div class="trend-days">${ds.map(d => `<span>${esc(compactDayName(d))}</span>`).join('')}</div>`;
   const body = hasAny
-   ? `<h3 class="subhead trend-sub">Közérzet (0–10)</h3>${lineSvg}${lineLegend}<h3 class="subhead trend-sub">Vízbevitel (liter)</h3>${waterSvg}<p class="small-muted">Csak a rögzített napok jelennek meg. A szaggatott vonal a napi vízcél; a zöld oszlop azt jelzi, hogy elérted a célt.</p>`
+   ? `<div class="trend-rows">${rows}</div>${dayLabels}<p class="small-muted">Soronként a hét napjai: a kitöltött oszlop a rögzített érték (közérzet 0–10, víz literben), a halvány háttér a nem naplózott napokat jelzi.</p>`
    : '<p class="small-muted">Ehhez a héthez még nincs naplóadat. Ahogy rögzíted a vizet és a közérzetet, itt jelenik meg a heti trend.</p>';
   return `<section class="card section trend-card"><div class="card-pad stack"><h2 class="subhead">${esc(weekNo)}. heti trend</h2>${body}</div></section>`;
+ }
+ function swapHaystack(r){
+  return [r.name_hu, r.pwa_title, ...(r.search_helper?.ingredient_names_hu || []), ...(r.search_helper?.keywords_hu || [])].join(' ').toLowerCase();
  }
  function openSwap(dayId, slot){
   const day = allDays.find(d => d.day_id === dayId) || selectedDay();
@@ -1482,18 +1489,24 @@ function heroFullDateLabel(day){
   const options = recipes.filter(r => mealSlotKey(r.meal_type) === slotKey);
   const ovKey = overrideKey(dayId, slot);
   const isSwapped = !!mealOverrides[ovKey];
+  function optionsHtml(q){
+   const query = (q || '').trim().toLowerCase();
+   const list = query ? options.filter(r => swapHaystack(r).includes(query)) : options;
+   return list.map(r => `<button class="swap-option ${r.recipe_id === eff.recipe_id ? 'active' : ''}" data-action="chooseSwap" data-day="${esc(dayId)}" data-slot="${esc(slot)}" data-recipe="${esc(r.recipe_id)}">
+      <span class="swap-option-main"><b>${esc(r.name_hu || r.pwa_title)}</b><em>${esc(r.energy_kcal)} kcal · ${esc(macroLine(r.macros_g))}</em></span>
+      <span class="chip ${maxRecipeRisk(r) >= 2 ? 'warn' : 'green'}">${esc(riskText(maxRecipeRisk(r)))}</span>
+     </button>`).join('') || `<p class="small-muted">Nincs találat erre a keresésre.</p>`;
+  }
   openSheet('Étkezés cseréje', `
    <div class="sheet-section"><div class="small-muted meal-type-line">${mealInlineIcon(slot)}<span>${esc(SLOT_LABELS[slot] || slot)} · ${esc(fullDateLabel(day))}</span></div>
     <p>Jelenleg: <b>${esc(eff.name_hu)}</b>${isSwapped ? ' (lecserélve)' : ''}. Válassz másik fogást ehhez az étkezéshez. A csere csak ezt a napot érinti, és bármikor visszaállítható.</p>
     ${isSwapped ? `<button class="ghost-btn wide" data-action="resetSwap" data-day="${esc(dayId)}" data-slot="${esc(slot)}">Eredeti fogás visszaállítása</button>` : ''}
    </div>
-   <div class="sheet-section stack swap-list">
-    ${options.map(r => `<button class="swap-option ${r.recipe_id === eff.recipe_id ? 'active' : ''}" data-action="chooseSwap" data-day="${esc(dayId)}" data-slot="${esc(slot)}" data-recipe="${esc(r.recipe_id)}">
-      <span class="swap-option-main"><b>${esc(r.name_hu || r.pwa_title)}</b><em>${esc(r.energy_kcal)} kcal · ${esc(macroLine(r.macros_g))}</em></span>
-      <span class="chip ${maxRecipeRisk(r) >= 2 ? 'warn' : 'green'}">${esc(riskText(maxRecipeRisk(r)))}</span>
-     </button>`).join('') || '<p class="small-muted">Nincs cserélhető fogás ehhez az étkezéshez.</p>'}
-   </div>
+   <div class="sheet-section"><input id="swapSearch" type="search" class="swap-search" placeholder="Keresés fogásra vagy alapanyagra" autocomplete="off" aria-label="Csere-étel keresése"></div>
+   <div class="sheet-section stack swap-list" id="swapResults">${optionsHtml('')}</div>
   `);
+  const si = $('#swapSearch');
+  if(si) si.addEventListener('input', e => { const r = $('#swapResults'); if(r) r.innerHTML = optionsHtml(e.target.value); });
  }
  function chooseSwap(dayId, slot, recipeId){
   const day = allDays.find(d => d.day_id === dayId);
