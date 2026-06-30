@@ -2404,3 +2404,177 @@ body[data-active-tab] .sheet :is(.sheet-section:nth-of-type(4n+1),.sheet-section
   background:linear-gradient(145deg,rgba(255,255,255,.078),rgba(255,255,255,.040))!important;
   box-shadow:0 28px 78px rgba(0,0,0,.44),0 0 24px rgba(127,255,229,.070)!important;
 }
+
+
+/* v32 — OLED Jewelry finomítás: világosabb, puhább, kevésbé sötét összhatás + erősebb napkijelölés + blurös zsugorodó fejléc */
+body[data-active-tab]{
+  --j-surface-1:rgba(255,255,255,.105);
+  --j-surface-2:rgba(255,255,255,.072);
+  --j-surface-3:rgba(255,255,255,.048);
+  --j-line:rgba(255,255,255,.20);
+  --j-line-strong:rgba(255,255,255,.32);
+  --j-muted:#c4d0dc;
+  --tab-card-line:rgba(var(--j-accent-rgb),.27);
+  --tab-card-line-strong:rgba(var(--j-accent-rgb),.52);
+  --tab-glow:rgba(var(--j-accent-rgb),.22);
+  --tab-glow-soft:rgba(var(--j-accent-rgb),.115);
+}
+body[data-active-tab="today"]{
+  --j-bg-0:#0A333A; --j-bg-1:#0D454C; --j-bg-2:#08262C;
+}
+body[data-active-tab="weeks"]{
+  --j-bg-0:#3A2B17; --j-bg-1:#49371E; --j-bg-2:#251B0F;
+  --j-muted:#ead8ad;
+}
+body[data-active-tab="recipes"]{
+  --j-bg-0:#3A2109; --j-bg-1:#4B2C0B; --j-bg-2:#261306;
+  --j-muted:#f0c892;
+}
+body[data-active-tab="shopping"]{
+  --j-bg-0:#073B42; --j-bg-1:#0A535A; --j-bg-2:#062B31;
+  --j-muted:#c8f4f6;
+}
+body[data-active-tab="tracking"]{
+  --j-bg-0:#302050; --j-bg-1:#422B68; --j-bg-2:#211537;
+  --j-muted:#e2d4f7;
+}
+html, body[data-active-tab]{background:var(--j-bg-2)!important;}
+body[data-active-tab]{
+  background:
+    radial-gradient(circle at 78% 4%,rgba(var(--j-accent-rgb),.20),transparent 24rem),
+    radial-gradient(circle at 7% 18%,rgba(var(--j-accent2-rgb),.22),transparent 27rem),
+    radial-gradient(circle at 50% 112%,rgba(var(--j-accent-rgb),.10),transparent 26rem),
+    linear-gradient(180deg,var(--j-bg-0) 0%,var(--j-bg-1) 48%,var(--j-bg-2) 100%)!important;
+}
+body[data-active-tab] .app-shell{
+  background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.006) 48%,rgba(0,0,0,.035))!important;
+}
+
+/* Kártyák: OLED Jewelry marad, de világosabb üvegréteg és kevésbé komor árnyék. */
+body[data-active-tab] :is(
+  .card,.hero,.detail-hero,.recipe-card,.meal-card,.mini-day,.week-day-card,
+  .week-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,
+  .shopping-select-card,.shopping-group-card,.tracking-week-row,.weekly-summary-card,
+  .water-card,.list-item,.metric,.kcal-bubble,.prep-step,.prep-step-card,
+  .date-logic-help,.card-soft-note,.selection-summary
+){
+  border-color:rgba(var(--j-accent-rgb),.24)!important;
+  background:
+    radial-gradient(circle at 10% 0,rgba(var(--j-accent-rgb),.105),transparent 35%),
+    radial-gradient(circle at 96% 0,rgba(var(--j-accent2-rgb),.080),transparent 34%),
+    linear-gradient(145deg,rgba(255,255,255,.102),rgba(255,255,255,.067) 56%,rgba(var(--j-accent2-rgb),.048))!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.22),0 0 24px rgba(var(--j-accent-rgb),.075),inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+body[data-active-tab] :is(.hero,.detail-hero){
+  background:
+    radial-gradient(circle at 14% -2%,rgba(var(--j-accent-rgb),.16),transparent 46%),
+    linear-gradient(145deg,rgba(255,255,255,.115),rgba(var(--j-accent2-rgb),.105) 54%,rgba(255,255,255,.056))!important;
+}
+body[data-active-tab] :is(.card,.meal-card,.water-card,.premium-week-box)::before,
+body[data-active-tab] :is(.card,.meal-card,.water-card,.premium-week-box)::after{
+  opacity:.78!important;
+}
+
+/* Fejléc: görgetéskor kompakt, elmosott üveg háttérrel, de a jobb oldali gombok kattinthatók maradnak. */
+.topbar{
+  pointer-events:auto;
+  -webkit-backdrop-filter:blur(24px) saturate(1.22);
+  backdrop-filter:blur(24px) saturate(1.22);
+  transition:height .32s cubic-bezier(.2,.8,.2,1),padding .32s cubic-bezier(.2,.8,.2,1),background .32s ease,box-shadow .32s ease,border-color .32s ease;
+}
+.topbar .top-actions,.topbar .icon-btn{pointer-events:auto;}
+body[data-active-tab] .topbar{
+  background:
+    linear-gradient(180deg,rgba(8,17,29,.78),rgba(8,17,29,.54) 76%,rgba(8,17,29,0))!important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.20);
+  backdrop-filter:blur(22px) saturate(1.20);
+}
+body[data-active-tab] .topbar.header-compact{
+  height:calc(54px + env(safe-area-inset-top))!important;
+  padding:calc(5px + env(safe-area-inset-top)) 10px 6px!important;
+  align-items:center!important;
+  background:
+    radial-gradient(circle at 46% -30%,rgba(var(--j-accent-rgb),.18),transparent 58%),
+    linear-gradient(180deg,rgba(13,22,34,.82),rgba(9,16,26,.62))!important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.35);
+  backdrop-filter:blur(28px) saturate(1.35);
+  border-bottom:1px solid rgba(var(--j-accent-rgb),.18)!important;
+  box-shadow:0 14px 38px rgba(0,0,0,.28),0 0 22px rgba(var(--j-accent-rgb),.075)!important;
+}
+body[data-active-tab] .topbar.header-compact .brand-block.brand-box{
+  padding:5px 9px!important;
+  border-radius:17px!important;
+  min-height:38px;
+  display:grid;
+  place-items:center;
+  box-shadow:0 10px 26px rgba(0,0,0,.20),0 0 14px rgba(var(--j-accent-rgb),.085),inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+body[data-active-tab] .topbar.header-compact .brand-title.soft-diet-title{
+  font-size:12px!important;
+  line-height:1.08!important;
+  letter-spacing:-.18px!important;
+}
+body[data-active-tab] .topbar.header-compact .icon-btn.glow-icon{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  border-radius:16px!important;
+}
+body[data-active-tab] .topbar.header-compact .top-icon{
+  width:25px!important;
+  height:25px!important;
+}
+
+/* Bevásárlás és Napló: a lenyitott napgomboknál legyen egyértelmű az aktív nap, világosabb OLED környezetben is. */
+body[data-active-tab="shopping"] .tracking-day-pill.compact-day-only.active,
+body[data-active-tab="shopping"] .tracking-day-pill.active,
+body[data-active-tab="tracking"] .tracking-day-pill.compact-day-only.active,
+body[data-active-tab="tracking"] .tracking-day-pill.active,
+body[data-active-tab="shopping"] .mini-day-btn.active,
+body[data-active-tab="tracking"] .mini-day-btn.active{
+  color:var(--j-accent-3)!important;
+  border-color:rgba(var(--j-accent-rgb),.72)!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(var(--j-accent-rgb),.38),transparent 58%),
+    linear-gradient(145deg,rgba(var(--j-accent-rgb),.24),rgba(var(--j-accent2-rgb),.18))!important;
+  box-shadow:
+    0 0 0 2px rgba(var(--j-accent-rgb),.22),
+    0 0 24px rgba(var(--j-accent-rgb),.24),
+    inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+body[data-active-tab="shopping"] .tracking-day-pill.compact-day-only.active b,
+body[data-active-tab="shopping"] .tracking-day-pill.compact-day-only.active span,
+body[data-active-tab="tracking"] .tracking-day-pill.compact-day-only.active b,
+body[data-active-tab="tracking"] .tracking-day-pill.compact-day-only.active span,
+body[data-active-tab="shopping"] .tracking-day-pill.active b,
+body[data-active-tab="shopping"] .tracking-day-pill.active span,
+body[data-active-tab="tracking"] .tracking-day-pill.active b,
+body[data-active-tab="tracking"] .tracking-day-pill.active span{
+  color:#ffffff!important;
+  text-shadow:0 0 9px rgba(var(--j-accent-rgb),.38)!important;
+}
+body[data-active-tab="shopping"] .tracking-week-row.active .tracking-week-bar,
+body[data-active-tab="tracking"] .tracking-week-row.active .tracking-week-bar{
+  border-color:rgba(var(--j-accent-rgb),.48)!important;
+  background:linear-gradient(145deg,rgba(var(--j-accent-rgb),.16),rgba(var(--j-accent2-rgb),.10))!important;
+  box-shadow:0 0 22px rgba(var(--j-accent-rgb),.12),inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+body[data-active-tab="shopping"] .tracking-week-bar .week-chevron,
+body[data-active-tab="tracking"] .tracking-week-bar .week-chevron{
+  color:var(--j-accent-3)!important;
+  border-color:rgba(var(--j-accent-rgb),.36)!important;
+  background:rgba(var(--j-accent-rgb),.11)!important;
+  box-shadow:0 0 16px rgba(var(--j-accent-rgb),.13)!important;
+}
+
+/* Bottom sheet: kicsit világosabb, de továbbra sem színes szövegbox-halmozás. */
+body[data-active-tab] .sheet{
+  background:
+    radial-gradient(circle at 50% -12%,rgba(var(--j-accent-rgb),.16),transparent 44%),
+    linear-gradient(180deg,rgba(17,27,41,.985),rgba(9,14,24,.992))!important;
+}
+body[data-active-tab] .sheet-backdrop{
+  background:rgba(0,0,0,.46)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(1.14);
+  backdrop-filter:blur(12px) saturate(1.14);
+}
