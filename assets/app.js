@@ -308,7 +308,7 @@
   const r = recipe?.risk_scores || {};
   return Math.max(Number(r.reflux_risk_level||0), Number(r.histamine_caution_level||0), Number(r.purine_caution_level||0), Number(r.bloating_risk_level||0));
  }
- function macroLine(macros){ return `${macros?.protein ?? 0}g feh. · ${macros?.carbohydrate ?? 0}g ch · ${macros?.fat ?? 0}g zsír`; }
+ function macroLine(macros){ return `Fehérje ${macros?.protein ?? 0}g · Szénhidrát ${macros?.carbohydrate ?? 0}g · Zsír ${macros?.fat ?? 0}g`; }
  function mealKey(day, meal){ return `${day.day_id}|${meal.slot}|${meal.recipe_id}`; }
  function shoppingKey(scope, parts){ return `${scope}|${parts.map(p=>String(p).replaceAll('|','-')).join('|')}`; }
  function progressForDay(day){
@@ -419,8 +419,17 @@
   return `<article class="meal-card meal-slot-${esc(slotClass)} ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
     <div class="meal-slot">${mealSlotIcon(meal.slot)}</div>
     <div class="meal-body">
-     <div class="meal-title">${esc(meal.name_hu)}</div>
-     <div class="meal-meta"><span class="meal-meta-slot">${mealInlineIcon(meal.slot)}<span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span></span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span><span class="cook-mini ${cookingSpeedClass(recipe)}">${esc(speed)}</span></div>
+     <div class="meal-card-title-row">
+      <div class="meal-title">${esc(meal.name_hu)}</div>
+      <span class="cook-mini meal-cook-time ${cookingSpeedClass(recipe)}">Főzési idő: ${esc(speed)}</span>
+     </div>
+     <div class="meal-meta meal-meta-clean"><span class="meal-meta-slot">${mealInlineIcon(meal.slot)}<span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span></span></div>
+     <div class="meal-info-grid" aria-label="Étkezés fő értékei">
+      <span class="meal-info-pill"><b>${esc(meal.energy_kcal)}</b><em>kcal</em></span>
+      <span class="meal-info-pill"><b>${esc(meal.macros_g?.protein || 0)}g</b><em>Fehérje</em></span>
+      <span class="meal-info-pill"><b>${esc(meal.macros_g?.carbohydrate || 0)}g</b><em>Szénhidrát</em></span>
+      <span class="meal-info-pill"><b>${esc(meal.macros_g?.fat || 0)}g</b><em>Zsír</em></span>
+     </div>
      <div class="meal-indicators">
       ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
       ${mealRiskChips(meal)}
@@ -490,8 +499,8 @@
        <div class="week-kcal"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal</span></div>
       </div>
       <div class="metric-row compact-metrics">
-       <div class="metric"><b>${esc(day.daily_totals?.protein || 0)}g</b><span>Feh.</span></div>
-       <div class="metric"><b>${esc(day.daily_totals?.carbohydrate || 0)}g</b><span>CH</span></div>
+       <div class="metric"><b>${esc(day.daily_totals?.protein || 0)}g</b><span>Fehérje</span></div>
+       <div class="metric"><b>${esc(day.daily_totals?.carbohydrate || 0)}g</b><span>Szénhidrát</span></div>
        <div class="metric"><b>${esc(day.daily_totals?.fat || 0)}g</b><span>Zsír</span></div>
        <div class="metric"><b>${esc((day.meals || []).length)}</b><span>Étkezés</span></div>
       </div>
@@ -666,7 +675,7 @@
 
  function renderRecipes(){
   const filterDefs = [
-   ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi'], ['sos','Sós reggeli'], ['teszta','Tészta'], ['gyors','Gyors'], ['kozepes','Általános'], ['hosszabb','Hosszabb'], ['ovatos','Egyéni teszt']
+   ['tejmentes','Tejmentes'], ['husmentes','Húsmentes'], ['novenyi','Növényi'], ['sos','Sós reggeli'], ['teszta','Tészta'], ['gyors','Főzési idő: gyors'], ['kozepes','Főzési idő: általános'], ['hosszabb','Főzési idő: hosszabb'], ['ovatos','Egyéni teszt']
   ];
   const phaseDefs = ['menstruacio','follikularis','ovulacio','korai_lutealis','pms_kesoi_lutealis'].map(p => [`phase:${p}`, PHASE_LABELS[p] || p]);
   const shown = recipes.filter(recipeMatches);
@@ -731,7 +740,7 @@
     </div>
     <button class="fav-btn ${fav ? 'active' : ''}" data-fav-control="true" data-action="toggleFavorite" data-recipe="${esc(r.recipe_id)}" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Kedvencnek jelölve' : 'Kedvenc jelölése'}" title="${fav ? 'Kedvencnek jelölve' : 'Kedvenc jelölése'}">★</button>
    </div>
-   <div class="chip-row recipe-card-chips" style="margin-top:10px"><span class="chip cook-chip ${cookingSpeedClass(r)}">${esc(cookingSpeedLabel(r))}</span>${flags.slice(0,2).map(f=>`<span class="chip soft">${esc(f)}</span>`).join('')}<span class="chip ${maxRecipeRisk(r)>=2?'warn':'green'}">${esc(riskText(maxRecipeRisk(r)))}</span></div>
+   <div class="chip-row recipe-card-chips" style="margin-top:10px"><span class="chip cook-chip ${cookingSpeedClass(r)}">Főzési idő: ${esc(cookingSpeedLabel(r))}</span>${flags.slice(0,2).map(f=>`<span class="chip soft">${esc(f)}</span>`).join('')}<span class="chip ${maxRecipeRisk(r)>=2?'warn':'green'}">${esc(riskText(maxRecipeRisk(r)))}</span></div>
   </article>`;
  }
 

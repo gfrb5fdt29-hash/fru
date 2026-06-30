@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v44-oled-ocean-darker-header-tabbar-restore';
+const CACHE_NAME = 'balance1600-v45-daycards-tags-clean';
 const APP_ASSETS = [
   './',
   './index.html',
