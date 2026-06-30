@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v43-oled-ocean';
+const CACHE_NAME = 'balance1600-v44-oled-ocean-darker-header-tabbar-restore';
 const APP_ASSETS = [
   './',
   './index.html',
