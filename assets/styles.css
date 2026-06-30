@@ -1590,3 +1590,153 @@ body{
 .tracking-week-bar,
 .tracking-day-pill{transition-duration:.32s!important;}
 @media (prefers-reduced-motion:reduce){.view.view-enter,.sheet.show{animation:none!important}.sheet,.sheet-backdrop{transition-duration:.01ms!important}}
+
+/* v28: világosabb kék-zöld app, erősebb kártyakeretek/árnyékok, egységesebb fejléc */
+:root{
+  --bg:#0f2b4f;
+  --bg2:#16476f;
+  --bg3:#1c637a;
+  --card:rgba(255,255,255,.145);
+  --card-strong:rgba(255,255,255,.20);
+  --line:rgba(174,255,238,.26);
+  --line-strong:rgba(190,255,242,.40);
+  --muted:#b6cce0;
+  --soft:#e2edf5;
+  --shadow:0 28px 76px rgba(0,18,42,.48),0 0 34px rgba(52,244,202,.10);
+  --top:calc(82px + env(safe-area-inset-top));
+}
+html{background:#0f2b4f!important;}
+body{
+  background:
+    radial-gradient(circle at 74% 5%, rgba(79,213,201,.34), transparent 22rem),
+    radial-gradient(circle at 0 18%, rgba(60,144,220,.34), transparent 25rem),
+    radial-gradient(circle at 64% 78%, rgba(48,176,135,.24), transparent 24rem),
+    linear-gradient(180deg,#12365d 0%,#16476f 42%,#0e304f 100%)!important;
+}
+.topbar{
+  height:var(--top)!important;
+  padding:calc(9px + env(safe-area-inset-top)) 9px 9px!important;
+  align-items:center!important;
+  gap:8px!important;
+  background:linear-gradient(180deg,rgba(15,44,78,.96),rgba(18,62,91,.86) 78%,rgba(18,62,91,0))!important;
+  backdrop-filter:blur(24px)!important;
+}
+.brand-block.brand-box{
+  padding:8px 9px!important;
+  border-radius:20px!important;
+  border:1.35px solid rgba(156,255,235,.34)!important;
+  background:
+    radial-gradient(circle at 50% -18%, rgba(102,255,221,.22), transparent 65%),
+    linear-gradient(145deg, rgba(25,116,136,.48), rgba(14,75,92,.36) 54%, rgba(255,255,255,.075))!important;
+  box-shadow:0 18px 40px rgba(0,20,38,.30),0 0 26px rgba(71,244,203,.12),inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+.brand-title.soft-diet-title{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Avenir Next",system-ui,sans-serif!important;
+  font-size:13.85px!important;
+  line-height:1.06!important;
+  font-weight:900!important;
+  letter-spacing:-.28px!important;
+  text-shadow:0 0 6px rgba(85,255,221,.18)!important;
+}
+.brand-title .brand-text{
+  max-width:238px!important;
+  white-space:normal!important;
+  text-align:center!important;
+  overflow:visible!important;
+  color:#f2fffb!important;
+  background:linear-gradient(90deg,#ffffff 0%,#d9fff6 42%,#91ffe6 72%,#ffffff 100%)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  color:transparent!important;
+}
+.top-actions{gap:7px!important;}
+.topbar .icon-btn.glow-icon{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  border-radius:17px!important;
+  padding:5px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.055))!important;
+  border-width:1.35px!important;
+  box-shadow:0 16px 34px rgba(0,18,42,.28),inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+.topbar .icon-btn.glow-icon .top-icon{
+  width:36px!important;
+  height:36px!important;
+}
+.topbar .icon-btn.settings-glow{
+  border-color:rgba(255,184,86,.82)!important;
+  color:#ffd492!important;
+  box-shadow:0 14px 34px rgba(0,18,42,.28),0 0 22px rgba(255,159,28,.34),inset 0 0 13px rgba(255,199,106,.13)!important;
+}
+.topbar .icon-btn.home-glow{
+  border-color:rgba(88,255,196,.68)!important;
+  color:#bffff0!important;
+  box-shadow:0 14px 34px rgba(0,18,42,.28),0 0 22px rgba(53,255,157,.30),inset 0 0 13px rgba(53,255,157,.12)!important;
+}
+:is(.card,.hero,.meal-card,.recipe-card,.week-card,.mini-day,.week-day-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,.shopping-select-card,.shopping-group-card,.tracking-week-row,.tracking-day-pill,.weekly-summary-card,.water-card,.list-item,.metric,.kcal-bubble,.sheet,.onboarding-card,.date-logic-help,.card-soft-note,.prep-step){
+  border-color:rgba(178,255,239,.34)!important;
+  box-shadow:
+    0 22px 56px rgba(0,18,42,.38),
+    0 0 28px rgba(67,242,193,.12),
+    inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+:is(.card,.recipe-card,.week-card,.mini-day,.week-day-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,.shopping-select-card,.shopping-group-card,.tracking-week-row,.weekly-summary-card,.water-card,.list-item,.prep-step){
+  background:
+    linear-gradient(145deg, rgba(44,128,158,.30), rgba(14,92,91,.23) 54%, rgba(255,255,255,.075))!important;
+}
+.hero,
+.detail-hero{
+  background:
+    radial-gradient(circle at 15% 0%, rgba(104,255,229,.20), transparent 46%),
+    linear-gradient(145deg, rgba(45,139,166,.34), rgba(12,94,91,.26) 52%, rgba(255,255,255,.075))!important;
+}
+.meal-card{
+  background:
+    linear-gradient(135deg, rgba(40,126,153,.28), rgba(13,91,87,.21), rgba(255,255,255,.070))!important;
+}
+.meal-card.done{
+  border-color:rgba(132,255,220,.52)!important;
+  background:
+    radial-gradient(circle at 0 0, rgba(124,255,218,.22), transparent 42%),
+    linear-gradient(135deg, rgba(39,137,154,.34), rgba(15,104,91,.26), rgba(255,255,255,.08))!important;
+  box-shadow:0 22px 58px rgba(0,18,42,.40),0 0 34px rgba(67,242,193,.18),inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+.metric,.kcal-bubble{
+  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(30,106,123,.22))!important;
+}
+.sheet{
+  background:linear-gradient(180deg,rgba(21,61,91,.98),rgba(11,45,71,.985))!important;
+}
+.searchbar{
+  background:linear-gradient(180deg,rgba(15,44,78,.98),rgba(15,44,78,.86),rgba(15,44,78,0))!important;
+}
+.onboarding{
+  background:
+    radial-gradient(circle at 72% 8%,rgba(79,213,201,.28),transparent 22rem),
+    radial-gradient(circle at 0 20%,rgba(60,144,220,.30),transparent 25rem),
+    linear-gradient(180deg,#12365d,#16476f 48%,#0e304f)!important;
+}
+.onboarding-brand.brand-title.soft-diet-title{
+  font-size:20px!important;
+  line-height:1.08!important;
+  margin-bottom:6px!important;
+}
+@media (max-width:390px){
+  :root{--top:calc(82px + env(safe-area-inset-top));}
+  .topbar{gap:6px!important;padding-left:7px!important;padding-right:7px!important;}
+  .brand-block.brand-box{padding:7px 7px!important;border-radius:18px!important;}
+  .brand-title.soft-diet-title{font-size:12.65px!important;line-height:1.05!important;}
+  .brand-title .brand-text{max-width:214px!important;}
+  .topbar .icon-btn.glow-icon{width:46px!important;height:46px!important;min-width:46px!important;border-radius:16px!important;padding:5px!important;}
+  .topbar .icon-btn.glow-icon .top-icon{width:33px!important;height:33px!important;}
+}
+@media (max-width:360px){
+  .brand-title.soft-diet-title{font-size:11.35px!important;}
+  .brand-title .brand-text{max-width:192px!important;}
+  .topbar .icon-btn.glow-icon{width:42px!important;height:42px!important;min-width:42px!important;}
+  .topbar .icon-btn.glow-icon .top-icon{width:30px!important;height:30px!important;}
+}

@@ -1,11 +1,11 @@
 {
   "name": "28 napos étrend",
   "short_name": "Étrend",
-  "description": "Kímélő női étrend, 4 hétre",
+  "description": "28 napos étrend, naplóval, közérzetkövetéssel",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#071630",
-  "theme_color": "#071630",
+  "background_color": "#0f2b4f",
+  "theme_color": "#0f2b4f",
   "orientation": "portrait-primary",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
