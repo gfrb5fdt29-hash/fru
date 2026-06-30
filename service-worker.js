@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v47-tracking-shopping-header';
+const CACHE_NAME = 'balance1600-v48-ios-day-picker-sheets';
 const APP_ASSETS = [
   './',
   './index.html',

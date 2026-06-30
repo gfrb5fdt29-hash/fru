@@ -787,6 +787,95 @@
   const map = {Hétfő:'H', Kedd:'K', Szerda:'Sze', Csütörtök:'Cs', Péntek:'P', Szombat:'Szo', Vasárnap:'V'};
   return map[name] || name.slice(0,3);
  }
+
+ function weekDateRangeLabel(weekNo){
+  const ds = allDays.filter(d => Number(d.week) === Number(weekNo));
+  if(!ds.length) return `${weekNo}. hét`;
+  return `${calendarShort(actualDateForDay(ds[0]))}–${calendarShort(actualDateForDay(ds[ds.length - 1]))}`;
+ }
+ function selectorWeekChips(action, activeWeek){
+  const active = Number(activeWeek || 1);
+  return `<div class="sheet-week-chip-row app-sheet-week-chips" aria-label="Hét választása">
+   ${weeks.map(w => `<button class="sheet-week-chip ${Number(w.week) === active ? 'active' : ''}" data-action="${action}" data-week="${w.week}" aria-pressed="${Number(w.week) === active ? 'true' : 'false'}"><b>${w.week}. hét</b><span>${esc(weekDateRangeLabel(w.week))}</span></button>`).join('')}
+  </div>`;
+ }
+ function selectedShoppingSummaryText(days){
+  const ds = Array.isArray(days) && days.length ? days : selectedShoppingDays();
+  if(ds.length === 1) return `${esc(dayDisplayName(ds[0]))} · ${esc(dayCalendarShort(ds[0]))}`;
+  return `${ds.length} nap kijelölve · ${esc(ds.map(d => compactDayName(d)).join(', '))}`;
+ }
+ function daySelectorButton(day, active, action, multi=false){
+  return `<button class="sheet-day-choice ${active ? 'active' : ''}" data-action="${action}" data-daynum="${day.globalDayNumber}" aria-pressed="${active ? 'true' : 'false'}" aria-label="${esc(planDayLabel(day))} · ${esc(fullDateLabel(day))}">
+   <span class="sheet-day-check" aria-hidden="true">${active ? '✓' : ''}</span>
+   <span class="sheet-day-copy"><b>${esc(dayDisplayName(day))}</b><em>${esc(dayCalendarShort(day))} · ${esc(day.day_number_in_week)}. nap</em></span>
+   ${multi ? '<span class="sheet-day-mode">többnapos</span>' : ''}
+  </button>`;
+ }
+ function selectorSummaryCard(kind, activeWeek, selectedText){
+  const isShopping = kind === 'shopping';
+  const weekAction = isShopping ? 'openShoppingWeekSheet' : 'openTrackingWeekSheet';
+  const dayAction = isShopping ? 'openShoppingDaySheet' : 'openTrackingDaySheet';
+  const title = isShopping ? 'Napok kiválasztása' : 'Napló napja';
+  const help = isShopping ? 'A napok külön alsó sheetben választhatók, így a fő felület tisztább marad.' : 'Válassz hetet és napot külön alsó sheetben, majd vezesd a napi naplót.';
+  return `<section class="card section premium-selector-card ios-picker-card ${isShopping ? 'shopping-ios-picker' : 'tracking-ios-picker'}"><div class="card-pad ios-picker-pad">
+   <div class="ios-picker-head"><div><h2 class="subhead">${title}</h2><p class="small-muted">${help}</p></div><span class="ios-picker-current-week">${esc(activeWeek)}. hét</span></div>
+   <button class="ios-picker-main" data-action="${weekAction}" aria-label="Hét választása"><span><b>Kiválasztott hét</b><em>${esc(activeWeek)}. hét · ${esc(weekDateRangeLabel(activeWeek))}</em></span><i>⌄</i></button>
+   <button class="ios-picker-main ios-picker-day-main" data-action="${dayAction}" aria-label="Napok kiválasztása"><span><b>${isShopping ? 'Kiválasztott napok' : 'Kiválasztott nap'}</b><em>${selectedText}</em></span><i>⌄</i></button>
+  </div></section>`;
+ }
+ function openTrackingWeekSheet(){
+  const activeWeek = Number(selectedDay()?.week || ui.trackingWeek || 1);
+  openSheet('Válassz hetet', `<div class="sheet-section ios-picker-sheet">
+   <p class="small-muted">A kiválasztott hét alapján jelennek meg a naplózható napok.</p>
+   <div class="sheet-week-list">
+    ${weeks.map(w => {
+     const active = Number(w.week) === activeWeek;
+     return `<button class="sheet-week-row-choice ${active ? 'active' : ''}" data-action="trackingSheetWeek" data-week="${w.week}" aria-pressed="${active ? 'true' : 'false'}"><span><b>${w.week}. hét</b><em>${esc(weekDateRangeLabel(w.week))}</em></span>${active ? '<i>✓</i>' : '<i>›</i>'}</button>`;
+    }).join('')}
+   </div>
+   <button class="primary-btn wide ios-picker-done" data-action="pickerDone">Kész</button>
+  </div>`);
+ }
+ function openTrackingDaySheet(){
+  const day = selectedDay();
+  const activeWeek = Number(day?.week || ui.trackingWeek || 1);
+  const weekDays = allDays.filter(d => Number(d.week) === activeWeek);
+  const activeNum = Number(day?.globalDayNumber || 1);
+  openSheet('Válassz napot', `<div class="sheet-section ios-picker-sheet">
+   <p class="small-muted">${esc(activeWeek)}. hét · ${esc(weekDateRangeLabel(activeWeek))}</p>
+   ${selectorWeekChips('trackingSheetWeek', activeWeek)}
+   <div class="sheet-day-grid-ios single-day-grid">
+    ${weekDays.map(d => daySelectorButton(d, Number(d.globalDayNumber) === activeNum, 'trackingSheetDay')).join('')}
+   </div>
+   <button class="primary-btn wide ios-picker-done" data-action="pickerDone">Kész</button>
+  </div>`);
+ }
+ function openShoppingWeekSheet(){
+  const activeWeek = Number(ui.shoppingWeek || selectedShoppingDays()[0]?.week || 1);
+  openSheet('Válassz hetet', `<div class="sheet-section ios-picker-sheet">
+   <p class="small-muted">A hét kiválasztása után a napokat külön sheetben jelölheted ki.</p>
+   <div class="sheet-week-list">
+    ${weeks.map(w => {
+     const active = Number(w.week) === activeWeek;
+     return `<button class="sheet-week-row-choice ${active ? 'active' : ''}" data-action="shoppingSheetWeek" data-week="${w.week}" aria-pressed="${active ? 'true' : 'false'}"><span><b>${w.week}. hét</b><em>${esc(weekDateRangeLabel(w.week))}</em></span>${active ? '<i>✓</i>' : '<i>›</i>'}</button>`;
+    }).join('')}
+   </div>
+   <button class="primary-btn wide ios-picker-done" data-action="pickerDone">Kész</button>
+  </div>`);
+ }
+ function openShoppingDaySheet(){
+  const activeWeek = Number(ui.shoppingWeek || selectedShoppingDays()[0]?.week || 1);
+  const weekDays = allDays.filter(d => Number(d.week) === activeWeek);
+  const activeNums = new Set(activeShoppingDayNumbers().map(Number));
+  openSheet('Válassz napokat', `<div class="sheet-section ios-picker-sheet">
+   <p class="small-muted">${esc(activeWeek)}. hét · ${esc(weekDateRangeLabel(activeWeek))}</p>
+   ${selectorWeekChips('shoppingSheetWeek', activeWeek)}
+   <div class="sheet-day-grid-ios multi-day-grid">
+    ${weekDays.map(d => daySelectorButton(d, activeNums.has(Number(d.globalDayNumber)), 'shoppingSheetToggleDay', true)).join('')}
+   </div>
+   <button class="primary-btn wide ios-picker-done" data-action="pickerDone">Kész</button>
+  </div>`);
+ }
  function weekBoxDaySelector(action, activeNums, extraClass=''){
   const nums = new Set((activeNums || []).map(Number));
   return `<div class="week-box-grid premium-week-grid ${extraClass}">
@@ -871,12 +960,7 @@
      <p class="small-muted">Heti nézetben csak a hetek közül válassz. A napok kijelölése ilyenkor nem jelenik meg.</p>
      ${weekOnlySelector('shoppingWeek', activeWeek, 'shopping-week-selector')}
     </div></section>`
-   : `<section class="card section shopping-select-card premium-selector-card"><div class="card-pad">
-     <h2 class="subhead">Napok kiválasztása</h2>
-     <p class="small-muted">Egy kijelölt napnál napi lista látszik, több napnál automatikusan összevont lista készül.</p>
-     ${shoppingWeekAccordionSelector(activeShoppingDayNumbers())}
-     <div class="selection-summary"><b>${selectedDays.length} nap kijelölve</b><span>${esc(selectedDays.map(d => compactDayName(d)).join(', '))}</span></div>
-    </div></section>`;
+   : selectorSummaryCard('shopping', Number(activeWeek), selectedShoppingSummaryText(selectedDays));
   $('#view').innerHTML = `
    <section class="section shopping-head">
     <h1 class="headline">Bevásárlás</h1>
@@ -1035,7 +1119,7 @@
    <section class="section tracking-picker">
     <h1 class="headline">Napló</h1>
     <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
-    ${trackingWeekAccordionSelector(day)}
+    ${selectorSummaryCard('tracking', Number(day.week || ui.trackingWeek || 1), `${esc(dayDisplayName(day))} · ${esc(dayCalendarShort(day))} · ${esc(planDayLabel(day))}`)}
    </section>
    <section class="card section"><div class="card-pad">
     <h2 class="headline">${esc(fullDateLabel(day))} naplója</h2>
@@ -1335,6 +1419,60 @@
    updateFavoriteUi(id);
    toast(next ? 'Kedvenchez adva.' : 'Kedvenc levéve.');
    return;
+  }
+  if(action === 'openTrackingWeekSheet') openTrackingWeekSheet();
+  if(action === 'openTrackingDaySheet') openTrackingDaySheet();
+  if(action === 'openShoppingWeekSheet') openShoppingWeekSheet();
+  if(action === 'openShoppingDaySheet') openShoppingDaySheet();
+  if(action === 'trackingSheetWeek'){
+   const weekNo = Number(el.dataset.week);
+   ui.trackingWeek = weekNo;
+   const current = selectedDay();
+   if(!current || Number(current.week) !== weekNo){
+    const first = allDays.find(d => Number(d.week) === weekNo);
+    if(first) ui.selectedDayNumber = first.globalDayNumber;
+   }
+   writeStore(storeKeys.ui, ui);
+   renderTracking();
+   openTrackingWeekSheet();
+  }
+  if(action === 'trackingSheetDay'){
+   const n = Number(el.dataset.daynum);
+   const d = allDays.find(day => Number(day.globalDayNumber) === n);
+   if(d){
+    ui.selectedDayNumber = n;
+    ui.trackingWeek = d.week;
+    writeStore(storeKeys.ui, ui);
+    renderTracking();
+    openTrackingDaySheet();
+   }
+  }
+  if(action === 'shoppingSheetWeek'){
+   const weekNo = Number(el.dataset.week);
+   ui.shoppingWeek = weekNo;
+   writeStore(storeKeys.ui, ui);
+   renderShopping();
+   openShoppingWeekSheet();
+  }
+  if(action === 'shoppingSheetToggleDay'){
+   const n = Number(el.dataset.daynum);
+   const current = activeShoppingDayNumbers();
+   const set = new Set(current.map(Number));
+   if(set.has(n)){
+    if(set.size > 1) set.delete(n);
+   }else{
+    set.add(n);
+   }
+   ui.shoppingMergeDays = Array.from(set).sort((a,b)=>a-b);
+   const d = allDays.find(day => Number(day.globalDayNumber) === n);
+   if(d){ ui.shoppingWeek = d.week; ui.shoppingDayNumber = n; }
+   writeStore(storeKeys.ui, ui);
+   renderShopping();
+   openShoppingDaySheet();
+  }
+  if(action === 'pickerDone'){
+   closeSheet();
+   render({noAnimate:true});
   }
   if(action === 'trackingWeekToggle'){
    const weekNo = Number(el.dataset.week);
