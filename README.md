@@ -1,4 +1,4 @@
-# 28 napos étrend PWA — FIXED v28
+# 28 napos étrend PWA — FIXED v29
 
 GitHub Pages-kompatibilis, statikus, offline-képes étrend és életmód segítő app.
 
@@ -163,6 +163,12 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 ## v28 módosítások
 - Világosabb teljes app háttér és felület.
 - Erősebb kártyakeretek és nagyobb, élethűbb árnyékok.
-- Felső cím: „28 napos étrend, naplóval, közérzetkövetéssel”.
+- Felső cím: „28 napos étrend naplóval, közérzetkövetéssel Fruzsinak”.
 - Egységesebb fejléc a címmel, Home és Beállítások gombbal.
-- Service worker cache: balance1600-v28.
+- Service worker cache: balance1600-v29.
+
+
+## v29 módosítás
+- Felső box szövege: „28 napos étrend naplóval, közérzetkövetéssel Fruzsinak”.
+- Az 5 fő fül saját oldalszínvilágot kapott: Ma kék-zöld, Naptár világosabb bézs/fehér, Receptek narancs-arany OLED, Bevásárlás türkiz/smaragd, Napló lila árnyalatos.
+- Service worker cache: balance1600-v29.

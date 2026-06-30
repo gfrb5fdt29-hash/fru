@@ -289,6 +289,7 @@
  }
  function render(options = {}){
   const activeKey = ui.activeTab === 'dayDetail' ? (ui.dayReturnTab || 'weeks') : ui.activeTab;
+  document.body.dataset.activeTab = activeKey || 'today';
   $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === activeKey));
   try{
    if(ui.activeTab === 'dayDetail') renderDayPage();

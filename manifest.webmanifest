@@ -1,7 +1,7 @@
 {
   "name": "28 napos étrend",
   "short_name": "Étrend",
-  "description": "28 napos étrend, naplóval, közérzetkövetéssel",
+  "description": "28 napos étrend naplóval, közérzetkövetéssel",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f2b4f",
