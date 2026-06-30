@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v45-daycards-tags-clean';
+const CACHE_NAME = 'balance1600-v46-today-focus-week-active';
 const APP_ASSETS = [
   './',
   './index.html',

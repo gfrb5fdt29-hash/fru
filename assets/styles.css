@@ -4726,3 +4726,213 @@ body[data-active-tab] .meal-indicators .chip.warn{
     font-size:10.6px!important;
   }
 }
+
+/* v46 — Ma fül fókuszkártya + makrófeliratok + egységes arany-narancs aktív jelölések.
+   Célzott UI-réteg: app-logika, fejléc és alsó ikonsáv érintetlen. */
+.today-focus-card,
+body[data-active-tab="today"] .today-focus-card{
+  overflow:hidden!important;
+  border-color:rgba(var(--ocean-gold-rgb,255,210,124),.20)!important;
+  background:
+    radial-gradient(circle at 14% -10%,rgba(var(--ocean-teal-rgb,77,245,220),.16),transparent 48%),
+    radial-gradient(circle at 100% 0,rgba(var(--ocean-gold-rgb,255,210,124),.08),transparent 42%),
+    linear-gradient(145deg,rgba(0,9,18,.90),rgba(2,22,30,.84) 54%,rgba(1,11,19,.92))!important;
+  box-shadow:0 20px 54px rgba(0,0,0,.44),0 0 22px rgba(var(--ocean-teal-rgb,77,245,220),.08),inset 0 1px 0 rgba(255,255,255,.075)!important;
+}
+.today-focus-pad,
+body[data-active-tab="today"] .today-focus-pad{
+  display:grid!important;
+  gap:10px!important;
+  padding:14px!important;
+}
+.today-focus-head,
+body[data-active-tab="today"] .today-focus-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:start!important;
+  gap:10px!important;
+}
+.today-focus-head .headline,
+body[data-active-tab="today"] .today-focus-head .headline{
+  margin:3px 0 0!important;
+  font-size:18px!important;
+  line-height:1.14!important;
+  letter-spacing:-.03em!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  display:block!important;
+  -webkit-line-clamp:unset!important;
+}
+.focus-date-pill,
+body[data-active-tab="today"] .focus-date-pill{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:32px!important;
+  padding:7px 10px!important;
+  border-radius:999px!important;
+  color:var(--ocean-on-gold,#211100)!important;
+  font-weight:950!important;
+  font-size:11.5px!important;
+  white-space:nowrap!important;
+  background:linear-gradient(135deg,var(--ocean-gold,#ffd27c),var(--ocean-orange,#ff9d3d))!important;
+  border:1px solid rgba(var(--ocean-gold-rgb,255,210,124),.62)!important;
+  box-shadow:0 0 18px rgba(var(--ocean-gold-rgb,255,210,124),.20),0 10px 18px rgba(0,0,0,.28)!important;
+}
+.today-focus-grid,
+body[data-active-tab="today"] .today-focus-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.today-focus-grid .chip,
+body[data-active-tab="today"] .today-focus-grid .chip{
+  min-width:0!important;
+  min-height:34px!important;
+  width:100%!important;
+  padding:7px 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.08!important;
+  font-size:10.8px!important;
+  font-weight:850!important;
+  letter-spacing:-.01em!important;
+}
+.today-focus-actions,
+body[data-active-tab="today"] .today-focus-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-top:1px!important;
+}
+.today-focus-actions .primary-btn,
+.today-focus-actions .ghost-btn,
+body[data-active-tab="today"] .today-focus-actions .primary-btn,
+body[data-active-tab="today"] .today-focus-actions .ghost-btn{
+  min-width:0!important;
+  min-height:43px!important;
+  width:100%!important;
+  padding:10px 9px!important;
+  white-space:normal!important;
+  line-height:1.08!important;
+  text-align:center!important;
+  font-size:12.2px!important;
+  font-weight:950!important;
+}
+
+/* Étkezésboxok: teljes makrónevek levágás nélkül. */
+.meal-info-grid,
+body[data-active-tab] .meal-info-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+  margin:9px 0 8px!important;
+}
+.meal-info-pill,
+body[data-active-tab] .meal-info-pill{
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  min-height:48px!important;
+  padding:8px 6px!important;
+  text-align:center!important;
+}
+.meal-info-pill b,
+body[data-active-tab] .meal-info-pill b{
+  max-width:100%!important;
+  font-size:14px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+.meal-info-pill em,
+body[data-active-tab] .meal-info-pill em{
+  width:100%!important;
+  max-width:100%!important;
+  display:block!important;
+  color:var(--ocean-muted,#90b9b2)!important;
+  font-size:10.55px!important;
+  line-height:1.04!important;
+  font-weight:850!important;
+  letter-spacing:-.025em!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:keep-all!important;
+  hyphens:none!important;
+}
+
+/* Erősebb, egységes arany-narancs aktív állapotok az app választóin.
+   Az alsó fő navigációt szándékosan nem érinti. */
+.view :is(.week-card.active,.week-select.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.water-pill.active,.shopping-mode-grid button.active,.fav-btn.active),
+body[data-active-tab] .view :is(.week-card.active,.week-select.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.water-pill.active,.shopping-mode-grid button.active,.fav-btn.active),
+body[data-active-tab] .view .tracking-week-row.active .tracking-week-bar{
+  color:var(--ocean-on-gold,#211100)!important;
+  border-color:rgba(var(--ocean-gold-rgb,255,210,124),.76)!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,255,255,.28),transparent 44%),
+    linear-gradient(135deg,var(--ocean-gold,#ffd27c),var(--ocean-orange,#ff9d3d))!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 0 22px rgba(var(--ocean-gold-rgb,255,210,124),.30),0 12px 24px rgba(0,0,0,.30)!important;
+  text-shadow:none!important;
+}
+.view :is(.week-card.active,.week-select.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.water-pill.active,.shopping-mode-grid button.active,.fav-btn.active) :is(b,span,em,.small-muted,.mini-week-title span,.week-only-meta),
+body[data-active-tab] .view :is(.week-card.active,.week-select.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.water-pill.active,.shopping-mode-grid button.active,.fav-btn.active) :is(b,span,em,.small-muted,.mini-week-title span,.week-only-meta),
+body[data-active-tab] .view .tracking-week-row.active .tracking-week-bar :is(span,em,i){
+  color:var(--ocean-on-gold,#211100)!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+.uniform-week-tabs,
+body[data-active-tab="weeks"] .uniform-week-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.uniform-week-tabs .week-card,
+body[data-active-tab="weeks"] .uniform-week-tabs .week-card{
+  min-width:0!important;
+  min-height:46px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  border-radius:16px!important;
+}
+.uniform-week-tabs .week-card.active::after,
+body[data-active-tab="weeks"] .uniform-week-tabs .week-card.active::after{
+  content:''!important;
+  position:absolute!important;
+  left:50%!important;
+  bottom:5px!important;
+  width:28px!important;
+  height:3px!important;
+  transform:translateX(-50%)!important;
+  border-radius:999px!important;
+  background:rgba(33,17,0,.68)!important;
+  box-shadow:none!important;
+}
+
+@media (max-width:360px){
+  .today-focus-pad,
+  body[data-active-tab="today"] .today-focus-pad{padding:13px!important;}
+  .today-focus-head,
+  body[data-active-tab="today"] .today-focus-head{grid-template-columns:1fr!important;gap:8px!important;}
+  .focus-date-pill,
+  body[data-active-tab="today"] .focus-date-pill{justify-self:start!important;}
+  .today-focus-grid,
+  body[data-active-tab="today"] .today-focus-grid{grid-template-columns:1fr!important;}
+  .today-focus-actions,
+  body[data-active-tab="today"] .today-focus-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .meal-info-pill em,
+  body[data-active-tab] .meal-info-pill em{font-size:10.2px!important;letter-spacing:-.035em!important;}
+  .uniform-week-tabs,
+  body[data-active-tab="weeks"] .uniform-week-tabs{gap:6px!important;}
+  .uniform-week-tabs .week-card,
+  body[data-active-tab="weeks"] .uniform-week-tabs .week-card{min-height:44px!important;font-size:12px!important;}
+}

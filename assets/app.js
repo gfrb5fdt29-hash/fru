@@ -384,16 +384,34 @@
  function focusBlock(day){
   const chips = [];
   const flags = day.daily_flags || {};
+  const risks = day.day_risk_overview || {};
   if(flags.full_meat_free_day && flags.full_dairy_free_day) chips.push('teljes húsmentes és tejmentes nap');
   if(flags.full_plant_based_day) chips.push('növényi nap');
   if(flags.has_pasta_or_noodle) chips.push('tésztás / rizstésztás nap');
   if(flags.has_salty_dairy_free_breakfast) chips.push('sós tejmentes reggeli');
   if(settings.cycleModuleEnabled) chips.push(...cycleLabels(day.cycle_phase_tags || []).slice(0,2));
+  const riskChips = [
+   ['Reflux', risks.max_reflux_risk_level, 'green'],
+   ['Hisztamin', risks.max_histamine_caution_level, Number(risks.max_histamine_caution_level||0) >= 2 ? 'warn' : 'green'],
+   ['Purin', risks.max_purine_caution_level, Number(risks.max_purine_caution_level||0) >= 2 ? 'warn' : 'green']
+  ].filter(([,v]) => v !== undefined && v !== null && v !== '');
   return `
-   <section class="card section"><div class="card-pad">
-    <h2 class="headline">Mai fókusz</h2>
-    <p class="small-muted">${esc(day.daily_focus_hu || 'Kímélő, jól követhető napi terv.')}</p>
-    <div class="chip-row">${chips.map(c=>`<span class="chip">${esc(c)}</span>`).join('') || '<span class="chip soft">egyszerű kímélő nap</span>'}</div>
+   <section class="card section today-focus-card"><div class="card-pad today-focus-pad">
+    <div class="today-focus-head">
+     <div>
+      <div class="eyebrow">Mai fókusz</div>
+      <h2 class="headline">${esc(day.daily_focus_hu || 'Kímélő, jól követhető napi terv.')}</h2>
+     </div>
+     <span class="focus-date-pill">${esc(dayCalendarShort(day))}</span>
+    </div>
+    <div class="today-focus-grid" aria-label="Mai fókusz jelölők">
+     ${chips.map(c=>`<span class="chip soft">${esc(c)}</span>`).join('') || '<span class="chip soft">egyszerű kímélő nap</span>'}
+     ${riskChips.map(([label,value,cls])=>`<span class="chip ${cls}">${esc(label)}: ${esc(riskText(value))}</span>`).join('')}
+    </div>
+    <div class="today-focus-actions" aria-label="Mai gyorsműveletek">
+     <button class="primary-btn" data-action="openDayDetails">Mai részletek</button>
+     <button class="ghost-btn" data-action="openTracking">Mai napló</button>
+    </div>
    </div></section>`;
  }
 
@@ -425,7 +443,7 @@
      </div>
      <div class="meal-meta meal-meta-clean"><span class="meal-meta-slot">${mealInlineIcon(meal.slot)}<span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span></span></div>
      <div class="meal-info-grid" aria-label="Étkezés fő értékei">
-      <span class="meal-info-pill"><b>${esc(meal.energy_kcal)}</b><em>kcal</em></span>
+      <span class="meal-info-pill"><b>${esc(meal.energy_kcal)}</b><em>Kalória</em></span>
       <span class="meal-info-pill"><b>${esc(meal.macros_g?.protein || 0)}g</b><em>Fehérje</em></span>
       <span class="meal-info-pill"><b>${esc(meal.macros_g?.carbohydrate || 0)}g</b><em>Szénhidrát</em></span>
       <span class="meal-info-pill"><b>${esc(meal.macros_g?.fat || 0)}g</b><em>Zsír</em></span>
@@ -441,28 +459,12 @@
 
  function renderToday(){
   const day = selectedDay();
-  const risks = day.day_risk_overview || {};
   $('#view').innerHTML = `
    ${statHero(day)}
    ${focusBlock(day)}
    <section class="section stack" aria-label="Mai étkezések">
     ${(day.meals || []).map(m => mealCard(day,m)).join('')}
    </section>
-   <section class="card section"><div class="card-pad stack">
-    <div>
-     <h2 class="headline">Esti kímélő tipp</h2>
-     <p class="small-muted">${esc(day.evening_tip_hu || DATA.timing_rules?.pwa_reminder_templates_hu?.dinner_time || '')}</p>
-    </div>
-    <div class="chip-row">
-     <span class="chip green">Reflux: ${esc(riskText(risks.max_reflux_risk_level))}</span>
-     <span class="chip ${Number(risks.max_histamine_caution_level||0) >= 2 ? 'warn' : 'green'}">Hisztamin: ${esc(riskText(risks.max_histamine_caution_level))}</span>
-     <span class="chip ${Number(risks.max_purine_caution_level||0) >= 2 ? 'warn' : 'green'}">Purin: ${esc(riskText(risks.max_purine_caution_level))}</span>
-    </div>
-    <div class="grid2">
-     <button class="primary-btn" data-action="openDayDetails">Mai részletek</button>
-     <button class="ghost-btn" data-action="openTracking">Napló</button>
-    </div>
-   </div></section>
    <div class="footer-space"></div>`;
  }
 
