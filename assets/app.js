@@ -107,6 +107,11 @@
   const src = MEAL_ICON_SRC[key] || MEAL_ICON_SRC.ebed;
   return `<img class="meal-inline-icon" src="${src}" alt="" aria-hidden="true" loading="lazy" draggable="false">`;
  }
+ function mealCalendarIcon(slot){
+  const key = mealSlotKey(slot);
+  const src = MEAL_ICON_SRC[key] || MEAL_ICON_SRC.ebed;
+  return `<img class="meal-calendar-icon" src="${src}" alt="" aria-hidden="true" loading="lazy" draggable="false">`;
+ }
  const SLOT_ICON = {reggeli:'R', ebéd:'E', ebed:'E', uzsonna:'U', vacsora:'V'};
  const PHASE_LABELS = {
   menstruacio:'Menstruáció', korai_follikularis:'Korai follikuláris', follikularis:'Follikuláris', ovulacio:'Ovuláció',
@@ -245,6 +250,13 @@
  function weekdayHu(date){ return ['Vasárnap','Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat'][date.getDay()]; }
  function weekdayLower(day){ return weekdayHu(actualDateForDay(day)).toLowerCase(); }
  function calendarShort(date){ return date.toLocaleDateString('hu-HU', {month:'long', day:'numeric'}); }
+ function headerTodayDateLabel(){
+  return new Date().toLocaleDateString('hu-HU', {month:'long', day:'numeric'}).replace(/\.$/, '');
+ }
+ function updateHeaderDate(){
+  const el = $('#headerTodayDate');
+  if(el) el.textContent = headerTodayDateLabel();
+ }
  function dayDisplayName(day){ return weekdayHu(actualDateForDay(day)); }
  function dayCalendarShort(day){ return calendarShort(actualDateForDay(day)); }
  function dayNumericShort(day){
@@ -333,6 +345,7 @@
    viewEl.focus({preventScroll:true});
   }
   if(options.resetTop) scrollToViewTop();
+  updateHeaderDate();
   requestAnimationFrame(updateHeaderCompact);
  }
 
@@ -482,7 +495,7 @@
       </div>
       <div class="chip-row" style="margin:10px 0">${[...dayChips, ...cycle].slice(0,4).map(c=>`<span class="chip soft">${esc(c)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div>
       <div class="week-meals">
-       ${(day.meals || []).map(m => `<div class="meal-mini"><b class="meal-mini-label">${mealInlineIcon(m.slot)}<span>${esc(SLOT_LABELS[m.slot] || m.slot)}</span></b><span>${esc(m.name_hu)}</span><em>${esc(m.energy_kcal)} kcal</em></div>`).join('')}
+       ${(day.meals || []).map(m => `<div class="meal-mini calendar-meal-mini"><b class="meal-mini-label calendar-icon-only" aria-label="${esc(SLOT_LABELS[m.slot] || m.slot)}">${mealCalendarIcon(m.slot)}</b><span>${esc(m.name_hu)}</span><em>${esc(m.energy_kcal)} kcal</em></div>`).join('')}
       </div>
      </article>`;
     }).join('')}
@@ -1437,6 +1450,7 @@
  }
 
  function initEvents(){
+  updateHeaderDate();
   window.addEventListener('scroll', updateHeaderCompact, {passive:true});
   updateHeaderCompact();
   $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; if(changed) pushNavState(); ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'today') ui.selectedDayNumber = null; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));

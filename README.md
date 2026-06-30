@@ -239,4 +239,9 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Az étkezésjelölések (Reggeli, Ebéd, Uzsonna, Vacsora) az utoljára jóváhagyott nap/hold ikonpakkból kivágott PNG ikonokra cserélve.
 - Nem újrarajzolt SVG ikonok: a négy ikon külön fájlként bekerült az `assets/meal-icons/` mappába.
 - Az ikonok megjelennek a napi étkezéskártyákon, a Naptár étkezéslistáiban, a Receptek kártyáin és a recept részlet sheet fejlécében.
-- Service worker cache frissítve: `balance1600-v38`.
+- Service worker cache frissítve: `balance1600-v39`.
+
+
+## v39 módosítás
+- Naptár napkártyáin az étkezéssorokban csak nagyobb étkezésikon jelenik meg, a reggeli/ebéd/uzsonna/vacsora szöveg nélkül.
+- A felső cím box jobb oldalán megjelenik az aktuális mai dátum a készülék naptára szerint, pl. június 17.
