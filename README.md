@@ -195,3 +195,18 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Bevásárlás és Napló napválasztó aktív gombjai erősebb, egyértelműbb kijelölést kaptak.
 - A fejléc görgetéskor kompaktabbra zsugorodik, blur/elmosott üveg háttérrel, miközben a Home és Beállítások gombok kattinthatók maradnak.
 - Service worker cache: balance1600-v32.
+
+
+## v33 módosítás
+
+- Ma és Bevásárlás fül melegebb champagne/borostyán-arany OLED Jewelry irányba állítva.
+- Napló ametiszt-lila paletta világosítva.
+- Receptek fül sticky keresősávjának kék háttéreltérése megszüntetve; borostyán/arany háttérhez igazítva.
+- Service worker cache: balance1600-v33.
+
+
+## v34 változások
+- A felső fejléc alapból a kompakt méreten marad, nem zsugorodik/tágul görgetéskor.
+- A fejléc glass/blur stílusa az alsó fülsáv hangulatához lett igazítva.
+- A Home és Beállítások gombok továbbra is kattinthatók és kompakt fejlécben is jól elérhetők.
+- Service worker cache: balance1600-v34.

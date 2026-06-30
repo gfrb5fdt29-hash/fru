@@ -1394,7 +1394,8 @@
  function updateHeaderCompact(){
   const topbar = $('.topbar');
   if(!topbar) return;
-  topbar.classList.toggle('header-compact', window.scrollY > 34);
+  // v34: a fejléc mindig kompakt méretű; görgetéskor nem változtatja a méretét.
+  topbar.classList.add('header-compact');
  }
 
  function initEvents(){

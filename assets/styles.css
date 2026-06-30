@@ -2578,3 +2578,200 @@ body[data-active-tab] .sheet-backdrop{
   -webkit-backdrop-filter:blur(12px) saturate(1.14);
   backdrop-filter:blur(12px) saturate(1.14);
 }
+
+/* v33 — finomított OLED Jewelry: Ma és Bevásárlás melegebb champagne/borostyán irányban; Napló világosabb ametiszt; Receptek sticky keresősáv nem kék. */
+/* Ma: a Naptár/Receptek sikeres meleg prémium árnyalataiból, de főoldalhoz puhább champagne-honey karakterrel. */
+body[data-active-tab="today"]{
+  --j-bg-0:#3B2A14;
+  --j-bg-1:#4B3518;
+  --j-bg-2:#25180B;
+  --j-accent:#FFE7AA;
+  --j-accent-2:#D6A65A;
+  --j-accent-3:#FFF7DE;
+  --j-accent-rgb:255,231,170;
+  --j-accent2-rgb:214,166,90;
+  --j-on:#2B1A04;
+  --j-muted:#E8D4A9;
+}
+/* Bevásárlás: a borostyán/arany OLED prémium irány rokona, kicsit tisztább, praktikusabb arannyal. */
+body[data-active-tab="shopping"]{
+  --j-bg-0:#3F260D;
+  --j-bg-1:#56340F;
+  --j-bg-2:#281506;
+  --j-accent:#FFD28A;
+  --j-accent-2:#C7832E;
+  --j-accent-3:#FFF0C8;
+  --j-accent-rgb:255,210,138;
+  --j-accent2-rgb:199,131,46;
+  --j-on:#2E1600;
+  --j-muted:#EACB9C;
+}
+/* Napló: marad ametiszt/lila, de világosabb, puhább, kevésbé komor. */
+body[data-active-tab="tracking"]{
+  --j-bg-0:#4B3670;
+  --j-bg-1:#5D4684;
+  --j-bg-2:#33234F;
+  --j-accent:#E2CCFF;
+  --j-accent-2:#A981F2;
+  --j-accent-3:#FBF6FF;
+  --j-accent-rgb:226,204,255;
+  --j-accent2-rgb:169,129,242;
+  --j-on:#2E174D;
+  --j-muted:#EFE1FF;
+}
+/* A Receptek sticky keresősávja a Receptek saját borostyán/arany felületéhez igazodik, ne maradjon kék. */
+body[data-active-tab="recipes"] .recipe-search-only,
+body[data-active-tab="recipes"] .searchbar{
+  background:
+    linear-gradient(180deg,
+      rgba(58,33,9,.98) 0%,
+      rgba(75,44,11,.90) 58%,
+      rgba(75,44,11,0) 100%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.16);
+  backdrop-filter:blur(18px) saturate(1.16);
+}
+body[data-active-tab="recipes"] .recipe-search-only input,
+body[data-active-tab="recipes"] .searchbar input{
+  border-color:rgba(255,191,107,.30)!important;
+  background:linear-gradient(145deg,rgba(255,191,107,.10),rgba(184,107,29,.055))!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.18),0 0 16px rgba(255,191,107,.06),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+/* A warm palettára váltott Ma/Bevásárlás aktív napjai és pipái kapjanak még tisztább meleg kijelölést. */
+body[data-active-tab="today"] :is(.primary-btn,.check.checked,.small-check.checked),
+body[data-active-tab="shopping"] :is(.primary-btn,.check.checked,.small-check.checked){
+  background:linear-gradient(135deg,var(--j-accent),var(--j-accent-2))!important;
+  color:var(--j-on)!important;
+}
+/* Napló aktív nap: világosabb ametiszt kijelölés, hogy ne vesszen el a lila környezetben. */
+body[data-active-tab="tracking"] .tracking-day-pill.compact-day-only.active,
+body[data-active-tab="tracking"] .tracking-day-pill.active,
+body[data-active-tab="tracking"] .mini-day-btn.active{
+  border-color:rgba(226,204,255,.82)!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(226,204,255,.42),transparent 58%),
+    linear-gradient(145deg,rgba(226,204,255,.28),rgba(169,129,242,.24))!important;
+  box-shadow:0 0 0 2px rgba(226,204,255,.22),0 0 26px rgba(226,204,255,.24),inset 0 1px 0 rgba(255,255,255,.20)!important;
+}
+
+
+/* v34 — fix fejléc: mindig kompakt, nem zsugorodik görgetéskor; alsó fülsávhoz harmonizáló glass design */
+:root{
+  --top:calc(54px + env(safe-area-inset-top));
+}
+.topbar,
+.topbar.header-compact,
+body[data-active-tab] .topbar,
+body[data-active-tab] .topbar.header-compact{
+  height:calc(54px + env(safe-area-inset-top))!important;
+  padding:calc(5px + env(safe-area-inset-top)) 10px 6px!important;
+  align-items:center!important;
+  gap:8px!important;
+  pointer-events:auto!important;
+  background:
+    radial-gradient(circle at 48% -35%,rgba(var(--j-accent-rgb,255,210,138),.15),transparent 58%),
+    linear-gradient(180deg,rgba(16,21,36,.76),rgba(8,12,24,.94))!important;
+  -webkit-backdrop-filter:blur(26px) saturate(1.24)!important;
+  backdrop-filter:blur(26px) saturate(1.24)!important;
+  border-bottom:1px solid rgba(var(--j-accent-rgb,255,210,138),.16)!important;
+  box-shadow:0 14px 38px rgba(0,0,0,.30), inset 0 -1px 0 rgba(255,255,255,.045)!important;
+  transition:background .28s ease,box-shadow .28s ease,border-color .28s ease!important;
+}
+.topbar .brand-block.brand-box,
+.topbar.header-compact .brand-block.brand-box,
+body[data-active-tab] .topbar .brand-block.brand-box,
+body[data-active-tab] .topbar.header-compact .brand-block.brand-box{
+  min-height:38px!important;
+  max-height:40px!important;
+  padding:5px 9px!important;
+  border-radius:17px!important;
+  display:grid!important;
+  place-items:center!important;
+  min-width:0!important;
+  max-width:calc(100% - 96px)!important;
+  background:
+    radial-gradient(circle at 18% 0,rgba(var(--j-accent-rgb,255,210,138),.10),transparent 54%),
+    linear-gradient(145deg,rgba(255,255,255,.095),rgba(255,255,255,.045))!important;
+  border:1px solid rgba(var(--j-accent-rgb,255,210,138),.14)!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.20),0 0 14px rgba(var(--j-accent-rgb,255,210,138),.07),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.topbar .brand-title.soft-diet-title,
+.topbar.header-compact .brand-title.soft-diet-title,
+body[data-active-tab] .topbar .brand-title.soft-diet-title,
+body[data-active-tab] .topbar.header-compact .brand-title.soft-diet-title{
+  font-size:12px!important;
+  line-height:1.08!important;
+  letter-spacing:-.18px!important;
+  color:var(--j-accent-3,#fff4d4)!important;
+  text-shadow:0 0 8px rgba(var(--j-accent-rgb,255,210,138),.13)!important;
+  display:block!important;
+  max-width:100%!important;
+}
+.top-actions,
+.topbar .top-actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  flex:0 0 auto!important;
+  pointer-events:auto!important;
+}
+.topbar .icon-btn.glow-icon,
+.topbar.header-compact .icon-btn.glow-icon,
+body[data-active-tab] .topbar .icon-btn.glow-icon,
+body[data-active-tab] .topbar.header-compact .icon-btn.glow-icon{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  border-radius:16px!important;
+  pointer-events:auto!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(var(--j-accent-rgb,255,210,138),.15),transparent 62%),
+    linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.045))!important;
+  border:1px solid rgba(var(--j-accent-rgb,255,210,138),.22)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.22),0 0 13px rgba(var(--j-accent-rgb,255,210,138),.11),inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+.topbar .icon-btn.glow-icon .top-icon,
+.topbar.header-compact .top-icon,
+body[data-active-tab] .topbar .top-icon,
+body[data-active-tab] .topbar.header-compact .top-icon{
+  width:25px!important;
+  height:25px!important;
+}
+@media (max-width:380px){
+  .topbar,
+  .topbar.header-compact,
+  body[data-active-tab] .topbar,
+  body[data-active-tab] .topbar.header-compact{
+    gap:6px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  .topbar .brand-block.brand-box,
+  .topbar.header-compact .brand-block.brand-box,
+  body[data-active-tab] .topbar .brand-block.brand-box,
+  body[data-active-tab] .topbar.header-compact .brand-block.brand-box{
+    max-width:calc(100% - 90px)!important;
+    padding-left:7px!important;
+    padding-right:7px!important;
+  }
+  .topbar .brand-title.soft-diet-title,
+  .topbar.header-compact .brand-title.soft-diet-title,
+  body[data-active-tab] .topbar .brand-title.soft-diet-title,
+  body[data-active-tab] .topbar.header-compact .brand-title.soft-diet-title{
+    font-size:10.8px!important;
+  }
+  .topbar .icon-btn.glow-icon,
+  .topbar.header-compact .icon-btn.glow-icon,
+  body[data-active-tab] .topbar .icon-btn.glow-icon,
+  body[data-active-tab] .topbar.header-compact .icon-btn.glow-icon{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+  }
+  .topbar .icon-btn.glow-icon .top-icon,
+  .topbar.header-compact .top-icon,
+  body[data-active-tab] .topbar .top-icon,
+  body[data-active-tab] .topbar.header-compact .top-icon{
+    width:24px!important;
+    height:24px!important;
+  }
+}
