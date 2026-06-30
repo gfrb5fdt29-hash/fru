@@ -4,8 +4,8 @@
   "description": "28 napos étrend naplóval, közérzetkövetéssel",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f2b4f",
-  "theme_color": "#0f2b4f",
+  "background_color": "#010713",
+  "theme_color": "#010713",
   "orientation": "portrait-primary",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },

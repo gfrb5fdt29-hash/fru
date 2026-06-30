@@ -3405,3 +3405,635 @@ body[data-active-tab] .topbar .brand-title.soft-diet-title.header-title-box{
   .topbar .icon-btn.glow-icon .top-icon{width:29px!important;height:29px!important;}
 }
 
+
+/* v42 — header text must never be shortened with three dots.
+   The title remains exactly two lines; the date is a separate right badge. */
+.topbar{
+  display:flex!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
+}
+.topbar .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) max-content!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
+}
+.topbar .header-title-box.brand-title.soft-diet-title,
+body[data-active-tab] .topbar .header-title-box.brand-title.soft-diet-title{
+  min-width:0!important;
+  max-width:none!important;
+  width:100%!important;
+  overflow:visible!important;
+  text-align:left!important;
+}
+.topbar .header-title-box .brand-copy,
+body[data-active-tab] .topbar .header-title-box .brand-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:100%!important;
+  overflow:visible!important;
+}
+.topbar .header-title-box .brand-title-main,
+.topbar .header-title-box .brand-title-sub,
+body[data-active-tab] .topbar .header-title-box .brand-title-main,
+body[data-active-tab] .topbar .header-title-box .brand-title-sub{
+  display:block!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  letter-spacing:-.2px!important;
+}
+.topbar .header-title-box .brand-title-main,
+body[data-active-tab] .topbar .header-title-box .brand-title-main{
+  font-size:clamp(10.8px,3.05vw,12.55px)!important;
+  line-height:1.04!important;
+  font-weight:930!important;
+}
+.topbar .header-title-box .brand-title-sub,
+body[data-active-tab] .topbar .header-title-box .brand-title-sub{
+  font-size:clamp(8.95px,2.58vw,10.55px)!important;
+  line-height:1.06!important;
+  font-weight:850!important;
+}
+.topbar .header-date,
+body[data-active-tab] .topbar .header-date{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  justify-self:end!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  font-size:clamp(9.4px,2.45vw,10.45px)!important;
+  line-height:1!important;
+  padding:6px 7px!important;
+}
+.topbar .top-actions,
+body[data-active-tab] .topbar .top-actions{
+  flex:0 0 auto!important;
+  min-width:max-content!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+}
+.topbar .icon-btn.glow-icon,
+body[data-active-tab] .topbar .icon-btn.glow-icon{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+@media (max-width:390px){
+  .topbar{gap:5px!important;padding-left:6px!important;padding-right:6px!important;}
+  .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{gap:5px!important;padding-left:6px!important;padding-right:6px!important;}
+  .topbar .header-title-box .brand-title-main,
+  body[data-active-tab] .topbar .header-title-box .brand-title-main{font-size:clamp(10.5px,3.0vw,11.7px)!important;}
+  .topbar .header-title-box .brand-title-sub,
+  body[data-active-tab] .topbar .header-title-box .brand-title-sub{font-size:clamp(8.8px,2.55vw,9.95px)!important;}
+  .topbar .header-date,
+  body[data-active-tab] .topbar .header-date{font-size:9.55px!important;padding:5px 6px!important;}
+  .topbar .icon-btn.glow-icon,
+  body[data-active-tab] .topbar .icon-btn.glow-icon{width:38px!important;height:38px!important;min-width:38px!important;}
+  .topbar .top-actions,
+  body[data-active-tab] .topbar .top-actions{gap:5px!important;}
+}
+@media (max-width:360px){
+  .topbar{gap:4px!important;padding-left:5px!important;padding-right:5px!important;}
+  .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{gap:4px!important;padding-left:5px!important;padding-right:5px!important;}
+  .topbar .header-title-box .brand-title-main,
+  body[data-active-tab] .topbar .header-title-box .brand-title-main{font-size:10.35px!important;letter-spacing:-.24px!important;}
+  .topbar .header-title-box .brand-title-sub,
+  body[data-active-tab] .topbar .header-title-box .brand-title-sub{font-size:8.7px!important;letter-spacing:-.24px!important;}
+  .topbar .header-date,
+  body[data-active-tab] .topbar .header-date{font-size:8.9px!important;padding:5px 5px!important;}
+  .topbar .icon-btn.glow-icon,
+  body[data-active-tab] .topbar .icon-btn.glow-icon{width:36px!important;height:36px!important;min-width:36px!important;}
+  .topbar .top-actions,
+  body[data-active-tab] .topbar .top-actions{gap:4px!important;}
+}
+
+/* v43 — OLED Ocean teljes app-újraszínezés.
+   Cél: egységes mélykék + tengerzöld OLED sötét felület, narancs-arany kontraszt a pipákhoz,
+   jelölőnégyzetekhez, kedvencekhez és kiemelt CTA-elemekhez. Csak vizuális réteg, HTML/JS logikát nem módosít. */
+:root{
+  color-scheme:dark;
+  --bg:#010713!important;
+  --bg2:#03172a!important;
+  --bg3:#062f38!important;
+  --card:rgba(4,24,38,.78)!important;
+  --card-strong:rgba(6,40,54,.86)!important;
+  --line:rgba(82,245,220,.18)!important;
+  --line-strong:rgba(82,245,220,.34)!important;
+  --text:#f4fffb!important;
+  --muted:#9fc8c2!important;
+  --soft:#cfeee8!important;
+  --accent:#4df5dc!important;
+  --accent2:#10b9a9!important;
+  --deep:#021522!important;
+  --good:#77f2bd!important;
+  --warn:#ffd27c!important;
+  --danger:#ff9c72!important;
+  --ocean-bg-0:#010713;
+  --ocean-bg-1:#03172a;
+  --ocean-bg-2:#062f38;
+  --ocean-bg-3:#02111f;
+  --ocean-surface:rgba(4,24,38,.78);
+  --ocean-surface-2:rgba(6,38,52,.72);
+  --ocean-surface-3:rgba(3,18,31,.88);
+  --ocean-line:rgba(82,245,220,.18);
+  --ocean-line-strong:rgba(82,245,220,.35);
+  --ocean-text:#f4fffb;
+  --ocean-muted:#9fc8c2;
+  --ocean-soft:#cfeee8;
+  --ocean-teal:#4df5dc;
+  --ocean-teal-2:#10b9a9;
+  --ocean-teal-3:#cffff7;
+  --ocean-teal-rgb:77,245,220;
+  --ocean-teal2-rgb:16,185,169;
+  --ocean-gold:#ffd27c;
+  --ocean-orange:#ff9d3d;
+  --ocean-gold-rgb:255,210,124;
+  --ocean-orange-rgb:255,157,61;
+  --ocean-on-gold:#211100;
+  --shadow:0 28px 86px rgba(0,0,0,.54)!important;
+}
+
+html,
+body,
+body[data-active-tab],
+body[data-active-tab="today"],
+body[data-active-tab="weeks"],
+body[data-active-tab="recipes"],
+body[data-active-tab="shopping"],
+body[data-active-tab="tracking"]{
+  --j-bg-0:var(--ocean-bg-0)!important;
+  --j-bg-1:var(--ocean-bg-1)!important;
+  --j-bg-2:var(--ocean-bg-3)!important;
+  --j-surface-1:rgba(7,35,50,.80)!important;
+  --j-surface-2:rgba(4,24,38,.72)!important;
+  --j-surface-3:rgba(3,17,29,.84)!important;
+  --j-line:var(--ocean-line)!important;
+  --j-line-strong:var(--ocean-line-strong)!important;
+  --j-accent:var(--ocean-teal)!important;
+  --j-accent-2:var(--ocean-teal-2)!important;
+  --j-accent-3:var(--ocean-teal-3)!important;
+  --j-accent-rgb:var(--ocean-teal-rgb)!important;
+  --j-accent2-rgb:var(--ocean-teal2-rgb)!important;
+  --j-text:var(--ocean-text)!important;
+  --j-muted:var(--ocean-muted)!important;
+  --j-on:#021915!important;
+  --tab-accent:var(--ocean-teal)!important;
+  --tab-accent-2:var(--ocean-teal-2)!important;
+  --tab-accent-3:var(--ocean-teal-3)!important;
+  --tab-card-line:rgba(var(--ocean-teal-rgb),.24)!important;
+  --tab-card-line-strong:rgba(var(--ocean-teal-rgb),.42)!important;
+  --tab-glow:rgba(var(--ocean-teal-rgb),.20)!important;
+  --tab-glow-soft:rgba(var(--ocean-teal-rgb),.10)!important;
+  --tab-text:var(--ocean-text)!important;
+  --tab-muted:var(--ocean-muted)!important;
+  --tab-on-accent:#021915!important;
+  background-color:var(--ocean-bg-3)!important;
+}
+
+body,
+body[data-active-tab]{
+  color:var(--ocean-text)!important;
+  background:
+    radial-gradient(circle at 78% 3%,rgba(var(--ocean-teal-rgb),.18),transparent 22rem),
+    radial-gradient(circle at 5% 17%,rgba(13,92,124,.42),transparent 27rem),
+    radial-gradient(circle at 88% 65%,rgba(var(--ocean-gold-rgb),.075),transparent 22rem),
+    radial-gradient(circle at 50% 112%,rgba(var(--ocean-teal2-rgb),.18),transparent 28rem),
+    linear-gradient(180deg,#010713 0%,#03172a 42%,#02111f 100%)!important;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:linear-gradient(180deg,rgba(255,255,255,.014),rgba(255,255,255,.004) 42%,rgba(0,0,0,.12));
+}
+body[data-active-tab] .app-shell,
+.app-shell{
+  background:linear-gradient(180deg,rgba(77,245,220,.018),rgba(0,0,0,.055) 68%,rgba(0,0,0,.13))!important;
+}
+
+/* Alap szöveg és mezők */
+body[data-active-tab] :is(.headline,.subhead,.item-title,.meal-title,.day-label,.day-n,.week-title,.mini-week-title,.sheet-header h2),
+:is(.headline,.subhead,.item-title,.meal-title,.day-label,.day-n,.week-title,.mini-week-title,.sheet-header h2){
+  color:var(--ocean-text)!important;
+}
+body[data-active-tab] :is(.small-muted,.item-note,.meal-meta,.range-help,.tracking-week-bar em,.tracking-day-pill span,.privacy-line,.lead),
+:is(.small-muted,.item-note,.meal-meta,.range-help,.tracking-week-bar em,.tracking-day-pill span,.privacy-line,.lead){
+  color:var(--ocean-muted)!important;
+}
+body[data-active-tab] :is(.eyebrow,.sheet-section .subhead,.recipe-prep-section .subhead,.mini-week-title span),
+:is(.eyebrow,.sheet-section .subhead,.recipe-prep-section .subhead,.mini-week-title span){
+  color:var(--ocean-teal-3)!important;
+  text-shadow:0 0 12px rgba(var(--ocean-teal-rgb),.18)!important;
+}
+input,select,textarea,
+body[data-active-tab] input,
+body[data-active-tab] select,
+body[data-active-tab] textarea{
+  color:var(--ocean-text)!important;
+  background:linear-gradient(145deg,rgba(3,21,34,.86),rgba(5,34,47,.64))!important;
+  border-color:rgba(var(--ocean-teal-rgb),.20)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055)!important;
+}
+input:focus,select:focus,textarea:focus,
+body[data-active-tab] input:focus,
+body[data-active-tab] select:focus,
+body[data-active-tab] textarea:focus{
+  border-color:rgba(var(--ocean-gold-rgb),.76)!important;
+  box-shadow:0 0 0 3px rgba(var(--ocean-gold-rgb),.16),0 0 22px rgba(var(--ocean-gold-rgb),.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+select option{background:#031525!important;color:#f4fffb!important;}
+
+/* Fejléc */
+.topbar,
+body[data-active-tab] .topbar,
+.topbar.header-compact,
+body[data-active-tab] .topbar.header-compact{
+  background:linear-gradient(180deg,rgba(1,7,19,.96),rgba(2,19,34,.88) 76%,rgba(2,19,34,0))!important;
+  border-bottom-color:rgba(var(--ocean-teal-rgb),.13)!important;
+  backdrop-filter:blur(24px)!important;
+}
+.brand-block.brand-box,
+body[data-active-tab] .brand-block.brand-box,
+.topbar .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{
+  border-color:rgba(var(--ocean-teal-rgb),.28)!important;
+  background:
+    radial-gradient(circle at 10% -35%,rgba(var(--ocean-teal-rgb),.24),transparent 62%),
+    radial-gradient(circle at 100% 120%,rgba(var(--ocean-gold-rgb),.075),transparent 58%),
+    linear-gradient(145deg,rgba(6,39,54,.82),rgba(3,20,34,.74))!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.38),0 0 26px rgba(var(--ocean-teal-rgb),.13),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.brand-title.soft-diet-title,
+.header-title-box .brand-title-main,
+.header-title-box .brand-title-sub,
+.onboarding-brand.brand-title.soft-diet-title,
+body[data-active-tab] .brand-title.soft-diet-title,
+body[data-active-tab] .header-title-box .brand-title-main,
+body[data-active-tab] .header-title-box .brand-title-sub{
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  background:linear-gradient(90deg,#f5fffb 0%,#bffdf2 35%,var(--ocean-teal) 68%,#fff2c9 100%)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  text-shadow:0 0 14px rgba(var(--ocean-teal-rgb),.16)!important;
+}
+.header-date,
+body[data-active-tab] .header-date{
+  color:#fff4d8!important;
+  border-color:rgba(var(--ocean-gold-rgb),.42)!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb),.18),rgba(var(--ocean-teal-rgb),.08))!important;
+  box-shadow:0 0 18px rgba(var(--ocean-gold-rgb),.13),inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+.icon-btn,
+.topbar .icon-btn.glow-icon,
+body[data-active-tab] .topbar .icon-btn.glow-icon{
+  color:var(--ocean-soft)!important;
+  border-color:rgba(var(--ocean-teal-rgb),.24)!important;
+  background:linear-gradient(145deg,rgba(7,39,54,.78),rgba(3,20,34,.74))!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.34),0 0 17px rgba(var(--ocean-teal-rgb),.11),inset 0 1px 0 rgba(255,255,255,.09)!important;
+}
+.topbar .icon-btn.settings-glow,
+body[data-active-tab] .topbar .icon-btn.settings-glow{
+  color:#fff0c9!important;
+  border-color:rgba(var(--ocean-gold-rgb),.42)!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.34),0 0 22px rgba(var(--ocean-gold-rgb),.18),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+.settings-glow .top-icon{filter:drop-shadow(0 0 9px rgba(var(--ocean-gold-rgb),.62))!important;}
+.home-glow .top-icon{filter:drop-shadow(0 0 9px rgba(var(--ocean-teal-rgb),.70))!important;}
+
+/* Kártyák, hősblokkok, listák, választók — teljes felület ocean glass */
+:is(.card,.hero,.detail-hero,.recipe-card,.meal-card,.mini-day,.week-day-card,.week-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,.shopping-select-card,.shopping-group-card,.tracking-week-row,.weekly-summary-card,.water-card,.list-item,.metric,.kcal-bubble,.prep-step,.prep-step-card,.date-logic-help,.card-soft-note,.selection-summary,.merge-summary,.onboarding-help,.onboarding-card,.sheet-section.card-pad,.sheet-section.danger-zone),
+body[data-active-tab] :is(.card,.hero,.detail-hero,.recipe-card,.meal-card,.mini-day,.week-day-card,.week-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,.shopping-select-card,.shopping-group-card,.tracking-week-row,.weekly-summary-card,.water-card,.list-item,.metric,.kcal-bubble,.prep-step,.prep-step-card,.date-logic-help,.card-soft-note,.selection-summary,.merge-summary,.onboarding-help,.onboarding-card,.sheet-section.card-pad,.sheet-section.danger-zone){
+  color:var(--ocean-text)!important;
+  border-color:rgba(var(--ocean-teal-rgb),.20)!important;
+  background:
+    radial-gradient(circle at 12% -6%,rgba(var(--ocean-teal-rgb),.105),transparent 42%),
+    radial-gradient(circle at 95% 0,rgba(var(--ocean-gold-rgb),.045),transparent 36%),
+    linear-gradient(145deg,rgba(7,39,54,.78),rgba(3,20,34,.74) 56%,rgba(2,13,25,.86))!important;
+  box-shadow:0 22px 58px rgba(0,0,0,.36),0 0 24px rgba(var(--ocean-teal-rgb),.07),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+:is(.hero,.detail-hero),
+body[data-active-tab] :is(.hero,.detail-hero){
+  border-color:rgba(var(--ocean-teal-rgb),.27)!important;
+  background:
+    radial-gradient(circle at 10% -4%,rgba(var(--ocean-teal-rgb),.17),transparent 48%),
+    radial-gradient(circle at 100% 110%,rgba(var(--ocean-gold-rgb),.10),transparent 42%),
+    linear-gradient(145deg,rgba(8,55,69,.82),rgba(3,22,37,.80) 60%,rgba(1,10,20,.88))!important;
+  box-shadow:0 24px 64px rgba(0,0,0,.39),0 0 28px rgba(var(--ocean-teal-rgb),.10),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.card::before,
+.meal-card::before,
+.water-card::before,
+.premium-week-box::before,
+body[data-active-tab] :is(.card,.meal-card,.water-card,.premium-week-box)::before,
+body[data-active-tab] :is(.card,.meal-card,.water-card,.premium-week-box)::after{
+  background:radial-gradient(circle at 12% 0,rgba(var(--ocean-teal-rgb),.10),transparent 32%)!important;
+}
+.metric,
+body[data-active-tab] .metric{
+  background:linear-gradient(145deg,rgba(3,24,38,.86),rgba(6,45,57,.44))!important;
+}
+.kcal-bubble,.week-kcal,
+body[data-active-tab] :is(.kcal-bubble,.week-kcal){
+  border-color:rgba(var(--ocean-gold-rgb),.28)!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb),.105),rgba(3,20,34,.76))!important;
+}
+
+/* Gombok, chipek és aktív állapotok */
+.ghost-btn,.chip,.filter-chip,.segmented button,.week-card,.premium-week-box,.tracking-day-btn,.tracking-day-pill,.mini-day-btn,.shopping-mode-grid button,.water-pill,.fav-btn,
+body[data-active-tab] :is(.ghost-btn,.chip,.filter-chip,.segmented button,.week-card,.premium-week-box,.tracking-day-btn,.tracking-day-pill,.mini-day-btn,.shopping-mode-grid button,.water-pill,.fav-btn){
+  color:var(--ocean-soft)!important;
+  border-color:rgba(var(--ocean-teal-rgb),.18)!important;
+  background:linear-gradient(145deg,rgba(5,31,45,.72),rgba(2,18,31,.76))!important;
+  box-shadow:none!important;
+}
+:is(.week-card.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.water-pill.active),
+body[data-active-tab] :is(.week-card.active,.premium-week-box.active,.tracking-day-btn.active,.tracking-day-pill.active,.mini-day-btn.active,.segmented button.active,.filter-chip.active,.water-pill.active),
+body[data-active-tab] .tracking-week-row.active .tracking-week-bar{
+  color:var(--ocean-teal-3)!important;
+  border-color:rgba(var(--ocean-teal-rgb),.44)!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-teal-rgb),.18),rgba(var(--ocean-teal2-rgb),.095))!important;
+  box-shadow:0 0 24px rgba(var(--ocean-teal-rgb),.14),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.primary-btn,
+.shopping-mode-grid button.active,
+body[data-active-tab] :is(.primary-btn,.shopping-mode-grid button.active){
+  color:var(--ocean-on-gold)!important;
+  background:linear-gradient(135deg,var(--ocean-gold),var(--ocean-orange))!important;
+  border-color:transparent!important;
+  font-weight:900!important;
+  box-shadow:0 16px 36px rgba(0,0,0,.30),0 0 24px rgba(var(--ocean-gold-rgb),.22)!important;
+}
+.primary-btn[disabled]{opacity:.48!important;filter:saturate(.58)!important;}
+.chip,.chip.green,.chip.blue,.chip.warn,.chip.soft,
+body[data-active-tab] :is(.chip,.chip.green,.chip.blue,.chip.warn,.chip.soft){
+  color:#dcfff7!important;
+  border-color:rgba(var(--ocean-teal-rgb),.20)!important;
+  background:rgba(var(--ocean-teal-rgb),.075)!important;
+}
+.chip.warn,
+body[data-active-tab] .chip.warn{
+  color:#fff1c9!important;
+  border-color:rgba(var(--ocean-gold-rgb),.28)!important;
+  background:rgba(var(--ocean-gold-rgb),.10)!important;
+}
+
+/* Pipák, jelölőnégyzetek és kedvencek — narancs-arany kontraszt */
+.check,.small-check,
+body[data-active-tab] :is(.check,.small-check){
+  border-color:rgba(var(--ocean-teal-rgb),.28)!important;
+  background:linear-gradient(145deg,rgba(4,25,38,.86),rgba(6,45,57,.42))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+.check.checked,.small-check.checked,
+body[data-active-tab] :is(.check.checked,.small-check.checked){
+  color:var(--ocean-on-gold)!important;
+  background:linear-gradient(135deg,var(--ocean-gold),var(--ocean-orange))!important;
+  border-color:rgba(var(--ocean-gold-rgb),.62)!important;
+  box-shadow:0 0 28px rgba(var(--ocean-gold-rgb),.30),0 12px 24px rgba(0,0,0,.28)!important;
+}
+.fav-btn.active,
+body[data-active-tab] .fav-btn.active{
+  color:var(--ocean-gold)!important;
+  border-color:rgba(var(--ocean-gold-rgb),.54)!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb),.18),rgba(var(--ocean-orange-rgb),.10))!important;
+  box-shadow:0 0 24px rgba(var(--ocean-gold-rgb),.22),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.meal-card.done,
+body[data-active-tab] .meal-card.done{
+  border-color:rgba(var(--ocean-gold-rgb),.42)!important;
+  background:
+    radial-gradient(circle at 12% 0,rgba(var(--ocean-gold-rgb),.13),transparent 40%),
+    linear-gradient(145deg,rgba(7,39,54,.78),rgba(3,20,34,.74))!important;
+}
+.meal-slot,
+body[data-active-tab] .meal-slot{
+  color:#fff1c9!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb),.16),rgba(var(--ocean-teal-rgb),.08))!important;
+  border:1px solid rgba(var(--ocean-gold-rgb),.22)!important;
+}
+.progress-track,
+body[data-active-tab] .progress-track{
+  background:rgba(1,9,18,.72)!important;
+  border:1px solid rgba(var(--ocean-teal-rgb),.12)!important;
+}
+.progress-fill,
+body[data-active-tab] .progress-fill{
+  background:linear-gradient(90deg,var(--ocean-teal),var(--ocean-gold))!important;
+  box-shadow:0 0 24px rgba(var(--ocean-teal-rgb),.20),0 0 18px rgba(var(--ocean-gold-rgb),.13)!important;
+}
+input[type="range"],
+body[data-active-tab] input[type="range"]{accent-color:var(--ocean-gold)!important;}
+
+/* Alsó navigáció és ikonok */
+.tabbar,.b-soft-tabbar,
+body[data-active-tab] .tabbar,
+body[data-active-tab] .b-soft-tabbar{
+  background:linear-gradient(180deg,rgba(3,18,31,.68),rgba(1,8,17,.94))!important;
+  border-top-color:rgba(var(--ocean-teal-rgb),.18)!important;
+  box-shadow:0 -20px 58px rgba(0,0,0,.50),0 0 22px rgba(var(--ocean-teal-rgb),.065),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.tab-btn,
+body[data-active-tab] .tab-btn{
+  color:rgba(196,231,226,.66)!important;
+}
+.tab-btn.active,
+.b-soft-tabbar .tab-btn.active,
+body[data-active-tab] .b-soft-tabbar .tab-btn.active{
+  color:var(--ocean-teal-3)!important;
+  border-color:rgba(var(--ocean-teal-rgb),.28)!important;
+  background:radial-gradient(circle at 50% 4%,rgba(var(--ocean-teal-rgb),.22),rgba(var(--ocean-teal-rgb),.08) 54%,rgba(255,255,255,.016))!important;
+  box-shadow:0 0 22px rgba(var(--ocean-teal-rgb),.16),inset 0 0 14px rgba(var(--ocean-teal-rgb),.06)!important;
+}
+.tab-btn.active b,
+body[data-active-tab] .b-soft-tabbar .tab-btn.active b{
+  color:var(--ocean-teal-3)!important;
+  text-shadow:0 0 9px rgba(var(--ocean-teal-rgb),.34)!important;
+}
+.tab-btn.active::after,
+body[data-active-tab] .b-soft-tabbar .tab-btn.active::after{
+  background:linear-gradient(90deg,var(--ocean-teal),var(--ocean-gold))!important;
+  box-shadow:0 0 12px rgba(var(--ocean-teal-rgb),.50)!important;
+}
+.b-tab-icon{filter:drop-shadow(0 7px 9px rgba(0,0,0,.32))!important;}
+.b-tab-icon .b-fill-main{fill:var(--ocean-teal)!important;}
+.b-tab-icon .b-fill-light{fill:rgba(234,255,250,.46)!important;opacity:.58!important;}
+.b-tab-icon .b-outline{stroke:rgba(207,238,232,.78)!important;opacity:.82!important;}
+.b-tab-icon .b-heart{fill:var(--ocean-gold)!important;stroke:var(--ocean-orange)!important;filter:drop-shadow(0 0 5px rgba(var(--ocean-gold-rgb),.36))!important;}
+.b-calendar-top{fill:rgba(var(--ocean-gold-rgb),.42)!important;}
+.b-cal-dots rect,.b-ring rect{fill:rgba(var(--ocean-teal2-rgb),.72)!important;}
+.b-soft-shadow{fill:rgba(0,0,0,.28)!important;}
+
+/* Sheet, keresők és sticky részek */
+.sheet,
+body[data-active-tab] .sheet{
+  color:var(--ocean-text)!important;
+  border-color:rgba(var(--ocean-teal-rgb),.24)!important;
+  background:
+    radial-gradient(circle at 50% -12%,rgba(var(--ocean-teal-rgb),.15),transparent 42%),
+    linear-gradient(180deg,rgba(4,24,38,.985),rgba(1,8,17,.992))!important;
+  box-shadow:0 -26px 86px rgba(0,0,0,.58),0 0 30px rgba(var(--ocean-teal-rgb),.10)!important;
+}
+.sheet-backdrop,
+body[data-active-tab] .sheet-backdrop{background:rgba(0,0,0,.62)!important;}
+.sheet-header,
+body[data-active-tab] .sheet-header{border-bottom-color:rgba(var(--ocean-teal-rgb),.16)!important;}
+.sheet-handle,
+body[data-active-tab] .sheet-handle{background:rgba(var(--ocean-teal-rgb),.36)!important;}
+.sheet .sheet-section,
+body[data-active-tab] .sheet .sheet-section{
+  color:var(--ocean-text)!important;
+}
+.searchbar,.recipe-search-only,
+body[data-active-tab] :is(.searchbar,.recipe-search-only){
+  background:linear-gradient(180deg,rgba(1,7,19,.98),rgba(2,18,31,.86),rgba(2,18,31,0))!important;
+}
+.toast{
+  color:#fff4d8!important;
+  border-color:rgba(var(--ocean-gold-rgb),.36)!important;
+  background:linear-gradient(145deg,rgba(7,39,54,.94),rgba(2,16,29,.96))!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.42),0 0 22px rgba(var(--ocean-gold-rgb),.12)!important;
+}
+
+/* Napló / víz és kiegészítő speciális elemek */
+.water-card,
+body[data-active-tab] .water-card{
+  border-color:rgba(var(--ocean-teal-rgb),.28)!important;
+  background:
+    radial-gradient(circle at 18% 0,rgba(var(--ocean-teal-rgb),.18),transparent 42%),
+    linear-gradient(145deg,rgba(7,48,62,.78),rgba(3,20,34,.76))!important;
+  box-shadow:0 22px 58px rgba(0,0,0,.36),0 0 24px rgba(var(--ocean-teal-rgb),.10)!important;
+}
+.water-card .subhead,
+body[data-active-tab] .water-card .subhead{color:#dcfff7!important;}
+.water-card .small-muted,.water-card .range-help,
+body[data-active-tab] .water-card :is(.small-muted,.range-help){color:#b9eee7!important;}
+.water-range .range-value,
+.tracking-range .range-value,
+body[data-active-tab] :is(.water-range .range-value,.tracking-range .range-value){
+  color:#fff1c9!important;
+  text-shadow:0 0 10px rgba(var(--ocean-gold-rgb),.22)!important;
+}
+.info-line{border-bottom-color:rgba(var(--ocean-teal-rgb),.12)!important;}
+.list-item.checked{opacity:.62!important;}
+
+/* Onboarding is ocean too, even before body[data-active-tab] exists. */
+.onboarding{
+  color:var(--ocean-text)!important;
+  background:
+    radial-gradient(circle at 78% 5%,rgba(var(--ocean-teal-rgb),.20),transparent 22rem),
+    radial-gradient(circle at 4% 20%,rgba(13,92,124,.38),transparent 27rem),
+    radial-gradient(circle at 84% 76%,rgba(var(--ocean-gold-rgb),.07),transparent 22rem),
+    linear-gradient(180deg,#010713,#02111f)!important;
+}
+.onboarding h1,
+.onboarding .onboarding-brand,
+.onboarding .brand-text{
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  background:linear-gradient(90deg,#f5fffb,#9ffbec 55%,#fff2c9)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  text-shadow:0 0 16px rgba(var(--ocean-teal-rgb),.16)!important;
+}
+.onboarding-help b{color:#fff1c9!important;}
+.onboarding-help span{color:#c1e7e1!important;}
+
+/* Régi rózsaszín/amethyst/champagne maradványok vizuális semlegesítése. */
+.b-soft-tabbar .tab-btn.active .b-heart,
+.b-tab-icon .b-heart.small{fill:var(--ocean-gold)!important;stroke:var(--ocean-orange)!important;}
+.recipe-prep-badge,.prep-time-badge,
+body[data-active-tab] :is(.recipe-prep-badge,.prep-time-badge){
+  color:#fff1c9!important;
+  border-color:rgba(var(--ocean-gold-rgb),.28)!important;
+  background:rgba(var(--ocean-gold-rgb),.10)!important;
+}
+
+/* v43.1 — regresszióvédő arany állapotfelülírás nagyobb specifikussággel.
+   Korábbi Ma/Bevásárlás ruleset is !important volt, ezért a pipákat/kedvenceket itt direkt felülírjuk. */
+body[data-active-tab] :is(.view .primary-btn,.sheet .primary-btn,.onboarding .primary-btn),
+body[data-active-tab="today"] :is(.view .primary-btn,.sheet .primary-btn),
+body[data-active-tab="weeks"] :is(.view .primary-btn,.sheet .primary-btn),
+body[data-active-tab="recipes"] :is(.view .primary-btn,.sheet .primary-btn),
+body[data-active-tab="shopping"] :is(.view .primary-btn,.sheet .primary-btn),
+body[data-active-tab="tracking"] :is(.view .primary-btn,.sheet .primary-btn),
+.onboarding .primary-btn{
+  color:var(--ocean-on-gold)!important;
+  background:linear-gradient(135deg,var(--ocean-gold),var(--ocean-orange))!important;
+  border-color:transparent!important;
+  box-shadow:0 16px 36px rgba(0,0,0,.30),0 0 24px rgba(var(--ocean-gold-rgb),.24)!important;
+}
+body[data-active-tab] :is(.view .check.checked,.view .small-check.checked,.sheet .check.checked,.sheet .small-check.checked),
+body[data-active-tab="today"] :is(.view .check.checked,.view .small-check.checked,.sheet .check.checked,.sheet .small-check.checked),
+body[data-active-tab="weeks"] :is(.view .check.checked,.view .small-check.checked,.sheet .check.checked,.sheet .small-check.checked),
+body[data-active-tab="recipes"] :is(.view .check.checked,.view .small-check.checked,.sheet .check.checked,.sheet .small-check.checked),
+body[data-active-tab="shopping"] :is(.view .check.checked,.view .small-check.checked,.sheet .check.checked,.sheet .small-check.checked),
+body[data-active-tab="tracking"] :is(.view .check.checked,.view .small-check.checked,.sheet .check.checked,.sheet .small-check.checked){
+  color:var(--ocean-on-gold)!important;
+  background:linear-gradient(135deg,var(--ocean-gold),var(--ocean-orange))!important;
+  border-color:rgba(var(--ocean-gold-rgb),.62)!important;
+  box-shadow:0 0 30px rgba(var(--ocean-gold-rgb),.34),0 12px 26px rgba(0,0,0,.30)!important;
+}
+body[data-active-tab] :is(.view .fav-btn.active,.sheet .fav-btn.active),
+body[data-active-tab="today"] :is(.view .fav-btn.active,.sheet .fav-btn.active),
+body[data-active-tab="weeks"] :is(.view .fav-btn.active,.sheet .fav-btn.active),
+body[data-active-tab="recipes"] :is(.view .fav-btn.active,.sheet .fav-btn.active),
+body[data-active-tab="shopping"] :is(.view .fav-btn.active,.sheet .fav-btn.active),
+body[data-active-tab="tracking"] :is(.view .fav-btn.active,.sheet .fav-btn.active){
+  color:var(--ocean-gold)!important;
+  border-color:rgba(var(--ocean-gold-rgb),.58)!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb),.20),rgba(var(--ocean-orange-rgb),.11))!important;
+  box-shadow:0 0 26px rgba(var(--ocean-gold-rgb),.24),inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+body[data-active-tab] :is(.view .meal-card.done,.sheet .meal-card.done),
+body[data-active-tab="today"] :is(.view .meal-card.done,.sheet .meal-card.done),
+body[data-active-tab="shopping"] :is(.view .meal-card.done,.sheet .meal-card.done){
+  border-color:rgba(var(--ocean-gold-rgb),.42)!important;
+  background:
+    radial-gradient(circle at 12% -6%,rgba(var(--ocean-gold-rgb),.14),transparent 38%),
+    radial-gradient(circle at 96% 0,rgba(var(--ocean-teal-rgb),.09),transparent 36%),
+    linear-gradient(145deg,rgba(7,39,54,.78),rgba(3,20,34,.74) 56%,rgba(2,13,25,.86))!important;
+  box-shadow:0 22px 58px rgba(0,0,0,.36),0 0 24px rgba(var(--ocean-gold-rgb),.10),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+
+/* v43.2 — étkezésikon-tartók és naptárikon-dobozok ocean felületre húzása. */
+body[data-active-tab] :is(.meal-slot-reggeli .meal-slot,.meal-slot-ebed .meal-slot,.meal-slot-ebéd .meal-slot,.meal-slot-uzsonna .meal-slot,.meal-slot-vacsora .meal-slot,.meal-slot),
+:is(.meal-slot-reggeli .meal-slot,.meal-slot-ebed .meal-slot,.meal-slot-ebéd .meal-slot,.meal-slot-uzsonna .meal-slot,.meal-slot-vacsora .meal-slot,.meal-slot){
+  color:#fff1c9!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb),.14),rgba(5,34,47,.82) 54%,rgba(2,14,26,.88))!important;
+  border-color:rgba(var(--ocean-gold-rgb),.28)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 10px 24px rgba(0,0,0,.24),0 0 18px rgba(var(--ocean-teal-rgb),.08)!important;
+}
+body[data-active-tab] :is(.week-day-card .week-meals .calendar-icon-only,.calendar-icon-only),
+:is(.week-day-card .week-meals .calendar-icon-only,.calendar-icon-only){
+  background:linear-gradient(145deg,rgba(5,34,47,.86),rgba(2,14,26,.86))!important;
+  border-color:rgba(var(--ocean-teal-rgb),.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 8px 20px rgba(0,0,0,.22),0 0 14px rgba(var(--ocean-teal-rgb),.07)!important;
+}
+body[data-active-tab] :is(.meal-slot-img,.meal-inline-icon,.meal-calendar-icon),
+:is(.meal-slot-img,.meal-inline-icon,.meal-calendar-icon){
+  filter:drop-shadow(0 0 7px rgba(var(--ocean-gold-rgb),.16)) drop-shadow(0 0 7px rgba(var(--ocean-teal-rgb),.10))!important;
+}

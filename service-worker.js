@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v40';
+const CACHE_NAME = 'balance1600-v43-oled-ocean';
 const APP_ASSETS = [
   './',
   './index.html',
