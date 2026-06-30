@@ -172,3 +172,9 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Felső box szövege: „28 napos étrend naplóval, közérzetkövetéssel Fruzsinak”.
 - Az 5 fő fül saját oldalszínvilágot kapott: Ma kék-zöld, Naptár világosabb bézs/fehér, Receptek narancs-arany OLED, Bevásárlás türkiz/smaragd, Napló lila árnyalatos.
 - Service worker cache: balance1600-v29.
+
+
+## v30 módosítás
+- Fülönként teljesen összehangolt színrendszer: háttér, fejléc, kártyák, pipák, kijelölések, bottom sheetek és alsó fülsáv az aktív fül palettáját követik.
+- Ma: karakteres kék-zöld; Naptár: champagne/pezsgő; Receptek: borostyán-méz-karamell; Bevásárlás: vízkék/türkiz/smaragd; Napló: levendula/lila.
+- Service worker cache: balance1600-v30.
