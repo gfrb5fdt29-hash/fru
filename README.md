@@ -234,3 +234,9 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - A kedvenc/csillag állapot minden kedvencelhető helyen egyértelműbb lett.
 - Kedvenc hozzáadás/eltávolítás nem indít teljes nézet-újrarajzolást, így nem okoz fel-le képernyőanimációt vagy scroll-ugrást.
 - Service worker cache: balance1600-v37.
+
+## v38 módosítás
+- Az étkezésjelölések (Reggeli, Ebéd, Uzsonna, Vacsora) az utoljára jóváhagyott nap/hold ikonpakkból kivágott PNG ikonokra cserélve.
+- Nem újrarajzolt SVG ikonok: a négy ikon külön fájlként bekerült az `assets/meal-icons/` mappába.
+- Az ikonok megjelennek a napi étkezéskártyákon, a Naptár étkezéslistáiban, a Receptek kártyáin és a recept részlet sheet fejlécében.
+- Service worker cache frissítve: `balance1600-v38`.

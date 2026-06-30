@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v37';
+const CACHE_NAME = 'balance1600-v38';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -8,7 +8,11 @@ const APP_ASSETS = [
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './assets/meal-icons/reggeli.png',
+  './assets/meal-icons/ebed.png',
+  './assets/meal-icons/uzsonna.png',
+  './assets/meal-icons/vacsora.png'
 ];
 
 self.addEventListener('install', event => {

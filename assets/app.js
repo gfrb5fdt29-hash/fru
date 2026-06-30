@@ -88,13 +88,24 @@
 
  const SLOT_LABELS = {reggeli:'Reggeli', ebéd:'Ebéd', ebed:'Ebéd', uzsonna:'Uzsonna', vacsora:'Vacsora'};
 
+ function mealSlotKey(slot){
+  return String(slot || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ }
+ const MEAL_ICON_SRC = {
+  reggeli:'assets/meal-icons/reggeli.png',
+  ebed:'assets/meal-icons/ebed.png',
+  uzsonna:'assets/meal-icons/uzsonna.png',
+  vacsora:'assets/meal-icons/vacsora.png'
+ };
  function mealSlotIcon(slot){
-  const key = String(slot || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  if(key === 'reggeli') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M12 4v3"/><path d="M5.8 7.8 8 10"/><path d="M18.2 7.8 16 10"/></svg>';
-  if(key === 'ebed') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="3.2"/><path d="M4 5v14"/><path d="M20 5v14"/><path d="M4 9h3"/><path d="M20 9h-3"/></svg>';
-  if(key === 'uzsonna') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 14.2 8.8 20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2Z"/><path d="M18 4l.8 2.2L21 7l-2.2.8L18 10l-.8-2.2L15 7l2.2-.8Z"/></svg>';
-  if(key === 'vacsora') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.5 15.5A7.8 7.8 0 0 1 8.5 5.5a8 8 0 1 0 10 10Z"/><path d="M17.5 5.5 18 7l1.5.5L18 8l-.5 1.5L17 8l-1.5-.5L17 7Z"/></svg>';
-  return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 8v4l2.5 2"/></svg>';
+  const key = mealSlotKey(slot);
+  const src = MEAL_ICON_SRC[key] || MEAL_ICON_SRC.ebed;
+  return `<img class="meal-slot-img" src="${src}" alt="" aria-hidden="true" loading="lazy" draggable="false">`;
+ }
+ function mealInlineIcon(slot){
+  const key = mealSlotKey(slot);
+  const src = MEAL_ICON_SRC[key] || MEAL_ICON_SRC.ebed;
+  return `<img class="meal-inline-icon" src="${src}" alt="" aria-hidden="true" loading="lazy" draggable="false">`;
  }
  const SLOT_ICON = {reggeli:'R', ebéd:'E', ebed:'E', uzsonna:'U', vacsora:'V'};
  const PHASE_LABELS = {
@@ -394,7 +405,7 @@
     <div class="meal-slot">${mealSlotIcon(meal.slot)}</div>
     <div class="meal-body">
      <div class="meal-title">${esc(meal.name_hu)}</div>
-     <div class="meal-meta"><span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span><span class="cook-mini ${cookingSpeedClass(recipe)}">${esc(speed)}</span></div>
+     <div class="meal-meta"><span class="meal-meta-slot">${mealInlineIcon(meal.slot)}<span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span></span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span><span class="cook-mini ${cookingSpeedClass(recipe)}">${esc(speed)}</span></div>
      <div class="meal-indicators">
       ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
       ${mealRiskChips(meal)}
@@ -471,7 +482,7 @@
       </div>
       <div class="chip-row" style="margin:10px 0">${[...dayChips, ...cycle].slice(0,4).map(c=>`<span class="chip soft">${esc(c)}</span>`).join('') || '<span class="chip soft">kímélő nap</span>'}</div>
       <div class="week-meals">
-       ${(day.meals || []).map(m => `<div class="meal-mini"><b>${esc(SLOT_LABELS[m.slot] || m.slot)}</b><span>${esc(m.name_hu)}</span><em>${esc(m.energy_kcal)} kcal</em></div>`).join('')}
+       ${(day.meals || []).map(m => `<div class="meal-mini"><b class="meal-mini-label">${mealInlineIcon(m.slot)}<span>${esc(SLOT_LABELS[m.slot] || m.slot)}</span></b><span>${esc(m.name_hu)}</span><em>${esc(m.energy_kcal)} kcal</em></div>`).join('')}
       </div>
      </article>`;
     }).join('')}
@@ -699,7 +710,7 @@
   return `<article class="recipe-card ${fav ? 'favorite' : ''}" data-action="openRecipe" data-recipe="${esc(r.recipe_id)}">
    <div class="recipe-card-top">
     <div>
-     <div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')}</div>
+     <div class="small-muted meal-type-line">${mealInlineIcon(r.meal_type)}<span>${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')}</span></div>
      <div class="meal-title">${esc(r.name_hu || r.pwa_title)}</div>
      <div class="meal-meta"><span>${esc(r.energy_kcal)} kcal</span><span>${esc(macroLine(r.macros_g))}</span></div>
     </div>
@@ -1085,7 +1096,7 @@
   const subs = r.smart_substitutions || [];
   const fallbacks = r.fallback_if_not_tolerated?.fallbacks || [];
   openSheet(r.name_hu || r.pwa_title || 'Recept', `
-   <div class="sheet-section"><div class="small-muted">${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')} ${usages[0] ? '· ' + esc(usages[0].week) + '. hét · ' + esc(dayDisplayName(dayForOccurrence(usages[0]) || selectedDay())) : ''}</div><h3 class="headline">${esc(r.name_hu || r.pwa_title)}</h3></div>
+   <div class="sheet-section"><div class="small-muted meal-type-line">${mealInlineIcon(r.meal_type)}<span>${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')} ${usages[0] ? '· ' + esc(usages[0].week) + '. hét · ' + esc(dayDisplayName(dayForOccurrence(usages[0]) || selectedDay())) : ''}</span></div><h3 class="headline">${esc(r.name_hu || r.pwa_title)}</h3></div>
    <div class="sheet-section"><div class="metric-row"><div class="metric"><b>${esc(r.energy_kcal)}</b><span>kcal</span></div><div class="metric"><b>${esc(r.macros_g?.protein)}g</b><span>Fehérje</span></div><div class="metric"><b>${esc(r.macros_g?.carbohydrate)}g</b><span>Szénhidrát</span></div><div class="metric"><b>${esc(r.macros_g?.fat)}g</b><span>Zsír</span></div></div></div>
    <div class="sheet-section"><p>${esc(stripTechText(r.pwa_short_note || r.compatibility_summary_hu?.reflux_logic_hu || ''))}</p></div>
    <div class="sheet-section"><h3 class="subhead">Fő címkék</h3><div class="chip-row">${(r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids||[]).map(tagLabel)).map(stripTechText).slice(0,8).map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div></div>

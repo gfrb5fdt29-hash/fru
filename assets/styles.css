@@ -3028,3 +3028,62 @@ body[data-active-tab="shopping"] :is(.small-muted,.item-note,.meal-meta,.range-h
   box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,0 0 24px rgba(var(--j-accent-rgb,255,211,137),.28),0 16px 34px rgba(0,0,0,.28)!important;
 }
 
+
+
+/* v38 — jóváhagyott nap/hold étkezésikonok beépítése pontos PNG ikonokkal, SVG újrarajzolás nélkül */
+.meal-slot{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  border-radius:17px!important;
+  background:linear-gradient(145deg,rgba(30,32,34,.82),rgba(8,9,10,.72))!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 10px 24px rgba(0,0,0,.18)!important;
+  overflow:hidden!important;
+}
+.meal-slot-img{
+  width:34px!important;
+  height:34px!important;
+  object-fit:contain!important;
+  display:block!important;
+  filter:drop-shadow(0 0 8px rgba(255,232,173,.16));
+  pointer-events:none!important;
+  user-select:none!important;
+}
+.meal-slot-vacsora .meal-slot-img{width:36px!important;height:36px!important;filter:drop-shadow(0 0 8px rgba(235,238,242,.15));}
+.meal-slot-reggeli .meal-slot,
+.meal-slot-ebed .meal-slot,
+.meal-slot-ebéd .meal-slot,
+.meal-slot-uzsonna .meal-slot,
+.meal-slot-vacsora .meal-slot{
+  color:inherit!important;
+  background:linear-gradient(145deg,rgba(27,29,30,.88),rgba(8,9,10,.76))!important;
+  border-color:rgba(255,255,255,.13)!important;
+}
+.meal-inline-icon{
+  width:18px!important;
+  height:18px!important;
+  object-fit:contain!important;
+  display:inline-block!important;
+  vertical-align:-4px!important;
+  margin-right:6px!important;
+  filter:drop-shadow(0 0 5px rgba(255,232,173,.12));
+  pointer-events:none!important;
+  user-select:none!important;
+}
+.meal-meta-slot,
+.meal-type-line,
+.meal-mini-label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  min-width:0!important;
+}
+.meal-mini-label .meal-inline-icon,
+.meal-type-line .meal-inline-icon,
+.meal-meta-slot .meal-inline-icon{margin-right:0!important;flex:0 0 auto!important;}
+.recipe-card .meal-type-line{margin-bottom:3px;}
+.sheet .meal-type-line{gap:7px!important;}
