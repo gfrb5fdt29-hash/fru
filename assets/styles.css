@@ -2775,3 +2775,81 @@ body[data-active-tab] .topbar.header-compact .top-icon{
     height:24px!important;
   }
 }
+
+/* v35 — warm kártya-egységesítés Ma és Bevásárlás füleken + prémium étkezésikonok */
+body[data-active-tab="today"]{
+  --j-bg-0:#4A3314;
+  --j-bg-1:#5B3D18;
+  --j-bg-2:#2D1C09;
+  --j-accent:#FFE8AD;
+  --j-accent-2:#D8A85B;
+  --j-accent-3:#FFF7DF;
+  --j-accent-rgb:255,232,173;
+  --j-accent2-rgb:216,168,91;
+  --j-muted:#EED9AA;
+  --j-on:#2B1A04;
+}
+body[data-active-tab="shopping"]{
+  --j-bg-0:#4A2B0D;
+  --j-bg-1:#613A10;
+  --j-bg-2:#2F1705;
+  --j-accent:#FFD389;
+  --j-accent-2:#C9862F;
+  --j-accent-3:#FFF0C7;
+  --j-accent-rgb:255,211,137;
+  --j-accent2-rgb:201,134,47;
+  --j-muted:#EFD0A0;
+  --j-on:#2E1600;
+}
+body[data-active-tab="today"] :is(.card,.hero,.detail-hero,.meal-card,.recipe-card,.mini-day,.week-day-card,.list-item,.metric,.kcal-bubble,.prep-step,.prep-step-card,.date-logic-help,.card-soft-note,.selection-summary),
+body[data-active-tab="shopping"] :is(.card,.hero,.detail-hero,.meal-card,.recipe-card,.mini-day,.week-day-card,.week-card,.week-only-box,.premium-week-box,.mini-week-box,.premium-selector-card,.shopping-select-card,.shopping-group-card,.list-item,.metric,.kcal-bubble,.prep-step,.prep-step-card,.date-logic-help,.card-soft-note,.selection-summary){
+  border-color:rgba(var(--j-accent-rgb),.22)!important;
+  background:
+    radial-gradient(circle at 12% -6%,rgba(var(--j-accent-rgb),.115),transparent 36%),
+    radial-gradient(circle at 94% 2%,rgba(var(--j-accent2-rgb),.080),transparent 34%),
+    linear-gradient(145deg,rgba(255,246,221,.090),rgba(var(--j-accent2-rgb),.060) 58%,rgba(255,255,255,.035))!important;
+  box-shadow:0 22px 54px rgba(0,0,0,.29),0 0 23px rgba(var(--j-accent-rgb),.075),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+body[data-active-tab="today"] :is(.meal-card.meal-slot-reggeli,.meal-card.meal-slot-ebed,.meal-card.meal-slot-ebéd,.meal-card.meal-slot-uzsonna,.meal-card.meal-slot-vacsora),
+body[data-active-tab="shopping"] :is(.meal-card.meal-slot-reggeli,.meal-card.meal-slot-ebed,.meal-card.meal-slot-ebéd,.meal-card.meal-slot-uzsonna,.meal-card.meal-slot-vacsora){
+  border-left-color:rgba(var(--j-accent-rgb),.55)!important;
+  background:
+    radial-gradient(circle at 12% -6%,rgba(var(--j-accent-rgb),.115),transparent 36%),
+    radial-gradient(circle at 94% 2%,rgba(var(--j-accent2-rgb),.080),transparent 34%),
+    linear-gradient(145deg,rgba(255,246,221,.090),rgba(var(--j-accent2-rgb),.060) 58%,rgba(255,255,255,.035))!important;
+}
+body[data-active-tab="today"] :is(.chip.green,.chip.blue,.chip.warn,.chip.soft,.meal-risk-chip),
+body[data-active-tab="shopping"] :is(.chip.green,.chip.blue,.chip.warn,.chip.soft,.meal-risk-chip){
+  background:rgba(var(--j-accent-rgb),.085)!important;
+  border-color:rgba(var(--j-accent-rgb),.18)!important;
+  color:var(--j-accent-3)!important;
+}
+body[data-active-tab="today"] :is(.filter-chip.active,.segmented button.active,.tracking-day-pill.active,.mini-day-btn.active,.week-card.active,.premium-week-box.active),
+body[data-active-tab="shopping"] :is(.filter-chip.active,.segmented button.active,.tracking-day-pill.active,.mini-day-btn.active,.week-card.active,.premium-week-box.active){
+  background:linear-gradient(145deg,rgba(var(--j-accent-rgb),.22),rgba(var(--j-accent2-rgb),.14))!important;
+  border-color:rgba(var(--j-accent-rgb),.46)!important;
+  color:var(--j-accent-3)!important;
+  box-shadow:0 0 24px rgba(var(--j-accent-rgb),.14),inset 0 1px 0 rgba(255,255,255,.15)!important;
+}
+.meal-slot{
+  position:relative;
+  font-size:0!important;
+  text-transform:none!important;
+  overflow:hidden;
+}
+.meal-slot::after{content:none!important;display:none!important;}
+.meal-slot-svg{
+  width:21px;
+  height:21px;
+  display:block;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.85;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px rgba(var(--j-accent-rgb,255,211,137),.26));
+}
+.meal-slot-reggeli .meal-slot{color:#FFF0C5!important;background:rgba(255,232,173,.13)!important;border:1px solid rgba(255,232,173,.20);}
+.meal-slot-ebed .meal-slot,.meal-slot-ebéd .meal-slot{color:#FFD389!important;background:rgba(255,211,137,.13)!important;border:1px solid rgba(255,211,137,.20);}
+.meal-slot-uzsonna .meal-slot{color:#FBE5B8!important;background:rgba(251,229,184,.12)!important;border:1px solid rgba(251,229,184,.18);}
+.meal-slot-vacsora .meal-slot{color:#EED2A0!important;background:rgba(238,210,160,.12)!important;border:1px solid rgba(238,210,160,.18);}

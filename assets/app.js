@@ -87,6 +87,15 @@
  const usageByRecipe = new Map((DATA.recipe_usage_map || []).map(u => [u.recipe_id, u]));
 
  const SLOT_LABELS = {reggeli:'Reggeli', ebéd:'Ebéd', ebed:'Ebéd', uzsonna:'Uzsonna', vacsora:'Vacsora'};
+
+ function mealSlotIcon(slot){
+  const key = String(slot || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(key === 'reggeli') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M12 4v3"/><path d="M5.8 7.8 8 10"/><path d="M18.2 7.8 16 10"/></svg>';
+  if(key === 'ebed') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="3.2"/><path d="M4 5v14"/><path d="M20 5v14"/><path d="M4 9h3"/><path d="M20 9h-3"/></svg>';
+  if(key === 'uzsonna') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 14.2 8.8 20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2Z"/><path d="M18 4l.8 2.2L21 7l-2.2.8L18 10l-.8-2.2L15 7l2.2-.8Z"/></svg>';
+  if(key === 'vacsora') return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.5 15.5A7.8 7.8 0 0 1 8.5 5.5a8 8 0 1 0 10 10Z"/><path d="M17.5 5.5 18 7l1.5.5L18 8l-.5 1.5L17 8l-1.5-.5L17 7Z"/></svg>';
+  return '<svg class="meal-slot-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 8v4l2.5 2"/></svg>';
+ }
  const SLOT_ICON = {reggeli:'R', ebéd:'E', ebed:'E', uzsonna:'U', vacsora:'V'};
  const PHASE_LABELS = {
   menstruacio:'Menstruáció', korai_follikularis:'Korai follikuláris', follikularis:'Follikuláris', ovulacio:'Ovuláció',
@@ -382,7 +391,7 @@
   const speed = cookingSpeedLabel(recipe);
   const slotClass = String(meal.slot || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-') || 'fogas';
   return `<article class="meal-card meal-slot-${esc(slotClass)} ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
-    <div class="meal-slot">${esc((SLOT_LABELS[meal.slot] || meal.slot || '?').slice(0,2))}</div>
+    <div class="meal-slot">${mealSlotIcon(meal.slot)}</div>
     <div class="meal-body">
      <div class="meal-title">${esc(meal.name_hu)}</div>
      <div class="meal-meta"><span>${esc(SLOT_LABELS[meal.slot] || meal.slot)}</span><span>${esc(meal.energy_kcal)} kcal</span><span>${esc(meal.macros_g?.protein || 0)}g feh.</span><span class="cook-mini ${cookingSpeedClass(recipe)}">${esc(speed)}</span></div>

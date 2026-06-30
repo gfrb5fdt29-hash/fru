@@ -205,8 +205,16 @@ A ZIP tartalmát közvetlenül a repository gyökerébe kell feltölteni, majd G
 - Service worker cache: balance1600-v33.
 
 
-## v34 változások
+## v35 változások
 - A felső fejléc alapból a kompakt méreten marad, nem zsugorodik/tágul görgetéskor.
 - A fejléc glass/blur stílusa az alsó fülsáv hangulatához lett igazítva.
 - A Home és Beállítások gombok továbbra is kattinthatók és kompakt fejlécben is jól elérhetők.
-- Service worker cache: balance1600-v34.
+- Service worker cache: balance1600-v35.
+
+
+## v35 módosítások
+
+- Ma és Bevásárlás fül kártyái teljesen átállítva a meleg champagne / honey-gold / borostyán-arany irányra.
+- A korábban zölden maradt kártyafelületek felülírva az adott fül meleg palettájával.
+- Reggeli / ebéd / uzsonna / vacsora kártyák bal oldali kétbetűs jelölése prémium vonalas ikonokra cserélve.
+- Service worker cache: balance1600-v35.
