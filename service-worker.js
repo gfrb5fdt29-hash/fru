@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v53-trend-rows';
+const CACHE_NAME = 'balance1600-v55-ingredient-swap';
 const APP_ASSETS = [
   './',
   './index.html',

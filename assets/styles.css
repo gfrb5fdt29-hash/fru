@@ -5578,3 +5578,16 @@ body[data-active-tab="today"] .hero .day-switch .ghost-btn:active{
 /* Napló fül – hét gombsor térköze */
 .tracking-week-tabs{margin-top:6px;margin-bottom:12px}
 .naplo-day-grid{margin-top:2px}
+
+/* Alapanyagcsere a recept-sheetben */
+.ingredient-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px}
+.ing-row{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.ing-main{flex:1}
+.ing-swapped{opacity:.6;font-style:normal;font-size:11.5px}
+.ing-swap-btn{flex:0 0 auto;appearance:none;border:1px solid rgba(67,242,193,.5);background:rgba(67,242,193,.1);color:#c7f7ea;border-radius:999px;padding:4px 13px;font-size:12px;font-weight:600;cursor:pointer}
+.ing-swap-btn:active{transform:scale(.97)}
+.ing-amount-row{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.ing-amount-row input{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:inherit;border-radius:10px;padding:9px 12px;font-size:15px;box-sizing:border-box}
+.swap-option-main em{display:block}
+.ing-warn{color:#ffd66b;font-style:normal;font-size:11.5px;margin-top:2px}
+.swap-adjusted{padding-top:0}

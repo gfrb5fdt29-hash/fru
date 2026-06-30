@@ -14,6 +14,7 @@
   favorites: storagePrefix + 'favorites',
   tracking: storagePrefix + 'trackingEntries',
   mealOverrides: storagePrefix + 'mealOverrides',
+  ingredientOverrides: storagePrefix + 'ingredientOverrides',
   ui: storagePrefix + 'uiState'
  };
 
@@ -47,6 +48,7 @@
  let favorites = readStore(storeKeys.favorites, {});
  let trackingEntries = readStore(storeKeys.tracking, {});
  let mealOverrides = readStore(storeKeys.mealOverrides, {});
+ let ingredientOverrides = readStore(storeKeys.ingredientOverrides, {});
  const defaultUi = {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, shoppingDayNumber:null, shoppingMergeDays:[], onlyOpen:false, recipeSearch:'', recipeFilters:[], dayReturnTab:'weeks', trackingWeek:1};
  let ui = {...defaultUi, ...readStore(storeKeys.ui, {})};
  // A hétválasztók alapból zárva indulnak; a lenyitott állapot nem kerül mentésre,
@@ -91,6 +93,8 @@
  const allDays = weeks.flatMap(w => (w.days || []).map((d, idx) => ({...d, globalDayNumber:(d.week-1)*7 + (d.day_number_in_week || idx+1)})));
  const recipes = DATA.recipe_library || [];
  const recipesById = new Map(recipes.map(r => [r.recipe_id, r]));
+ const ingredientById = new Map((DATA.ingredient_catalog || []).map(c => [c.ingredient_id, c]));
+ const ING_MACRO = DATA.ingredient_macros_per_100g || {};
  const tagLabels = new Map((DATA.tag_catalog || []).map(t => [t.tag_id, t.label_hu]));
  const usageByRecipe = new Map((DATA.recipe_usage_map || []).map(u => [u.recipe_id, u]));
 
@@ -218,6 +222,7 @@
   writeStore(storeKeys.favorites, favorites);
   writeStore(storeKeys.tracking, trackingEntries);
   writeStore(storeKeys.mealOverrides, mealOverrides);
+  writeStore(storeKeys.ingredientOverrides, ingredientOverrides);
   writeStore(storeKeys.ui, ui);
  }
  function toast(msg){
@@ -378,7 +383,7 @@ function heroFullDateLabel(day){
  function mealKey(day, meal){ return `${day.day_id}|${meal.slot}|${meal.recipe_id}`; }
  function shoppingKey(scope, parts){ return `${scope}|${parts.map(p=>String(p).replaceAll('|','-')).join('|')}`; }
  function overrideKey(dayId, slot){ return `${dayId}|${slot}`; }
- function effectiveMeal(day, meal){
+ function effectiveMealBase(day, meal){
   const ov = mealOverrides[overrideKey(day.day_id, meal.slot)];
   if(!ov || ov === meal.recipe_id) return meal;
   const r = recipesById.get(ov);
@@ -402,10 +407,99 @@ function heroFullDateLabel(day){
    _originalRecipeId: meal.recipe_id
   };
  }
+ function ingOverKey(dayId, slot){ return `${dayId}|${slot}`; }
+ function ingOverridesFor(dayId, slot){ return ingredientOverrides[ingOverKey(dayId, slot)] || {}; }
+ function macroOf(ingId, grams){
+  const m = ING_MACRO[ingId]; const f = Number(grams || 0) / 100;
+  if(!m) return {kcal:0, protein:0, carb:0, fat:0};
+  return {kcal:(m.kcal||0)*f, protein:(m.protein_g||0)*f, carb:(m.carbohydrate_g||0)*f, fat:(m.fat_g||0)*f};
+ }
+ function macroPreview(ingId, grams){
+  const x = macroOf(ingId, grams);
+  return `${Math.round(x.kcal)} kcal · F ${formatHuNumber(x.protein,1)}g · Sz ${formatHuNumber(x.carb,1)}g · Zs ${formatHuNumber(x.fat,1)}g`;
+ }
+ const TOL_RANK = {
+  reflux_status:{safe:0, caution:1},
+  histamine_status:{fresh_safe:0, freshness_sensitive:1, individual_test:2},
+  purine_status:{low:0, moderate_portion_controlled:1},
+  bloating_status:{normal:0, caution:1}
+ };
+ const TOL_LABEL = {reflux_status:'reflux', histamine_status:'hisztamin', purine_status:'purin', bloating_status:'puffadás'};
+ function swapWarnings(fromId, toId){
+  const a = ingredientById.get(fromId)?.tolerance_profile || {};
+  const b = ingredientById.get(toId)?.tolerance_profile || {};
+  const w = [];
+  for(const axis in TOL_RANK){
+   const ra = TOL_RANK[axis][a[axis]] ?? 0, rb = TOL_RANK[axis][b[axis]] ?? 0;
+   if(rb > ra) w.push(TOL_LABEL[axis]);
+  }
+  return w;
+ }
+ function applyIngredientOverrides(day, slot, mealObj){
+  const ov = ingOverridesFor(day.day_id, slot);
+  const keys = Object.keys(ov);
+  if(!keys.length) return mealObj;
+  const recipe = recipesById.get(mealObj.recipe_id);
+  if(!recipe) return mealObj;
+  let dK = 0, dP = 0, dC = 0, dF = 0; const swaps = [];
+  keys.forEach(fromId => {
+   const ing = (recipe.ingredients || []).find(i => i.ingredient_id === fromId);
+   if(!ing) return;
+   const o = ov[fromId];
+   const newAmt = Number(o.amount ?? ing.amount);
+   const fm = macroOf(fromId, ing.amount), tm = macroOf(o.to, newAmt);
+   dK += tm.kcal - fm.kcal; dP += tm.protein - fm.protein; dC += tm.carb - fm.carb; dF += tm.fat - fm.fat;
+   swaps.push({fromId, fromName:ing.item, fromAmount:ing.amount, toId:o.to, toName:ingredientById.get(o.to)?.name_hu || o.to, amount:newAmt});
+  });
+  if(!swaps.length) return mealObj;
+  const g = mealObj.macros_g || {};
+  return {
+   ...mealObj,
+   energy_kcal: Math.max(0, Math.round(Number(mealObj.energy_kcal || 0) + dK)),
+   macros_g: {
+    ...g,
+    protein: Math.max(0, Math.round(Number(g.protein || 0) + dP)),
+    carbohydrate: Math.max(0, Math.round(Number(g.carbohydrate || 0) + dC)),
+    fat: Math.max(0, Math.round(Number(g.fat || 0) + dF))
+   },
+   _ingredientSwaps: swaps
+  };
+ }
+ function effectiveIngredients(recipe, dayId, slot){
+  const ov = ingOverridesFor(dayId, slot);
+  return (recipe.ingredients || []).map(i => {
+   const o = ov[i.ingredient_id];
+   if(!o) return i;
+   return {...i, ingredient_id:o.to, item: ingredientById.get(o.to)?.name_hu || o.to, amount: Number(o.amount ?? i.amount), _swappedFrom:i.item};
+  });
+ }
+ function dayIngredientSwapMap(dayId){
+  const map = {};
+  Object.keys(ingredientOverrides).forEach(key => {
+   if(key.indexOf(dayId + '|') !== 0) return;
+   const ov = ingredientOverrides[key];
+   Object.keys(ov).forEach(fromId => { map[fromId] = ov[fromId]; });
+  });
+  return map;
+ }
+ function applyShoppingSwaps(items, dayId){
+  const map = dayIngredientSwapMap(dayId);
+  if(!Object.keys(map).length) return items;
+  return (items || []).map(it => {
+   const o = it.ingredient_id ? map[it.ingredient_id] : null;
+   if(!o) return it;
+   const toName = ingredientById.get(o.to)?.name_hu || o.to;
+   const waste = Number(it.waste_factor_percent || 0);
+   const net = Number(o.amount ?? it.net_amount ?? it.amount ?? 0);
+   const buy = Math.round(net * (1 + waste / 100));
+   return {...it, ingredient_id:o.to, item:toName, name_hu:toName, net_amount:net, amount:net, recommended_purchase_amount:buy, note_hu:`Csere – eredetileg ${it.item || it.name_hu || ''}`.trim()};
+  });
+ }
+ function effectiveMeal(day, meal){ return applyIngredientOverrides(day, meal.slot, effectiveMealBase(day, meal)); }
  function effectiveMeals(day){ return (day.meals || []).map(m => effectiveMeal(day, m)); }
  function effectiveTotals(day){
   const meals = effectiveMeals(day);
-  if(!meals.some(m => m._swapped)) return day.daily_totals || {};
+  if(!meals.some(m => m._swapped || (m._ingredientSwaps && m._ingredientSwaps.length))) return day.daily_totals || {};
   const t = meals.reduce((a,m)=>{ a.energy_kcal+=Number(m.energy_kcal||0); a.protein+=Number(m.macros_g?.protein||0); a.carbohydrate+=Number(m.macros_g?.carbohydrate||0); a.fat+=Number(m.macros_g?.fat||0); return a; }, {energy_kcal:0,protein:0,carbohydrate:0,fat:0});
   return { ...(day.daily_totals||{}), energy_kcal:Math.round(t.energy_kcal), protein:Math.round(t.protein), carbohydrate:Math.round(t.carbohydrate), fat:Math.round(t.fat) };
  }
@@ -536,7 +630,7 @@ function heroFullDateLabel(day){
   const recipe = recipesById.get(meal.recipe_id) || {};
   const speed = cookingSpeedLabel(recipe);
   const slotClass = String(meal.slot || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-') || 'fogas';
-  return `<article class="meal-card meal-slot-${esc(slotClass)} ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}">
+  return `<article class="meal-card meal-slot-${esc(slotClass)} ${checked ? 'done' : ''}" data-action="openRecipe" data-recipe="${esc(meal.recipe_id)}" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}">
     <div class="meal-slot">${mealSlotIcon(meal.slot)}</div>
     <div class="meal-body">
      <div class="meal-card-title-row">
@@ -553,6 +647,7 @@ function heroFullDateLabel(day){
      <div class="meal-indicators">
       ${tags.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}
       ${mealRiskChips(meal)}
+      ${meal._ingredientSwaps && meal._ingredientSwaps.length ? '<span class="chip soft swapped">Alapanyagcsere</span>' : ''}
      </div>
      <div class="meal-swap-row">${meal._swapped ? '<span class="chip soft swapped">Lecserélve</span>' : ''}<button class="meal-swap-btn" data-action="openSwap" data-day="${esc(day.day_id)}" data-slot="${esc(meal.slot)}">⇄ Csere másik fogásra</button></div>
     </div>
@@ -740,7 +835,7 @@ function heroFullDateLabel(day){
    <section class="card section"><div class="card-pad stack">
     <h2 class="headline">Napi vásárlás</h2>
     <p class="small-muted">${esc(humanNote(mp.freshness_logic_note_hu || 'Friss készítés, készétel-maradék nélkül.'))}</p>
-    ${(mp.daily_fresh_items || []).slice(0,10).map(it=>`<div class="list-item"><div class="item-main"><div class="item-title">${esc(it.item)}</div><div class="item-note">${esc(humanAmount(it))}</div></div></div>`).join('') || '<div class="empty">Nincs külön napi friss tétel.</div>'}
+    ${applyShoppingSwaps(mp.daily_fresh_items || [], day.day_id).slice(0,10).map(it=>`<div class="list-item"><div class="item-main"><div class="item-title">${esc(it.item)}</div><div class="item-note">${esc(humanAmount(it))}</div></div></div>`).join('') || '<div class="empty">Nincs külön napi friss tétel.</div>'}
    </div></section>
    <div class="footer-space"></div>`;
  }
@@ -1101,7 +1196,7 @@ function heroFullDateLabel(day){
  function dailyFreshShopping(day){
   const mp = day.shopping_micro_plan || {};
   const groups = {};
-  (mp.daily_fresh_items || []).forEach(it => {
+  applyShoppingSwaps(mp.daily_fresh_items || [], day.day_id).forEach(it => {
    const g = GROUP_LABELS[it.category_group] || 'Friss tételek';
    groups[g] = groups[g] || [];
    groups[g].push(it);
@@ -1118,21 +1213,21 @@ function heroFullDateLabel(day){
   ${(week?.shopping_groups || []).map(g => listItems(g.items, `weekly-${week.week}`, g.category, '')).join('')}`;
  }
  function pantryShopping(day){
-  const daily = day.shopping_micro_plan?.daily_pantry_or_stable_items || [];
+  const daily = applyShoppingSwaps(day.shopping_micro_plan?.daily_pantry_or_stable_items || [], day.day_id);
   const strategy = DATA.shopping_strategy?.find(s => s.week === day.week);
   const weekly = strategy?.pantry_or_stable_summary || [];
   return listItems(daily, `pantry-day-${day.day_id}`, 'Napi kamra és stabil alapok', 'Ezek nem a napi friss tételek közé tartoznak.') + listItems(weekly, `pantry-week-${day.week}`, `${day.week}. heti kamraáttekintés`, 'Heti szinten tervezhető alapanyagok.');
  }
  function freshHandling(day){
   const mp = day.shopping_micro_plan || {};
-  return listItems(mp.raw_freeze_candidates || [], `raw-${day.day_id}`, 'Nyersen porciózható fehérjék', 'Kész ételként ne tedd el másnapra; csak nyersen porciózva kezeld előre.') +
-   listItems(mp.same_day_fresh_dairy_items || [], `dairy-${day.day_id}`, 'Aznap fogyasztandó friss tejtermékek', 'Frissen bontva, rövid időn belül fogyasztva illeszkedik legjobban a tervhez.');
+  return listItems(applyShoppingSwaps(mp.raw_freeze_candidates || [], day.day_id), `raw-${day.day_id}`, 'Nyersen porciózható fehérjék', 'Kész ételként ne tedd el másnapra; csak nyersen porciózva kezeld előre.') +
+   listItems(applyShoppingSwaps(mp.same_day_fresh_dairy_items || [], day.day_id), `dairy-${day.day_id}`, 'Aznap fogyasztandó friss tejtermékek', 'Frissen bontva, rövid időn belül fogyasztva illeszkedik legjobban a tervhez.');
  }
  function dailyShoppingItemsForMerge(day){
   const mp = day.shopping_micro_plan || {};
   return [
-   ...(mp.daily_fresh_items || []).map(i => ({...i, source:'Friss'})),
-   ...(mp.daily_pantry_or_stable_items || []).map(i => ({...i, source:'Kamra'}))
+   ...applyShoppingSwaps(mp.daily_fresh_items || [], day.day_id).map(i => ({...i, source:'Friss'})),
+   ...applyShoppingSwaps(mp.daily_pantry_or_stable_items || [], day.day_id).map(i => ({...i, source:'Kamra'}))
   ];
  }
  function aggregateShopping(days){
@@ -1222,15 +1317,10 @@ function heroFullDateLabel(day){
     <div class="week-tabs uniform-week-tabs tracking-week-tabs">${weeks.map(w => `<button class="week-card week-select ${Number(w.week) === Number(day.week || ui.trackingWeek || 1) ? 'active' : ''}" data-action="trackingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
     <div class="tracking-day-grid naplo-day-grid">${allDays.filter(d => Number(d.week) === Number(day.week || ui.trackingWeek || 1)).map(d => `<button class="tracking-day-btn ${Number(d.globalDayNumber) === Number(day.globalDayNumber) ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`).join('')}</div>
    </section>
-   <section class="card section"><div class="card-pad">
-    <h2 class="headline">${esc(fullDateLabel(day))} naplója</h2>
-    <p class="small-muted">${esc(planDayLabel(day))} · ${esc(day.daily_focus_hu || 'részletes napi követés')}</p>
-    <div class="metric-row">
-     <div class="metric"><b>${p.done}/${p.total}</b><span>Étkezés</span></div>
-     <div class="metric"><b>${weekPct}%</b><span>Heti teljesítés</span></div>
-     <div class="metric"><b>${formatHuNumber(waterLiters,1)} l</b><span>Víz</span></div>
-     <div class="metric"><b>${esc(day.daily_totals?.energy_kcal || 0)}</b><span>kcal terv</span></div>
-    </div>
+   <section class="card section note-card"><div class="card-pad stack">
+    <h2 class="subhead">Jegyzet</h2>
+    <p class="small-muted">${esc(fullDateLabel(day))} · ${esc(planDayLabel(day))}</p>
+    <textarea class="note-area" id="trackNote" placeholder="Rövid saját megjegyzés a mai naphoz">${esc(entry.note || '')}</textarea>
    </div></section>
    <section class="card section water-card"><div class="card-pad stack">
     <h2 class="subhead">Víz</h2>
@@ -1241,7 +1331,6 @@ function heroFullDateLabel(day){
    <section class="card section"><div class="card-pad stack">
     <h2 class="subhead">Mai közérzet</h2>
     ${detailedTrackingFields(entry)}
-    <label>Jegyzet<textarea class="note-area" id="trackNote" placeholder="Rövid saját megjegyzés">${esc(entry.note || '')}</textarea></label>
     <button class="primary-btn wide" data-action="saveTracking">Napló mentése</button>
    </div></section>
    ${trendChartHtml(Number(day.week || ui.trackingWeek || 1))}
@@ -1282,7 +1371,7 @@ function heroFullDateLabel(day){
    </div>
    ${dailyWhySheetHtml(day)}
    <div class="sheet-section"><h3 class="subhead">Mai frissesség</h3><p>${esc(humanNote(mp.freshness_logic_note_hu || 'Friss készítés, készétel-maradék nélkül.'))}</p></div>
-   <div class="sheet-section"><h3 class="subhead">Napi vásárlási áttekintés</h3><ul>${(mp.daily_fresh_items || []).slice(0,8).map(it=>`<li>${esc(it.item)} — ${esc(humanAmount(it))}</li>`).join('') || '<li>Nincs külön napi friss tétel.</li>'}</ul></div>
+   <div class="sheet-section"><h3 class="subhead">Napi vásárlási áttekintés</h3><ul>${applyShoppingSwaps(mp.daily_fresh_items || [], day.day_id).slice(0,8).map(it=>`<li>${esc(it.item)} — ${esc(humanAmount(it))}</li>`).join('') || '<li>Nincs külön napi friss tétel.</li>'}</ul></div>
    <div class="sheet-section"><h3 class="subhead">Napló alap</h3><p>Mai terv: ${esc(totals.energy_kcal)} kcal. ${day.tracking_prefill?.full_meat_free_dairy_free_day ? 'Ez húsmentes és tejmentes nap.' : 'A napi pipák nem módosítják a tervezett kcal értéket.'}</p></div>
   `);
  }
@@ -1304,9 +1393,11 @@ function heroFullDateLabel(day){
   return `<div class="sheet-section recipe-prep-section"><h3 class="subhead">Elkészítés</h3><p>${esc(fallback)}</p></div>`;
  }
 
- function openRecipe(recipeId){
+ function openRecipe(recipeId, ctx){
   const r = recipesById.get(recipeId);
   if(!r) return;
+  const ctxSwap = !!(ctx && ctx.dayId && ctx.slot);
+  const ingList = ctxSwap ? effectiveIngredients(r, ctx.dayId, ctx.slot) : (r.ingredients || []);
   const usages = r.usage_in_meal_plan?.occurrences || usageByRecipe.get(recipeId)?.occurrences || [];
   const risks = r.risk_scores || {};
   const subs = r.smart_substitutions || [];
@@ -1314,10 +1405,11 @@ function heroFullDateLabel(day){
   openSheet(r.name_hu || r.pwa_title || 'Recept', `
    <div class="sheet-section"><div class="small-muted meal-type-line">${mealInlineIcon(r.meal_type)}<span>${esc(SLOT_LABELS[r.meal_type] || r.meal_type || 'Fogás')} ${usages[0] ? '· ' + esc(usages[0].week) + '. hét · ' + esc(dayDisplayName(dayForOccurrence(usages[0]) || selectedDay())) : ''}</span></div><h3 class="headline">${esc(r.name_hu || r.pwa_title)}</h3></div>
    <div class="sheet-section"><div class="metric-row"><div class="metric"><b>${esc(r.energy_kcal)}</b><span>kcal</span></div><div class="metric"><b>${esc(r.macros_g?.protein)}g</b><span>Fehérje</span></div><div class="metric"><b>${esc(r.macros_g?.carbohydrate)}g</b><span>Szénhidrát</span></div><div class="metric"><b>${esc(r.macros_g?.fat)}g</b><span>Zsír</span></div></div></div>
+   ${(() => { if(!ctxSwap) return ''; const em = applyIngredientOverrides({day_id:ctx.dayId}, ctx.slot, {recipe_id:r.recipe_id, energy_kcal:r.energy_kcal, macros_g:r.macros_g}); return em._ingredientSwaps ? `<div class="sheet-section swap-adjusted"><p class="small-muted">Cserékkel: <b>${esc(em.energy_kcal)} kcal</b> · F ${esc(em.macros_g.protein)}g · Sz ${esc(em.macros_g.carbohydrate)}g · Zs ${esc(em.macros_g.fat)}g</p></div>` : ''; })()}
    <div class="sheet-section"><p>${esc(stripTechText(r.pwa_short_note || r.compatibility_summary_hu?.reflux_logic_hu || ''))}</p></div>
    <div class="sheet-section"><h3 class="subhead">Fő címkék</h3><div class="chip-row">${(r.compatibility_summary_hu?.short_flags_hu || (r.tag_ids||[]).map(tagLabel)).map(stripTechText).slice(0,8).map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div></div>
    <div class="sheet-section"><h3 class="subhead">Kímélő jelzések</h3><div class="chip-row"><span class="chip green">Reflux: ${esc(riskText(risks.reflux_risk_level))}</span><span class="chip ${Number(risks.histamine_caution_level||0)>=2?'warn':'green'}">Hisztamin: ${esc(riskText(risks.histamine_caution_level))}</span><span class="chip ${Number(risks.purine_caution_level||0)>=2?'warn':'green'}">Purin: ${esc(riskText(risks.purine_caution_level))}</span>${risks.individual_test_required ? '<span class="chip warn">egyéni teszt</span>' : ''}</div>${risks.why_caution_hu ? `<p>${esc(stripTechText(risks.why_caution_hu))}</p>` : ''}</div>
-   <div class="sheet-section"><h3 class="subhead">Hozzávalók</h3><ul>${(r.ingredients || []).map(i=>`<li>${esc(i.item)} — ${esc(i.amount)} ${esc(i.unit)}</li>`).join('') || '<li>Nincs megadott hozzávaló.</li>'}</ul></div>
+   <div class="sheet-section"><h3 class="subhead">Hozzávalók</h3><ul class="ingredient-list">${ingList.map((i,idx)=>{ const orig=(r.ingredients||[])[idx]||i; const canSwap=ctxSwap && ((ingredientById.get(orig.ingredient_id)?.substitution_candidates)||[]).length>0; return `<li class="ing-row"><span class="ing-main">${esc(i.item)} — ${esc(i.amount)} ${esc(i.unit)}${i._swappedFrom?` <em class="ing-swapped">(eredetileg ${esc(i._swappedFrom)})</em>`:''}</span>${canSwap?`<button class="ing-swap-btn" data-action="openIngredientSwap" data-day="${esc(ctx.dayId)}" data-slot="${esc(ctx.slot)}" data-recipe="${esc(r.recipe_id)}" data-from="${esc(orig.ingredient_id)}">csere</button>`:''}</li>`; }).join('') || '<li>Nincs megadott hozzávaló.</li>'}</ul>${ctxSwap?'<p class="small-muted">Az alapanyagcsere csak erre a napra és étkezésre szól.</p>':''}</div>
    ${recipePrepHtml(r)}
    <div class="sheet-section"><h3 class="subhead">Idő és eszközök</h3><p>${esc(r.cooking_profile?.total_minutes || r.prep_minutes_estimate || '—')} perc · ${esc(r.cooking_profile?.difficulty_level || r.cooking_time_level || 'könnyű')}</p>${r.cooking_profile?.required_tools?.length ? `<div class="chip-row">${r.cooking_profile.required_tools.map(t=>`<span class="chip soft">${esc(t)}</span>`).join('')}</div>` : ''}</div>
    <div class="sheet-section"><h3 class="subhead">Frissesség</h3><p>${esc(stripTechText(r.freshness_rule_hu || r.cooking_profile?.component_prep_note_hu || 'Frissen készítve a legjobb.'))}</p></div>
@@ -1433,52 +1525,103 @@ function heroFullDateLabel(day){
   const ds = allDays.filter(d => Number(d.week) === Number(weekNo));
   const entries = ds.map(d => trackingEntries[d.day_id] || {});
   const n = ds.length || 7;
-  const logged = entries.map(e => e && Object.keys(e).length > 0);
-  const hasAny = logged.some(Boolean);
-  const W = 280, padX = 2, plotW = W - 2 * padX, band = plotW / n, barW = Math.min(24, band * 0.62);
-  const H = 40, top = 5, baseline = H - 5, plotH = baseline - top;
-  const cx = i => padX + band * (i + 0.5);
-  function avg(key, isWater){
-   const vals = entries.map(e => isWater ? (e.waterMl != null ? e.waterMl / 1000 : null) : (key in e ? Number(e[key]) : null)).filter(v => Number.isFinite(v));
-   if(!vals.length) return null;
-   return vals.reduce((a, b) => a + b, 0) / vals.length;
-  }
-  function bars(key, color, max, isWater){
-   const cells = ds.map((d, i) => {
-    const e = entries[i];
-    const has = isWater ? (e.waterMl != null) : (key in e);
-    const bx = cx(i) - barW / 2;
-    const track = `<rect x="${bx.toFixed(1)}" y="${top}" width="${barW.toFixed(1)}" height="${plotH}" rx="2" fill="rgba(255,255,255,.05)"></rect>`;
-    if(!has) return track;
-    const val = isWater ? (e.waterMl / 1000) : Number(e[key]);
-    const ratio = max > 0 ? Math.max(0, Math.min(1, val / max)) : 0;
-    const bh = Math.max(2.5, plotH * ratio);
-    return `${track}<rect x="${bx.toFixed(1)}" y="${(baseline - bh).toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${color}"></rect>`;
+  const hasAny = entries.some(e => e && Object.keys(e).length > 0);
+  const W = 320, padL = 24, padR = 12, padB = 24, padT = 12;
+  const plotW = W - padL - padR;
+  const x = i => padL + (n <= 1 ? plotW / 2 : plotW * i / (n - 1));
+  const xLabels = (H) => ds.map((d, i) => `<text x="${x(i).toFixed(1)}" y="${H - padB + 15}" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">${esc(compactDayName(d))}</text>`).join('');
+  function legend(items){ return `<div class="trend-legend">${items.map(it => `<span class="tl-item"><i style="background:${it.color}"></i>${esc(it.label)}</span>`).join('')}</div>`; }
+  // --- 1. rész: tünetek + jóllakottság (0-10 vonaldiagram) ---
+  function lineChart(H, specs){
+   const plotH = H - padT - padB;
+   const y = v => padT + plotH * (1 - Math.max(0, Math.min(10, v)) / 10);
+   const grid = [0, 5, 10].map(v => `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${W - padR}" y2="${y(v).toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"></line><text x="2" y="${(y(v) + 3).toFixed(1)}" font-size="9" fill="rgba(255,255,255,.4)">${v}</text>`).join('');
+   const paths = specs.map(sp => {
+    const pts = ds.map((d, i) => ({ i, v: (sp.key in entries[i]) ? Number(entries[i][sp.key]) : null })).filter(p => Number.isFinite(p.v));
+    if(!pts.length) return '';
+    const path = pts.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
+    const dots = pts.map(p => `<circle cx="${x(p.i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.6" fill="${sp.color}"></circle>`).join('');
+    return `<path d="${path}" fill="none" stroke="${sp.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
    }).join('');
-   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(key)} heti oszlopok">${cells}</svg>`;
+   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Heti közérzet">${grid}${paths}${xLabels(H)}</svg>`;
   }
-  const waterGoalL = Math.max(0.5, Number(settings.waterGoalMl || 2500) / 1000);
-  const waterMax = Math.max(waterGoalL, ...entries.map(e => (e.waterMl || 0) / 1000));
-  const metrics = [
-   { key:'energy', label:'Energia', color:'#43f2c1', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
-   { key:'hunger', label:'Éhség / jóllakottság', color:'#ffd66b', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
-   { key:'reflux', label:'Reflux', color:'#ff8a8a', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
-   { key:'bloating', label:'Puffadás', color:'#ffb35d', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
-   { key:'histamine', label:'Hisztamin', color:'#c89bff', max:10, fmt:v=>`átl. ${formatHuNumber(v,1)}/10` },
-   { key:'water', label:'Vízbevitel', color:'#8db9ff', max:waterMax, isWater:true, fmt:v=>`átl. ${formatHuNumber(v,1)} l` }
+  const symSpecs = [
+   { key:'reflux', color:'#ff8a8a', label:'Reflux' },
+   { key:'bloating', color:'#ffb35d', label:'Puffadás' },
+   { key:'histamine', color:'#c89bff', label:'Hisztamin' },
+   { key:'hunger', color:'#ffd66b', label:'Éhség / jóllakottság' }
   ];
-  const rows = metrics.map(m => {
-   const a = avg(m.key, m.isWater);
-   return `<div class="trend-row"><div class="trend-row-head"><span class="trend-dot" style="background:${m.color}"></span><b>${esc(m.label)}</b><em>${a == null ? 'nincs adat' : m.fmt(a)}</em></div>${bars(m.key, m.color, m.max, m.isWater)}</div>`;
+  const chartA = lineChart(168, symSpecs) + legend(symSpecs);
+  // --- 2. rész: energia (vonal) + víz (oszlop) ---
+  const HB = 178, plotHB = HB - padT - padB;
+  const yE = v => padT + plotHB * (1 - Math.max(0, Math.min(10, v)) / 10);
+  const gridB = [0, 5, 10].map(v => `<line x1="${padL}" y1="${yE(v).toFixed(1)}" x2="${W - padR}" y2="${yE(v).toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"></line><text x="2" y="${(yE(v) + 3).toFixed(1)}" font-size="9" fill="rgba(255,255,255,.4)">${v}</text>`).join('');
+  const goalL = Math.max(0.5, Number(settings.waterGoalMl || 2500) / 1000);
+  const waterArr = entries.map(e => (e.waterMl != null) ? e.waterMl / 1000 : null);
+  const maxW = Math.max(goalL, ...waterArr.filter(v => Number.isFinite(v)));
+  const band = plotW / n, barW = Math.max(8, band * 0.5);
+  const bars = ds.map((d, i) => {
+   const w = waterArr[i];
+   if(!(Number.isFinite(w) && w > 0)) return '';
+   const bh = plotHB * (w / maxW);
+   const bx = x(i) - barW / 2, by = padT + plotHB - bh;
+   return `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="rgba(141,185,255,.32)"></rect><text x="${x(i).toFixed(1)}" y="${(by - 3).toFixed(1)}" font-size="8" fill="rgba(141,185,255,.95)" text-anchor="middle">${formatHuNumber(w, 1)}</text>`;
   }).join('');
-  const dayLabels = `<div class="trend-days">${ds.map(d => `<span>${esc(compactDayName(d))}</span>`).join('')}</div>`;
+  const goalY = padT + plotHB * (1 - goalL / maxW);
+  const goalLine = `<line x1="${padL}" y1="${goalY.toFixed(1)}" x2="${W - padR}" y2="${goalY.toFixed(1)}" stroke="rgba(141,185,255,.5)" stroke-width="1" stroke-dasharray="4 3"></line><text x="${W - padR}" y="${Math.max(8, goalY - 3).toFixed(1)}" font-size="8" fill="rgba(141,185,255,.9)" text-anchor="end">víz cél ${formatHuNumber(goalL, 1)} l</text>`;
+  const ePts = ds.map((d, i) => ({ i, v: ('energy' in entries[i]) ? Number(entries[i].energy) : null })).filter(p => Number.isFinite(p.v));
+  const ePath = ePts.length ? `<path d="${ePts.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${yE(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="#43f2c1" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>${ePts.map(p => `<circle cx="${x(p.i).toFixed(1)}" cy="${yE(p.v).toFixed(1)}" r="2.8" fill="#43f2c1"></circle>`).join('')}` : '';
+  const chartB = `<svg viewBox="0 0 ${W} ${HB}" width="100%" role="img" aria-label="Energia és víz">${gridB}${bars}${goalLine}${ePath}${xLabels(HB)}</svg>` + legend([{ color:'#43f2c1', label:'Energia (0–10)' }, { color:'rgba(141,185,255,.7)', label:'Víz (liter)' }]);
   const body = hasAny
-   ? `<div class="trend-rows">${rows}</div>${dayLabels}<p class="small-muted">Soronként a hét napjai: a kitöltött oszlop a rögzített érték (közérzet 0–10, víz literben), a halvány háttér a nem naplózott napokat jelzi.</p>`
+   ? `<h3 class="subhead trend-sub">Közérzet (0–10)</h3>${chartA}<h3 class="subhead trend-sub">Energia és víz</h3>${chartB}<p class="small-muted">Csak a rögzített napok jelennek meg. A szaggatott vonal a napi vízcél; a számok a vízmennyiséget jelölik literben.</p>`
    : '<p class="small-muted">Ehhez a héthez még nincs naplóadat. Ahogy rögzíted a vizet és a közérzetet, itt jelenik meg a heti trend.</p>';
   return `<section class="card section trend-card"><div class="card-pad stack"><h2 class="subhead">${esc(weekNo)}. heti trend</h2>${body}</div></section>`;
  }
  function swapHaystack(r){
   return [r.name_hu, r.pwa_title, ...(r.search_helper?.ingredient_names_hu || []), ...(r.search_helper?.keywords_hu || [])].join(' ').toLowerCase();
+ }
+ function openIngredientSwap(dayId, slot, recipeId, fromId){
+  const recipe = recipesById.get(recipeId); if(!recipe) return;
+  const baseIng = (recipe.ingredients || []).find(i => i.ingredient_id === fromId);
+  const cat = ingredientById.get(fromId);
+  const cands = cat?.substitution_candidates || [];
+  const ov = ingOverridesFor(dayId, slot);
+  const current = ov[fromId];
+  const origAmount = baseIng?.amount || 0;
+  const curAmount = current?.amount ?? origAmount;
+  openSheet('Alapanyag cseréje', `
+   <div class="sheet-section"><p><b>${esc(cat?.name_hu || fromId)}</b> cseréje ehhez az étkezéshez. Eredeti mennyiség: ${esc(origAmount)} g. A csere csak erre a napra szól, és bármikor visszaállítható.</p></div>
+   <div class="sheet-section"><label class="ing-amount-row">Mennyiség (g)<input type="number" id="ingSwapAmount" min="1" max="2000" step="5" value="${esc(curAmount)}"></label></div>
+   <div class="sheet-section stack swap-list">
+    ${current ? `<button class="ghost-btn wide" data-action="resetIngredientSwap" data-day="${esc(dayId)}" data-slot="${esc(slot)}" data-from="${esc(fromId)}" data-recipe="${esc(recipeId)}">Eredeti alapanyag visszaállítása</button>` : ''}
+    ${cands.map(c => {
+      const warns = swapWarnings(fromId, c.ingredient_id);
+      return `<button class="swap-option ${current && current.to === c.ingredient_id ? 'active' : ''}" data-action="chooseIngredientSwap" data-day="${esc(dayId)}" data-slot="${esc(slot)}" data-recipe="${esc(recipeId)}" data-from="${esc(fromId)}" data-to="${esc(c.ingredient_id)}">
+       <span class="swap-option-main"><b>${esc(c.name_hu)}</b><em>${esc(macroPreview(c.ingredient_id, curAmount))}</em>${warns.length ? `<em class="ing-warn">⚠ ${esc(warns.join(', '))} szempontból kedvezőtlenebb</em>` : ''}</span>
+      </button>`;
+    }).join('') || '<p class="small-muted">Ehhez az alapanyaghoz nincs cserejelölt.</p>'}
+   </div>
+  `);
+ }
+ function chooseIngredientSwap(dayId, slot, recipeId, fromId, toId){
+  const recipe = recipesById.get(recipeId);
+  const baseIng = recipe && (recipe.ingredients || []).find(i => i.ingredient_id === fromId);
+  const amt = Math.max(1, Math.round(Number($('#ingSwapAmount')?.value) || baseIng?.amount || 0));
+  const key = ingOverKey(dayId, slot);
+  ingredientOverrides[key] = ingredientOverrides[key] || {};
+  ingredientOverrides[key][fromId] = {to:toId, amount:amt};
+  writeStore(storeKeys.ingredientOverrides, ingredientOverrides);
+  render();
+  openRecipe(recipeId, {dayId, slot});
+  toast('Alapanyag lecserélve.');
+ }
+ function resetIngredientSwap(dayId, slot, fromId, recipeId){
+  const key = ingOverKey(dayId, slot);
+  if(ingredientOverrides[key]){ delete ingredientOverrides[key][fromId]; if(!Object.keys(ingredientOverrides[key]).length) delete ingredientOverrides[key]; }
+  writeStore(storeKeys.ingredientOverrides, ingredientOverrides);
+  render();
+  openRecipe(recipeId, {dayId, slot});
+  toast('Eredeti alapanyag visszaállítva.');
  }
  function openSwap(dayId, slot){
   const day = allDays.find(d => d.day_id === dayId) || selectedDay();
@@ -1577,6 +1720,7 @@ function heroFullDateLabel(day){
   if(type === 'favorites' || type === 'all'){ favorites = {}; localStorage.removeItem(storeKeys.favorites); }
   if(type === 'tracking' || type === 'all'){ trackingEntries = {}; localStorage.removeItem(storeKeys.tracking); }
   if(type === 'mealOverrides' || type === 'all'){ mealOverrides = {}; localStorage.removeItem(storeKeys.mealOverrides); }
+  if(type === 'ingredientOverrides' || type === 'all'){ ingredientOverrides = {}; localStorage.removeItem(storeKeys.ingredientOverrides); }
   if(type === 'settings' || type === 'all'){
    settings = {...settings, onboardingCompleted:false, dietStartDate:todayIso(), cycleModuleEnabled:true, cycleStartDate:todayIso(), cycleLengthDays:28, periodLengthDays:5, pmsWindowDays:4, waterGoalMl:2500, trackingMode:'detailed'};
    localStorage.removeItem(storeKeys.settings);
@@ -1670,7 +1814,7 @@ function heroFullDateLabel(day){
    const meal = base ? effectiveMeal(day, base) : null;
    if(meal){ const k = mealKey(day, meal); mealChecks[k] = !mealChecks[k]; writeStore(storeKeys.mealChecks, mealChecks); render(); }
   }
-  if(action === 'openRecipe') openRecipe(el.dataset.recipe || el.closest('[data-recipe]')?.dataset.recipe);
+  if(action === 'openRecipe'){ const host = el.closest('[data-recipe]'); openRecipe(el.dataset.recipe || host?.dataset.recipe, {dayId: el.dataset.day || host?.dataset.day, slot: el.dataset.slot || host?.dataset.slot}); }
   if(action === 'prevDay'){ ui.selectedDayNumber = Math.max(1, (selectedDay().globalDayNumber || 1) - 1); render({resetTop:true}); }
   if(action === 'nextDay'){ ui.selectedDayNumber = Math.min(28, (selectedDay().globalDayNumber || 1) + 1); render({resetTop:true}); }
   if(action === 'openDayPicker') openDayPicker();
@@ -1861,6 +2005,9 @@ function heroFullDateLabel(day){
   if(action === 'doReset') doReset(el.dataset.reset);
   if(action === 'goHome'){ if(!$('#sheet').hidden) closeSheet(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); }
   if(action === 'openSwap'){ event.stopPropagation(); openSwap(el.dataset.day, el.dataset.slot); }
+  if(action === 'openIngredientSwap'){ event.stopPropagation(); openIngredientSwap(el.dataset.day, el.dataset.slot, el.dataset.recipe, el.dataset.from); }
+  if(action === 'chooseIngredientSwap') chooseIngredientSwap(el.dataset.day, el.dataset.slot, el.dataset.recipe, el.dataset.from, el.dataset.to);
+  if(action === 'resetIngredientSwap') resetIngredientSwap(el.dataset.day, el.dataset.slot, el.dataset.from, el.dataset.recipe);
   if(action === 'chooseSwap') chooseSwap(el.dataset.day, el.dataset.slot, el.dataset.recipe);
   if(action === 'resetSwap') resetSwap(el.dataset.day, el.dataset.slot);
   if(action === 'exportData') exportData();
