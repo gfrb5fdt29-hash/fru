@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v46-today-focus-week-active';
+const CACHE_NAME = 'balance1600-v47-tracking-shopping-header';
 const APP_ASSETS = [
   './',
   './index.html',

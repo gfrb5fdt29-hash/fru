@@ -4936,3 +4936,179 @@ body[data-active-tab="weeks"] .uniform-week-tabs .week-card.active::after{
   .uniform-week-tabs .week-card,
   body[data-active-tab="weeks"] .uniform-week-tabs .week-card{min-height:44px!important;font-size:12px!important;}
 }
+
+
+/* v47 — célzott finomítás: napló/bevásárlás hétválasztók zárva indulnak, header picit nagyobb + Fruzsinak rózsaszín + szív. */
+.topbar .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{
+  grid-template-columns:minmax(0,1fr) auto max-content!important;
+  gap:6px!important;
+  min-height:50px!important;
+  padding:8px 8px!important;
+}
+.topbar .header-title-box .brand-title-main,
+body[data-active-tab] .topbar .header-title-box .brand-title-main{
+  font-size:clamp(11.2px,3.16vw,13.05px)!important;
+  line-height:1.04!important;
+}
+.topbar .header-title-box .brand-title-sub,
+body[data-active-tab] .topbar .header-title-box .brand-title-sub{
+  font-size:clamp(9.25px,2.66vw,10.9px)!important;
+  line-height:1.06!important;
+}
+.topbar .header-title-box .brand-title-main,
+.topbar .header-title-box .brand-title-sub,
+body[data-active-tab] .topbar .header-title-box .brand-title-main,
+body[data-active-tab] .topbar .header-title-box .brand-title-sub{
+  overflow:visible!important;
+  text-overflow:clip!important;
+  max-width:none!important;
+}
+.topbar .brand-fruzsi,
+body[data-active-tab] .topbar .brand-fruzsi{
+  color:#ff3fa9!important;
+  -webkit-text-fill-color:#ff3fa9!important;
+  font-weight:960!important;
+  text-shadow:0 0 10px rgba(255,63,169,.48),0 0 18px rgba(255,63,169,.22)!important;
+}
+.topbar .header-heart,
+body[data-active-tab] .topbar .header-heart{
+  display:inline-grid!important;
+  place-items:center!important;
+  justify-self:center!important;
+  align-self:center!important;
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  font-size:13px!important;
+  line-height:1!important;
+  color:#ff314f!important;
+  -webkit-text-fill-color:#ff314f!important;
+  background:radial-gradient(circle at 38% 28%,rgba(255,255,255,.22),rgba(255,49,79,.08) 48%,rgba(255,49,79,.03) 100%)!important;
+  border:1px solid rgba(255,49,79,.24)!important;
+  box-shadow:0 0 14px rgba(255,49,79,.28),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.topbar .header-date,
+body[data-active-tab] .topbar .header-date{
+  padding:6px 7px!important;
+}
+body[data-active-tab="tracking"] .weekly-summary-card{
+  display:none!important;
+}
+.tracking-week-row:not(.open) .tracking-week-days,
+.shopping-week-row:not(.open) .tracking-week-days{
+  display:none!important;
+}
+body[data-active-tab="tracking"] .tracking-week-row:not(.open):not(.active) .tracking-week-bar,
+body[data-active-tab="shopping"] .tracking-week-row:not(.open):not(.active) .tracking-week-bar{
+  opacity:.96!important;
+}
+@media (max-width:390px){
+  .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{gap:5px!important;padding:7px 6px!important;min-height:48px!important;}
+  .topbar .header-heart,
+  body[data-active-tab] .topbar .header-heart{width:18px!important;height:18px!important;font-size:12px!important;}
+  .topbar .header-title-box .brand-title-main,
+  body[data-active-tab] .topbar .header-title-box .brand-title-main{font-size:clamp(10.65px,3.02vw,11.85px)!important;}
+  .topbar .header-title-box .brand-title-sub,
+  body[data-active-tab] .topbar .header-title-box .brand-title-sub{font-size:clamp(8.78px,2.52vw,9.98px)!important;}
+  .topbar .header-date,
+  body[data-active-tab] .topbar .header-date{font-size:9.25px!important;padding:5px 5px!important;}
+}
+@media (max-width:360px){
+  .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{gap:4px!important;padding-left:5px!important;padding-right:5px!important;}
+  .topbar .header-heart,
+  body[data-active-tab] .topbar .header-heart{width:16px!important;height:16px!important;font-size:11px!important;}
+  .topbar .header-title-box .brand-title-main,
+  body[data-active-tab] .topbar .header-title-box .brand-title-main{font-size:10.15px!important;letter-spacing:-.27px!important;}
+  .topbar .header-title-box .brand-title-sub,
+  body[data-active-tab] .topbar .header-title-box .brand-title-sub{font-size:8.42px!important;letter-spacing:-.27px!important;}
+  .topbar .header-date,
+  body[data-active-tab] .topbar .header-date{font-size:8.45px!important;padding:5px 4px!important;}
+}
+
+/* v47b — header-compact specifikus felülírás: a dátum a címblokkon belül marad, a szív a cím és dátum között. */
+.topbar .brand-block.brand-box.header-brand-layout,
+.topbar.header-compact .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar.header-compact .brand-block.brand-box.header-brand-layout{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto max-content!important;
+  align-items:center!important;
+  gap:6px!important;
+  min-height:50px!important;
+  max-height:none!important;
+  padding:8px 8px!important;
+}
+.topbar.header-compact .header-title-box.brand-title.soft-diet-title,
+body[data-active-tab] .topbar.header-compact .header-title-box.brand-title.soft-diet-title{
+  display:block!important;
+  overflow:visible!important;
+}
+.topbar.header-compact .header-heart,
+body[data-active-tab] .topbar.header-compact .header-heart{
+  display:inline-grid!important;
+}
+.topbar.header-compact .header-date,
+body[data-active-tab] .topbar.header-compact .header-date{
+  position:static!important;
+  transform:none!important;
+  justify-self:end!important;
+  align-self:center!important;
+}
+@media (max-width:390px){
+  .topbar .brand-block.brand-box.header-brand-layout,
+  .topbar.header-compact .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar.header-compact .brand-block.brand-box.header-brand-layout{gap:5px!important;padding:7px 6px!important;min-height:48px!important;}
+}
+@media (max-width:360px){
+  .topbar .brand-block.brand-box.header-brand-layout,
+  .topbar.header-compact .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar.header-compact .brand-block.brand-box.header-brand-layout{gap:4px!important;padding-left:5px!important;padding-right:5px!important;}
+}
+
+/* v47c — extra keskeny iPhone/small viewport biztonság: cím teljesen olvasható, gombok maradnak kattinthatók. */
+@media (max-width:340px){
+  .topbar,
+  body[data-active-tab] .topbar,
+  .topbar.header-compact,
+  body[data-active-tab] .topbar.header-compact{gap:4px!important;padding-left:5px!important;padding-right:5px!important;}
+  .topbar .top-actions,
+  body[data-active-tab] .topbar .top-actions{gap:4px!important;}
+  .topbar .icon-btn.glow-icon,
+  .topbar.header-compact .icon-btn.glow-icon,
+  body[data-active-tab] .topbar .icon-btn.glow-icon,
+  body[data-active-tab] .topbar.header-compact .icon-btn.glow-icon{width:36px!important;height:36px!important;min-width:36px!important;border-radius:14px!important;}
+  .topbar .icon-btn.glow-icon .top-icon,
+  .topbar.header-compact .top-icon,
+  body[data-active-tab] .topbar .top-icon,
+  body[data-active-tab] .topbar.header-compact .top-icon{width:25px!important;height:25px!important;}
+  .topbar .brand-block.brand-box.header-brand-layout,
+  .topbar.header-compact .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout,
+  body[data-active-tab] .topbar.header-compact .brand-block.brand-box.header-brand-layout{gap:3px!important;padding:6px 4px!important;min-height:47px!important;}
+  .topbar .header-title-box .brand-title-main,
+  body[data-active-tab] .topbar .header-title-box .brand-title-main{font-size:9.55px!important;letter-spacing:-.33px!important;}
+  .topbar .header-title-box .brand-title-sub,
+  body[data-active-tab] .topbar .header-title-box .brand-title-sub{font-size:7.65px!important;letter-spacing:-.34px!important;}
+  .topbar .header-heart,
+  body[data-active-tab] .topbar .header-heart{width:14px!important;height:14px!important;font-size:10px!important;}
+  .topbar .header-date,
+  body[data-active-tab] .topbar .header-date{font-size:7.95px!important;padding:4px 3px!important;min-height:24px!important;}
+}
+
+/* v47d — zárt hétválasztón is látszódjon, melyik hét tartozik a kijelölt naphoz. */
+body[data-active-tab="tracking"] .tracking-week-row.has-selected:not(.open) .tracking-week-bar,
+body[data-active-tab="shopping"] .shopping-week-row.has-selected:not(.open) .tracking-week-bar{
+  border-color:rgba(var(--ocean-gold-rgb,255,210,124),.48)!important;
+  background:linear-gradient(145deg,rgba(var(--ocean-gold-rgb,255,210,124),.13),rgba(3,24,34,.86))!important;
+  box-shadow:0 0 18px rgba(var(--ocean-gold-rgb,255,210,124),.13),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+body[data-active-tab="tracking"] .tracking-week-row.has-selected:not(.open) .tracking-week-bar span,
+body[data-active-tab="shopping"] .shopping-week-row.has-selected:not(.open) .tracking-week-bar span{
+  color:#fff2c9!important;
+}

@@ -45,6 +45,10 @@
  let trackingEntries = readStore(storeKeys.tracking, {});
  const defaultUi = {activeTab:'today', selectedDayNumber:null, activeWeek:1, shoppingView:'today', shoppingWeek:1, shoppingDayNumber:null, shoppingMergeDays:[], onlyOpen:false, recipeSearch:'', recipeFilters:[], dayReturnTab:'weeks', trackingWeek:1};
  let ui = {...defaultUi, ...readStore(storeKeys.ui, {})};
+ // A hétválasztók alapból zárva indulnak; a lenyitott állapot nem kerül mentésre,
+ // így új megnyitáskor nem marad beragadva a nyitott lista.
+ let trackingOpenWeek = null;
+ let shoppingOpenWeek = null;
  let navStack = [];
 
  function snapshotUi(){
@@ -813,8 +817,8 @@
   return `<div class="tracking-accordion">
    ${weeks.map(w => {
     const weekDays = allDays.filter(d => d.week === w.week);
-    const open = Number(w.week) === activeWeek;
-    return `<div class="tracking-week-row ${open ? 'open active' : ''}">
+    const open = Number(w.week) === Number(trackingOpenWeek);
+    return `<div class="tracking-week-row ${open ? 'open active' : ''} ${Number(w.week) === activeWeek ? 'has-selected' : ''}">
      <button class="tracking-week-bar" data-action="trackingWeekToggle" data-week="${w.week}" aria-expanded="${open ? 'true' : 'false'}">
       <span>${w.week}. hét</span>
       <i class="week-chevron" aria-hidden="true">${open ? '⌃' : '⌄'}</i>
@@ -831,7 +835,7 @@
   return `<div class="tracking-accordion shopping-accordion">
    ${weeks.map(w => {
     const weekDays = allDays.filter(d => d.week === w.week);
-    const open = Number(w.week) === activeWeek;
+    const open = Number(w.week) === Number(shoppingOpenWeek);
     const hasActive = weekDays.some(d => nums.has(d.globalDayNumber));
     return `<div class="tracking-week-row shopping-week-row ${open ? 'open active' : ''} ${hasActive ? 'has-selected' : ''}">
      <button class="tracking-week-bar" data-action="shoppingWeekToggle" data-week="${w.week}" aria-expanded="${open ? 'true' : 'false'}">
@@ -1033,7 +1037,6 @@
     <p class="small-muted">Válassz hetet és napot, majd vezesd a részletes napi naplót. Minden bejegyzés csak ezen a készüléken marad.</p>
     ${trackingWeekAccordionSelector(day)}
    </section>
-   ${weeklyTrackingSummaryHtml(day.week)}
    <section class="card section"><div class="card-pad">
     <h2 class="headline">${esc(fullDateLabel(day))} naplója</h2>
     <p class="small-muted">${esc(planDayLabel(day))} · ${esc(day.daily_focus_hu || 'részletes napi követés')}</p>
@@ -1335,6 +1338,8 @@
   }
   if(action === 'trackingWeekToggle'){
    const weekNo = Number(el.dataset.week);
+   const isOpen = Number(trackingOpenWeek) === weekNo;
+   trackingOpenWeek = isOpen ? null : weekNo;
    ui.trackingWeek = weekNo;
    const current = selectedDay();
    if(!current || Number(current.week) !== weekNo){
@@ -1345,6 +1350,7 @@
   }
   if(action === 'trackingWeek'){
    ui.trackingWeek = Number(el.dataset.week);
+   trackingOpenWeek = ui.trackingWeek;
    const first = allDays.find(d => d.week === ui.trackingWeek);
    if(first) ui.selectedDayNumber = first.globalDayNumber;
    render({resetTop:true});
@@ -1352,20 +1358,21 @@
   if(action === 'trackingDay'){
    const n = Number(el.dataset.daynum);
    const d = allDays.find(day => day.globalDayNumber === n);
-   if(d){ ui.selectedDayNumber = n; ui.trackingWeek = d.week; render({noAnimate:true}); }
+   if(d){ ui.selectedDayNumber = n; ui.trackingWeek = d.week; trackingOpenWeek = d.week; render({noAnimate:true}); }
   }
   if(action === 'shoppingWeekToggle'){
    const weekNo = Number(el.dataset.week);
+   shoppingOpenWeek = Number(shoppingOpenWeek) === weekNo ? null : weekNo;
    ui.shoppingWeek = weekNo;
    writeStore(storeKeys.ui, ui);
    render();
   }
   if(action === 'shoppingView'){ ui.shoppingView = el.dataset.view; render({resetTop:true}); }
-  if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); render({resetTop:true}); }
+  if(action === 'shoppingWeek'){ ui.shoppingWeek = Number(el.dataset.week); shoppingOpenWeek = null; render({resetTop:true}); }
   if(action === 'setShoppingDay'){
    const n = Number(el.dataset.daynum);
    const d = allDays.find(day => day.globalDayNumber === n);
-   if(d){ ui.shoppingDayNumber = n; ui.shoppingWeek = d.week; writeStore(storeKeys.ui, ui); render({resetTop:true}); }
+   if(d){ ui.shoppingDayNumber = n; ui.shoppingWeek = d.week; shoppingOpenWeek = d.week; writeStore(storeKeys.ui, ui); render({resetTop:true}); }
   }
   if(action === 'toggleMergeDay'){
    const n = Number(el.dataset.daynum);
@@ -1378,7 +1385,7 @@
    }
    ui.shoppingMergeDays = Array.from(set).sort((a,b)=>a-b);
    const d = allDays.find(day => day.globalDayNumber === n);
-   if(d){ ui.shoppingWeek = d.week; ui.shoppingDayNumber = n; }
+   if(d){ ui.shoppingWeek = d.week; ui.shoppingDayNumber = n; shoppingOpenWeek = d.week; }
    writeStore(storeKeys.ui, ui); renderShopping();
   }
   if(action === 'clearMergeDays'){
@@ -1466,7 +1473,7 @@
   updateHeaderDate();
   window.addEventListener('scroll', updateHeaderCompact, {passive:true});
   updateHeaderCompact();
-  $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; if(changed) pushNavState(); ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'today') ui.selectedDayNumber = null; if(btn.dataset.tab === 'tracking') ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
+  $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { const changed = ui.activeTab !== btn.dataset.tab; if(changed) pushNavState(); ui.activeTab = btn.dataset.tab; if(btn.dataset.tab === 'today') ui.selectedDayNumber = null; if(btn.dataset.tab === 'tracking'){ ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; trackingOpenWeek = null; } if(btn.dataset.tab === 'shopping') shoppingOpenWeek = null; writeStore(storeKeys.ui, ui); render({resetTop:changed}); }));
   $('#todayBtn').addEventListener('click', () => { if(!$('#sheet').hidden) closeSheet(); if(ui.activeTab !== 'today') pushNavState(); ui.selectedDayNumber = null; ui.activeTab = 'today'; render({resetTop:true}); });
   $('#settingsBtn').addEventListener('click', openSettingsSheet);
   $('#sheetClose').addEventListener('click', closeSheet);
