@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v52-trend-swapui';
+const CACHE_NAME = 'balance1600-v53-trend-rows';
 const APP_ASSETS = [
   './',
   './index.html',
