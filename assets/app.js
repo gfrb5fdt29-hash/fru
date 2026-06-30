@@ -251,8 +251,9 @@
  function weekdayLower(day){ return weekdayHu(actualDateForDay(day)).toLowerCase(); }
  function calendarShort(date){ return date.toLocaleDateString('hu-HU', {month:'long', day:'numeric'}); }
  function headerTodayDateLabel(){
-  const raw = new Date().toLocaleDateString('hu-HU', {month:'long', day:'numeric'}).replace(/\.$/, '');
-  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : '';
+  const raw = new Date().toLocaleDateString('hu-HU', {month:'long', day:'numeric'}).trim();
+  const label = raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : '';
+  return /\d\.$/.test(label) ? label : label.replace(/(\d)$/, '$1.');
  }
  function updateHeaderDate(){
   const el = $('#headerTodayDate');

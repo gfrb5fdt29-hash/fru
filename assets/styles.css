@@ -3286,3 +3286,122 @@ body[data-active-tab] .topbar .brand-title.soft-diet-title.header-title-box{
   .topbar .icon-btn.glow-icon{width:36px!important;height:36px!important;min-width:36px!important;}
   .topbar .top-icon{width:24px!important;height:24px!important;}
 }
+
+/* v41 — iPhone header title/date separation fix
+   A cím és az aktuális dátum külön layout-cellában van, így nem tudnak egymásra csúszni. */
+.topbar{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  box-sizing:border-box!important;
+}
+.brand-block.brand-box.header-brand-layout{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
+  box-sizing:border-box!important;
+  padding:7px 8px!important;
+}
+.header-title-box.brand-title.soft-diet-title{
+  display:block!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:100%!important;
+  text-align:left!important;
+  line-height:1.06!important;
+  letter-spacing:-.12px!important;
+  overflow:hidden!important;
+}
+.header-title-box .brand-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:100%!important;
+}
+.header-title-box .brand-title-main,
+.header-title-box .brand-title-sub{
+  display:block!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  color:#f5fffc!important;
+  background:linear-gradient(90deg,var(--j-text,#f5fffc),var(--j-accent-3,#dffff6) 45%,var(--j-accent,#75ebcf) 76%,var(--j-text,#f5fffc))!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  color:transparent!important;
+}
+.header-title-box .brand-title-main{
+  font-size:12.6px!important;
+  font-weight:930!important;
+  line-height:1.04!important;
+}
+.header-title-box .brand-title-sub{
+  margin-top:1px!important;
+  font-size:11.35px!important;
+  font-weight:850!important;
+  line-height:1.06!important;
+  opacity:.96!important;
+}
+.header-date{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  justify-self:end!important;
+  flex:0 0 auto!important;
+  min-width:72px!important;
+  max-width:86px!important;
+  min-height:30px!important;
+  padding:7px 8px!important;
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+  font-size:11.05px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:-.08px!important;
+  color:var(--j-text,#f5fffc)!important;
+  border:1px solid rgba(var(--j-accent-rgb,117,235,207),.34)!important;
+  background:linear-gradient(145deg,rgba(var(--j-accent-rgb,117,235,207),.20),rgba(255,255,255,.07))!important;
+  box-shadow:0 0 16px rgba(var(--j-accent-rgb,117,235,207),.14),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.top-actions{
+  flex:0 0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+  min-width:max-content!important;
+  position:relative!important;
+  z-index:2!important;
+}
+.topbar .icon-btn.glow-icon{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+@media (max-width:390px){
+  .topbar{gap:6px!important;padding-left:7px!important;padding-right:7px!important;}
+  .brand-block.brand-box.header-brand-layout{gap:6px!important;padding:7px 7px!important;}
+  .header-title-box .brand-title-main{font-size:11.85px!important;}
+  .header-title-box .brand-title-sub{font-size:10.75px!important;}
+  .header-date{min-width:66px!important;max-width:78px!important;min-height:29px!important;padding:6px 7px!important;font-size:10.35px!important;}
+}
+@media (max-width:360px){
+  .topbar{gap:5px!important;padding-left:6px!important;padding-right:6px!important;}
+  .brand-block.brand-box.header-brand-layout{gap:5px!important;padding:6px 6px!important;border-radius:17px!important;}
+  .header-title-box .brand-title-main{font-size:10.9px!important;letter-spacing:-.18px!important;}
+  .header-title-box .brand-title-sub{font-size:9.95px!important;letter-spacing:-.16px!important;}
+  .header-date{min-width:58px!important;max-width:68px!important;min-height:27px!important;padding:5px 6px!important;font-size:9.5px!important;}
+  .top-actions{gap:5px!important;}
+  .topbar .icon-btn.glow-icon{width:40px!important;height:40px!important;min-width:40px!important;}
+  .topbar .icon-btn.glow-icon .top-icon{width:29px!important;height:29px!important;}
+}
+
