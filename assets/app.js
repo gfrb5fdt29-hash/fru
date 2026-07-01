@@ -1310,7 +1310,7 @@ function heroFullDateLabel(day){
  function renderTracking(){
   const day = selectedDay();
   const key = day.day_id;
-  const entry = trackingEntries[key] || {waterMl:0, reflux:0, bloating:0, histamine:0, craving:0, energy:0, mood:0, hunger:0, weightKg:null, note:''};
+  const entry = trackingEntries[key] || {waterMl:0, reflux:5, bloating:5, histamine:5, craving:5, energy:5, mood:5, hunger:5, weightKg:null, note:''};
   const p = progressForDay(day);
   const weekPct = weeklyProgress(day.week);
   const waterGoal = Number(settings.waterGoalMl || 2500);
@@ -1340,13 +1340,13 @@ function heroFullDateLabel(day){
  }
  function detailedTrackingFields(entry){
   const rows = [
-   {id:'trackReflux', label:'Reflux érzet', type:'range', value: entry.reflux ?? 0, help:'0/10 = nincs refluxérzet, 10/10 = nagyon erős / rossz.'},
-   {id:'trackBloating', label:'Puffadás', type:'range', value: entry.bloating ?? 0, help:'0/10 = nincs puffadás, 10/10 = nagyon erős / zavaró.'},
-   {id:'trackHistamine', label:'Hisztaminszerű reakció', type:'range', value: entry.histamine ?? 0, help:'0/10 = nincs reakció, 10/10 = nagyon erős tünetérzet.'},
-   {id:'trackCraving', label:'Sóvárgás / nassolási inger', type:'range', value: entry.craving ?? 0, help:'0/10 = semmi sóvárgás, 10/10 = nagyon erős inger.'},
-   {id:'trackEnergy', label:'Energia', type:'range', value: entry.energy ?? 0, help:'0/10 = nagyon alacsony energia, 10/10 = nagyon jó energiaszint.'},
-   {id:'trackMood', label:'Hangulat', type:'range', value: entry.mood ?? 0, help:'0/10 = nagyon rossz, 10/10 = nagyon jó.'},
-   {id:'trackHunger', label:'Éhség / jóllakottság', type:'range', value: entry.hunger ?? 0, help:'0/10 = egyáltalán nem vagy éhes, 10/10 = nagyon éhes vagy.'}
+   {id:'trackReflux', label:'Reflux érzet', type:'range', value: entry.reflux ?? 5, help:'0/10 = nincs refluxérzet, 10/10 = nagyon erős / rossz.'},
+   {id:'trackBloating', label:'Puffadás', type:'range', value: entry.bloating ?? 5, help:'0/10 = nincs puffadás, 10/10 = nagyon erős / zavaró.'},
+   {id:'trackHistamine', label:'Hisztaminszerű reakció', type:'range', value: entry.histamine ?? 5, help:'0/10 = nincs reakció, 10/10 = nagyon erős tünetérzet.'},
+   {id:'trackCraving', label:'Sóvárgás / nassolási inger', type:'range', value: entry.craving ?? 5, help:'0/10 = semmi sóvárgás, 10/10 = nagyon erős inger.'},
+   {id:'trackEnergy', label:'Energia', type:'range', value: entry.energy ?? 5, help:'0/10 = nagyon alacsony energia, 10/10 = nagyon jó energiaszint.'},
+   {id:'trackMood', label:'Hangulat', type:'range', value: entry.mood ?? 5, help:'0/10 = nagyon rossz, 10/10 = nagyon jó.'},
+   {id:'trackHunger', label:'Éhség / jóllakottság', type:'range', value: entry.hunger ?? 5, help:'0/10 = egyáltalán nem vagy éhes, 10/10 = nagyon éhes vagy.'}
   ];
   return rows.map(row => {
    if(row.type === 'range'){
@@ -1803,11 +1803,22 @@ function heroFullDateLabel(day){
   }
   return `<section class="card section corr-card"><div class="card-pad stack"><h2 class="subhead">Étel–tünet összefüggés</h2>${controls}${bodyHtml}</div></section>`;
  }
+ function usageGuideHtml(){
+  return `
+   <div class="sheet-section stack guide-wrap"><h3 class="subhead">Használati útmutató</h3>
+    <div class="guide-block"><b>Így használod – a fő fülek</b><span>Alul öt rész: <b>Ma</b> (mai étkezések kalóriával/makróval), <b>Naptár</b> (a 4 hét bármelyik napja), <b>Receptek</b> (keresés, szűrők, kedvencek ★), <b>Bevásárlás</b> (napi/heti/kamra/frissen kezelendő, napok összevonása) és <b>Napló</b> (víz, testsúly, közérzet, jegyzet, trend).</span></div>
+    <div class="guide-block"><b>Étkezések: pipa és cserék</b><span>Az étkezést a körrel <b>pipálod ki</b>, ha megetted — ebből számol haladást. Egy fogásra koppintva megnyílik a recept: a <b>„⇄ Csere másik fogásra"</b> az egész ételt cseréli, a hozzávalóknál a <b>„csere"</b> egy alapanyagot (pl. cukkini→répa). A kalória/makró és a bevásárlás is követi; kevésbé kímélő csere esetén figyelmeztet. Minden csere csak az adott napra szól és visszavonható.</span></div>
+    <div class="guide-block"><b>Napló és heti trend</b><span>Egy dobozban rögzíted a <b>vizet</b>, a <b>testsúlyt</b>, a <b>közérzetet</b> (reflux, puffadás, hisztamin, sóvárgás, energia, hangulat, éhség) és egy <b>jegyzetet</b> — egyetlen mentéssel. Lent a <b>heti trend</b>: a tünetek <b>hőtérképe</b> (zöld = jó, piros = rossz), az energia/jóllakottság/hangulat és a víz grafikonja, a <b>testsúly alakulása</b>, és az <b>Étel–tünet összefüggés</b> (gyanús alapanyagok, egy koppintással <b>személyes triggerré</b> téve).</span></div>
+    <div class="guide-block"><b>Ciklus, körök és mentés</b><span>A ciklusfázis a megadott adatokból számol; a Napló <b>ciklus-áttekintése</b> megbecsüli a következő menstruációt és ovulációt. A 28. nap végén jön a mentés és egy <b>új kör</b>. A Beállításokban bármikor <b>menthetsz vagy visszatölthetsz</b> egy fájlból.</span></div>
+    <div class="guide-block"><b>Dátumlogika</b><span>Az app a telefon dátumából számolja, hogy ma a 28 napos terv hányadik napja fut; 28 nap után automatikusan újraindul.</span></div>
+   </div>`;
+ }
  function openSettingsSheet(){
   const copy = DATA.app_copy_hu || {};
   openSheet('Beállítások', `
    <div class="sheet-section"><h3 class="headline">28 napos étrend</h3><p>Kímélő 28 napos étrend. Internet nélkül is használható, és nincs bejelentkezés.</p><p><b>Minden naplód csak ezen a készüléken marad.</b></p></div>
    <div class="sheet-section">${dateLogicHelpHtml()}</div>
+   ${usageGuideHtml()}
    <div class="sheet-section stack settings-form">
     <label>Kezdőnap<input type="date" id="setDietStart" value="${esc(settings.dietStartDate)}"></label>
     <label>Napi vízcél literben<input type="number" id="setWaterGoal" min="1" max="5" step="0.1" value="${esc((settings.waterGoalMl||2500)/1000)}"></label>

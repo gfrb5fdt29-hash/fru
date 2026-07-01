@@ -5617,3 +5617,37 @@ body[data-active-tab="today"] .hero .day-switch .ghost-btn:active{
 .header-title-btn{appearance:none;background:none;border:none;color:inherit;cursor:pointer;text-align:left;padding:0;font:inherit}
 .header-date-btn{appearance:none;background:none;border:none;color:inherit;cursor:pointer;font:inherit;padding:0}
 .header-title-btn:active,.header-date-btn:active{opacity:.7}
+
+/* === Fejléc: 2 soros cím, mellette szív + dátum, minden elfér === */
+.topbar .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{
+  display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:8px!important;flex:1 1 auto!important;min-width:0!important;
+}
+.topbar .header-title-box.brand-title.soft-diet-title,
+body[data-active-tab] .topbar .header-title-box.brand-title.soft-diet-title{
+  flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;overflow:visible!important;
+}
+.topbar .header-title-box .brand-copy,
+body[data-active-tab] .topbar .header-title-box .brand-copy{display:flex!important;flex-direction:column!important;min-width:0!important;overflow:visible!important;}
+.topbar .header-title-box .brand-title-main,
+body[data-active-tab] .topbar .header-title-box .brand-title-main{
+  display:block!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  line-height:1.12!important;font-size:clamp(13px,3.9vw,16px)!important;font-weight:900!important;
+}
+.topbar .header-title-box .brand-title-main br{display:block!important;}
+.topbar .header-heart,body[data-active-tab] .topbar .header-heart{flex:0 0 auto!important;}
+.topbar .header-date,body[data-active-tab] .topbar .header-date{flex:0 0 auto!important;justify-self:auto!important;}
+
+/* === Onboarding howto: olvashatóbb tördelés === */
+.onboarding .onboarding-card{gap:11px!important;}
+.onboarding .onboarding-help{padding:13px 14px!important;gap:6px!important;border-radius:16px!important;margin:0!important;}
+.onboarding .onboarding-help b{display:block!important;font-size:13.5px!important;line-height:1.25!important;margin-bottom:2px!important;}
+.onboarding .onboarding-help span{display:block!important;font-size:12.9px!important;line-height:1.5!important;color:#d5e3f3!important;}
+.onboarding .onboarding-help span b{display:inline!important;font-size:inherit!important;line-height:inherit!important;margin:0!important;color:#ffe6bd!important;font-weight:700!important;}
+
+/* Használati útmutató blokkok (beállítások + újrahasznosítható) */
+.guide-wrap{gap:9px}
+.guide-block{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04);padding:12px 13px}
+.guide-block b{display:block;color:#ffe2b3;font-size:13.5px;margin-bottom:3px;line-height:1.25}
+.guide-block span{display:block;color:#d5e3f3;font-size:12.9px;line-height:1.5}
+.guide-block span b{display:inline;color:#ffe6bd;font-size:inherit;margin:0}
