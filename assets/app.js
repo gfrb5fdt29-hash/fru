@@ -1322,24 +1322,12 @@ function heroFullDateLabel(day){
     <div class="week-tabs uniform-week-tabs tracking-week-tabs">${weeks.map(w => `<button class="week-card week-select ${Number(w.week) === Number(day.week || ui.trackingWeek || 1) ? 'active' : ''}" data-action="trackingWeek" data-week="${w.week}"><b>${w.week}. hét</b></button>`).join('')}</div>
     <div class="tracking-day-grid naplo-day-grid">${allDays.filter(d => Number(d.week) === Number(day.week || ui.trackingWeek || 1)).map(d => `<button class="tracking-day-btn ${Number(d.globalDayNumber) === Number(day.globalDayNumber) ? 'active' : ''}" data-action="trackingDay" data-daynum="${d.globalDayNumber}"><b>${d.day_number_in_week}. nap</b><span>${esc(dayDisplayName(d))}</span></button>`).join('')}</div>
    </section>
-   <section class="card section note-card"><div class="card-pad stack">
-    <h2 class="subhead">Jegyzet</h2>
-    <p class="small-muted">${esc(fullDateLabel(day))} · ${esc(planDayLabel(day))}</p>
-    <textarea class="note-area" id="trackNote" placeholder="Rövid saját megjegyzés a mai naphoz">${esc(entry.note || '')}</textarea>
-   </div></section>
-   <section class="card section water-card"><div class="card-pad stack">
-    <h2 class="subhead">Víz</h2>
-    <p class="small-muted">Állítsd be csúszkával, mennyi folyadék ment le ma. A lépték 0,5 liter.</p>
-    <label class="range-row tracking-range water-range"><span>Mai víz</span><input id="waterRange" type="range" min="0" max="${waterMaxLiters}" step="0.5" value="${esc(waterLiters)}" /><small class="range-value" data-range-value-for="waterRange" data-range-unit="l">${formatHuNumber(waterLiters,1)} l</small><em class="range-help">0 l = még nincs rögzítve. A csúszka 0,5 literenként állítható.</em></label>
-    <div class="water-actions"><button class="ghost-btn water-reset" data-action="setWater" data-value="0">Víz nullázása</button><button class="primary-btn water-save" data-action="saveWater">Mentés</button></div>
-   </div></section>
-   <section class="card section weight-card"><div class="card-pad stack">
-    <h2 class="subhead">Testsúly</h2>
-    <label class="ing-amount-row">Mai testsúly (kg, opcionális)<input type="number" id="trackWeight" min="30" max="200" step="0.1" inputmode="decimal" value="${entry.weightKg != null ? esc(entry.weightKg) : ''}" placeholder="pl. 82,5"></label>
-   </div></section>
-   <section class="card section"><div class="card-pad stack">
-    <h2 class="subhead">Mai közérzet</h2>
+   <section class="card section naplo-box"><div class="card-pad stack">
+    <h2 class="subhead">${esc(fullDateLabel(day))} naplója</h2>
+    <label class="range-row tracking-range water-range"><span>Mai víz</span><input id="waterRange" type="range" min="0" max="${waterMaxLiters}" step="0.5" value="${esc(waterLiters)}" /><small class="range-value" data-range-value-for="waterRange" data-range-unit="l">${formatHuNumber(waterLiters,1)} l</small><em class="range-help">A csúszka 0,5 literenként állítható.</em></label>
+    <label class="ing-amount-row weight-field">Testsúly (kg, opcionális)<input type="number" id="trackWeight" min="30" max="200" step="0.1" inputmode="decimal" value="${entry.weightKg != null ? esc(entry.weightKg) : ''}" placeholder="pl. 82,5"></label>
     ${detailedTrackingFields(entry)}
+    <label class="note-label">Jegyzet<textarea class="note-area" id="trackNote" placeholder="Rövid saját megjegyzés a mai naphoz">${esc(entry.note || '')}</textarea></label>
     <button class="primary-btn wide" data-action="saveTracking">Napló mentése</button>
    </div></section>
    ${cyclePredictionHtml()}
@@ -1347,7 +1335,8 @@ function heroFullDateLabel(day){
    ${weightTrendHtml()}
    ${correlationHtml()}
    ${phaseSymptomAveragesHtml()}
-   ${weeklyTrackingSummaryHtml(Number(day.week || ui.trackingWeek || 1))}`;
+   ${weeklyTrackingSummaryHtml(Number(day.week || ui.trackingWeek || 1))}
+   <div class="footer-space"></div>`;
  }
  function detailedTrackingFields(entry){
   const rows = [
@@ -2173,6 +2162,8 @@ function heroFullDateLabel(day){
   if(action === 'openRoundEnd') openRoundEnd();
   if(action === 'restartRoundFresh') restartRound(true);
   if(action === 'restartRoundKeep') restartRound(false);
+  if(action === 'headerTitle'){ if(!$('#sheet').hidden) closeSheet(); if(ui.activeTab !== 'tracking') pushNavState(); ui.activeTab = 'tracking'; ui.trackingWeek = selectedDay().week || ui.trackingWeek || 1; trackingOpenWeek = null; writeStore(storeKeys.ui, ui); render({resetTop:true}); }
+  if(action === 'headerDate'){ if(!$('#sheet').hidden) closeSheet(); if(ui.activeTab !== 'weeks') pushNavState(); ui.activeTab = 'weeks'; ui.activeWeek = selectedDay().week || ui.activeWeek || 1; writeStore(storeKeys.ui, ui); render({resetTop:true}); }
   if(action === 'openSettings') openSettingsSheet();
   if(action === 'closeSheet') closeSheet();
  }

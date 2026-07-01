@@ -18,14 +18,13 @@
   <div class="app-shell" id="appShell">
     <header class="topbar" aria-label="Felső sáv">
       <div class="brand-block brand-box header-brand-layout">
-        <div class="brand-title soft-diet-title header-title-box">
+        <button class="brand-title soft-diet-title header-title-box header-title-btn" data-action="headerTitle" aria-label="Napló megnyitása">
           <span class="brand-copy">
-            <span class="brand-title-main">28 napos étrend naplóval</span>
-            <span class="brand-title-sub">közérzetkövetéssel <span class="brand-fruzsi">Fruzsinak</span></span>
+            <span class="brand-title-main">Fruzsi étrend &amp; egészségnaplója</span>
           </span>
-        </div>
+        </button>
         <span class="header-heart" aria-hidden="true">♥</span>
-        <span class="header-date" id="headerTodayDate" aria-label="Mai dátum"></span>
+        <button class="header-date header-date-btn" id="headerTodayDate" data-action="headerDate" aria-label="Naptár megnyitása"></button>
       </div>
       <div class="top-actions" aria-label="Gyorsgombok">
         <button class="icon-btn glow-icon settings-glow" id="settingsBtn" aria-label="Beállítások">

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v60-health-hub';
+const CACHE_NAME = 'balance1600-v63-title';
 const APP_ASSETS = [
   './',
   './index.html',
