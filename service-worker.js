@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v64-ui-polish';
+const CACHE_NAME = 'balance1600-v65-header-group';
 const APP_ASSETS = [
   './',
   './index.html',

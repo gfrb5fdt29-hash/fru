@@ -5651,3 +5651,26 @@ body[data-active-tab] .topbar .header-title-box .brand-title-main{
 .guide-block b{display:block;color:#ffe2b3;font-size:13.5px;margin-bottom:3px;line-height:1.25}
 .guide-block span{display:block;color:#d5e3f3;font-size:12.9px;line-height:1.5}
 .guide-block span b{display:inline;color:#ffe6bd;font-size:inherit;margin:0}
+
+/* === Fejléc: cím + szív + dátum egyetlen tömör csoport, nincs köztük üres hely === */
+.topbar .brand-block.brand-box.header-brand-layout,
+body[data-active-tab] .topbar .brand-block.brand-box.header-brand-layout{
+  display:inline-flex!important;
+  flex:0 1 auto!important;
+  width:auto!important;max-width:100%!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+}
+.topbar .top-actions,
+body[data-active-tab] .topbar .top-actions{margin-left:auto!important;}
+.topbar .header-title-box.brand-title.soft-diet-title,
+body[data-active-tab] .topbar .header-title-box.brand-title.soft-diet-title{flex:0 1 auto!important;min-width:0!important;}
+.topbar .header-title-box .brand-title-main,
+body[data-active-tab] .topbar .header-title-box .brand-title-main{
+  font-size:clamp(14px,4.1vw,16.5px)!important;line-height:1.14!important;white-space:normal!important;overflow:visible!important;
+}
+.topbar .header-heart,
+body[data-active-tab] .topbar .header-heart{flex:0 0 auto!important;font-size:18px!important;line-height:1!important;}
+.topbar .header-date,
+body[data-active-tab] .topbar .header-date{flex:0 0 auto!important;justify-self:auto!important;min-width:0!important;}
