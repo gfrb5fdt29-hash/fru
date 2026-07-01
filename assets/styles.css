@@ -5612,7 +5612,9 @@ body[data-active-tab="today"] .hero .day-switch .ghost-btn:active{
 .ing-trigger{color:#ffb3b3;font-style:normal;font-size:11px}
 .ing-trig-btn{appearance:none;border:1px solid rgba(255,159,104,.5);background:rgba(255,159,104,.1);color:#ffd0ad;border-radius:999px;padding:4px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
 .ing-trig-btn.on{background:rgba(255,159,104,.28);color:#fff}
-.trigger-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06
+.trigger-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.trig-note{color:#ffb3b3}
+
 /* Kattintható fejléc cím és dátum */
 .header-title-btn{appearance:none;background:none;border:none;color:inherit;cursor:pointer;text-align:left;padding:0;font:inherit}
 .header-date-btn{appearance:none;background:none;border:none;color:inherit;cursor:pointer;font:inherit;padding:0}
@@ -5674,3 +5676,30 @@ body[data-active-tab] .topbar .header-title-box .brand-title-main{
 body[data-active-tab] .topbar .header-heart{flex:0 0 auto!important;font-size:18px!important;line-height:1!important;}
 .topbar .header-date,
 body[data-active-tab] .topbar .header-date{flex:0 0 auto!important;justify-self:auto!important;min-width:0!important;}
+
+/* ============================================================
+   FEJLÉC v66 — friss, ütközésmentes osztályok (hdrbar-*)
+   cím + szív + dátum egyetlen tömör csoportban, ikonok jobbra
+   ============================================================ */
+.topbar .hdrbar{
+  display:inline-flex; align-items:center; gap:8px;
+  flex:0 1 auto; min-width:0;
+  padding:8px 12px; border-radius:18px;
+  background:rgba(255,255,255,.055); border:1px solid var(--line);
+  box-sizing:border-box;
+}
+.topbar .top-actions{ margin-left:auto !important; }
+.topbar .hdrbar-title{
+  appearance:none; -webkit-appearance:none; background:none; border:0; padding:0; margin:0; cursor:pointer;
+  text-align:left; font-weight:900; letter-spacing:-.2px; line-height:1.12;
+  font-size:clamp(13px,3.9vw,16px); white-space:normal; flex:0 1 auto; min-width:0;
+  background-image:linear-gradient(90deg,#f5fffc,#dffff6 45%,#75ebcf 78%,#f5fffc);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.topbar .hdrbar-heart{ flex:0 0 auto; color:#ff5a7a; font-size:17px; line-height:1; }
+.topbar .hdrbar-date{
+  appearance:none; -webkit-appearance:none; border:0; cursor:pointer; flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#1a0c00;
+  font-weight:800; font-size:12px; padding:7px 12px; border-radius:999px; white-space:nowrap;
+}
+.topbar .hdrbar-title:active,.topbar .hdrbar-date:active,.topbar .hdrbar-heart:active{opacity:.75}
