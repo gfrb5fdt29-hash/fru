@@ -1,4 +1,4 @@
-const CACHE_NAME = 'balance1600-v55-ingredient-swap';
+const CACHE_NAME = 'balance1600-v57-onboarding';
 const APP_ASSETS = [
   './',
   './index.html',

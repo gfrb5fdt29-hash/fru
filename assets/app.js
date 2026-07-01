@@ -1549,9 +1549,21 @@ function heroFullDateLabel(day){
    { key:'reflux', color:'#ff8a8a', label:'Reflux' },
    { key:'bloating', color:'#ffb35d', label:'Puffadás' },
    { key:'histamine', color:'#c89bff', label:'Hisztamin' },
-   { key:'hunger', color:'#ffd66b', label:'Éhség / jóllakottság' }
+   { key:'hunger', color:'#ffd66b', label:'Éhség' }
   ];
-  const chartA = lineChart(168, symSpecs) + legend(symSpecs);
+  function heatColor(v){ const h = Math.round(130 * (1 - Math.max(0, Math.min(10, v)) / 10)); return `hsl(${h},68%,42%)`; }
+  const hmCols = `grid-template-columns:92px repeat(${n},1fr)`;
+  const hmHead = `<div class="hm-row hm-head" style="${hmCols}"><span class="hm-label"></span>${ds.map(d => `<span class="hm-day">${esc(compactDayName(d))}</span>`).join('')}</div>`;
+  const hmRows = symSpecs.map(sp => {
+   const cells = ds.map((d, i) => {
+    const e = entries[i];
+    if(!(sp.key in e)) return `<span class="hm-cell hm-empty" aria-label="${esc(compactDayName(d))}: nincs adat"></span>`;
+    const v = Number(e[sp.key]);
+    return `<span class="hm-cell" style="background:${heatColor(v)}" aria-label="${esc(sp.label)} ${esc(compactDayName(d))}: ${esc(v)}/10">${esc(v)}</span>`;
+   }).join('');
+   return `<div class="hm-row" style="${hmCols}"><span class="hm-label">${esc(sp.label)}</span>${cells}</div>`;
+  }).join('');
+  const chartA = `<div class="heatmap">${hmHead}${hmRows}</div><div class="hm-legend"><span>0 · jó</span><i class="hm-scale"></i><span>10 · rossz</span></div>`;
   // --- 2. rész: energia (vonal) + víz (oszlop) ---
   const HB = 178, plotHB = HB - padT - padB;
   const yE = v => padT + plotHB * (1 - Math.max(0, Math.min(10, v)) / 10);
@@ -1573,7 +1585,7 @@ function heroFullDateLabel(day){
   const ePath = ePts.length ? `<path d="${ePts.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${yE(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="#43f2c1" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>${ePts.map(p => `<circle cx="${x(p.i).toFixed(1)}" cy="${yE(p.v).toFixed(1)}" r="2.8" fill="#43f2c1"></circle>`).join('')}` : '';
   const chartB = `<svg viewBox="0 0 ${W} ${HB}" width="100%" role="img" aria-label="Energia és víz">${gridB}${bars}${goalLine}${ePath}${xLabels(HB)}</svg>` + legend([{ color:'#43f2c1', label:'Energia (0–10)' }, { color:'rgba(141,185,255,.7)', label:'Víz (liter)' }]);
   const body = hasAny
-   ? `<h3 class="subhead trend-sub">Közérzet (0–10)</h3>${chartA}<h3 class="subhead trend-sub">Energia és víz</h3>${chartB}<p class="small-muted">Csak a rögzített napok jelennek meg. A szaggatott vonal a napi vízcél; a számok a vízmennyiséget jelölik literben.</p>`
+   ? `<h3 class="subhead trend-sub">Tünetek · zöld = jó, piros = rossz</h3>${chartA}<h3 class="subhead trend-sub">Energia és víz</h3>${chartB}<p class="small-muted">Csak a rögzített napok jelennek meg. A szaggatott vonal a napi vízcél; a számok a vízmennyiséget jelölik literben.</p>`
    : '<p class="small-muted">Ehhez a héthez még nincs naplóadat. Ahogy rögzíted a vizet és a közérzetet, itt jelenik meg a heti trend.</p>';
   return `<section class="card section trend-card"><div class="card-pad stack"><h2 class="subhead">${esc(weekNo)}. heti trend</h2>${body}</div></section>`;
  }
@@ -1767,6 +1779,8 @@ function heroFullDateLabel(day){
   $('#obDietStart').value = settings.dietStartDate || todayIso();
   $('#obCycleStart').value = settings.cycleStartDate || todayIso();
   $('#obCycleLength').value = settings.cycleLengthDays || 28;
+  if($('#obPeriodLength')) $('#obPeriodLength').value = settings.periodLengthDays || 5;
+  if($('#obPmsWindow')) $('#obPmsWindow').value = settings.pmsWindowDays ?? 4;
   $('#obWaterGoal').value = (settings.waterGoalMl || 2500) / 1000;
   const cycleFields = $('#obCycleFields');
   if(cycleFields) cycleFields.hidden = false;
@@ -1779,6 +1793,8 @@ function heroFullDateLabel(day){
    cycleModuleEnabled: true,
    cycleStartDate: $('#obCycleStart').value || todayIso(),
    cycleLengthDays: Number($('#obCycleLength').value || 28),
+   periodLengthDays: Number($('#obPeriodLength')?.value || 5),
+   pmsWindowDays: Number($('#obPmsWindow')?.value ?? 4),
    waterGoalMl: Math.round(Number($('#obWaterGoal').value || 2.5) * 1000),
    trackingMode: 'detailed'
   };

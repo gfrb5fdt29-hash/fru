@@ -113,31 +113,52 @@
   <section id="onboarding" class="onboarding" aria-label="Első beállítás" hidden>
     <div class="onboarding-card">
       <div class="onboarding-brand brand-title soft-diet-title"><span class="brand-text">28 napos étrend naplóval, közérzetkövetéssel Fruzsinak</span></div>
-      <p class="lead">Egy 28 napos, kímélő étrendapp napi étkezésekkel, naplóval és bevásárlással.</p>
+      <p class="lead">Kímélő, 28 napos étrend napi étkezésekkel, naplóval, bevásárlással és cserékkel. Minden adatod a telefonodon marad, internet nélkül is működik.</p>
+      <div class="onboarding-help">
+        <b>Így használod – a fő fülek</b>
+        <span>Alul öt rész között válthatsz. <b>Ma</b>: a mai nap étkezései kalóriával és makrókkal. <b>Naptár</b>: a 4 hét bármelyik napja előre böngészhető. <b>Receptek</b>: az összes fogás kereséssel, szűrőkkel és kedvencekkel (★). <b>Bevásárlás</b>: napi, heti, kamra és „frissen kezelendő” listák, több nap összevonható. <b>Napló</b>: víz, közérzet, jegyzet és a heti trend.</span>
+      </div>
+      <div class="onboarding-help">
+        <b>Étkezések: pipa és cserék</b>
+        <span>Az étkezést a jobb oldali körrel <b>pipálod ki</b>, ha megetted – az app megjegyzi, és ebből számolja a napi és heti haladást. Egy fogásra koppintva megnyílik a recept. Ott kétféle csere van: a <b>„⇄ Csere másik fogásra”</b> az egész ételt lecseréli egy azonos típusúra (kereséssel), a hozzávalóknál a <b>„csere”</b> pedig egy alapanyagot (pl. cukkinit répára). A kalória és a makrók azonnal újraszámolnak, és a bevásárlólista is követi. Ha egy csere kevésbé kímélő (reflux, hisztamin, purin, puffadás), az app figyelmeztet, de engedi. Minden csere csak az adott napra szól és visszavonható.</span>
+      </div>
+      <div class="onboarding-help">
+        <b>Napló és heti trend</b>
+        <span>A Naplóban fent hetet és napot választasz, majd beállítod a <b>vizet</b> csúszkával, és a <b>közérzetet</b> (reflux, puffadás, hisztamin, energia, éhség) 0–10-ig, plusz egy rövid <b>jegyzetet</b>. A „Napló mentése” rögzíti. Lent a <b>heti trend</b>: a tünetek színes <b>hőtérképként</b> (zöld = jó, piros = rossz), az energia és a víz pedig külön grafikonon.</span>
+      </div>
+      <div class="onboarding-help">
+        <b>Ciklus, körök és mentés</b>
+        <span>A napi ciklusfázis a megadott <b>ciklus kezdőnapból és hosszból</b> számolódik – finom kapaszkodó az ételválasztáshoz, nem szigorú szabály. A 28. nap végén az app felajánlja a mentést és egy <b>új kör</b> indítását. A Beállításokban bármikor készíthetsz <b>biztonsági mentést</b> egy fájlba, és vissza is töltheted.</span>
+      </div>
       <div class="onboarding-help date-logic-help">
-        <b>Dátumlogika és első beállítás</b>
-        <span>Válaszd ki azt a dátumot, amikor ténylegesen kezded az étrendet. Az app a telefon aktuális dátumából számolja, hogy ma a 28 napos terv hányadik napja fut. Példa: ha kedden kezded, akkor az 1. nap keddi kezdésként jelenik meg, nem fix hétfőként. A 28. nap után a terv automatikusan újraindul az 1. naptól.</span>
+        <b>Dátumlogika</b>
+        <span>Az app a telefon aktuális dátumából számolja, hogy ma a 28 napos terv hányadik napja fut. Ha kedden kezded, az 1. nap keddi kezdésként jelenik meg; 28 nap után a terv automatikusan újraindul az 1. naptól.</span>
+      </div>
+      <div class="onboarding-help ob-setup-head">
+        <b>Első beállítás</b>
+        <span>Állítsd be a kezdést és a ciklusadatokat, majd indíthatsz. Ezek később a Beállításokban bármikor módosíthatók.</span>
       </div>
       <div class="form-grid onboarding-form-grid">
         <label>Melyik napon kezded az étrendet?
           <input type="date" id="obDietStart" />
         </label>
         <div id="obCycleFields" class="nested-fields cycle-fields-open">
-          <label>Ciklus kezdőnapja
+          <label>Ciklus kezdőnapja (utolsó menstruáció első napja)
             <input type="date" id="obCycleStart" />
           </label>
           <label>Ciklushossz napokban
             <input type="number" id="obCycleLength" min="21" max="40" value="28" />
           </label>
+          <label>Menstruáció hossza napokban
+            <input type="number" id="obPeriodLength" min="2" max="10" value="5" />
+          </label>
+          <label>PMS-ablak a menstruáció előtt (nap)
+            <input type="number" id="obPmsWindow" min="0" max="10" value="4" />
+          </label>
         </div>
         <label>Napi vízcél literben
           <input type="number" id="obWaterGoal" min="1" max="5" step="0.1" value="2.5" />
         </label>
-
-      </div>
-      <div class="onboarding-help onboarding-use-card">
-        <b>App használati segédlet</b>
-        <span>Alul válthatsz a fő részek között: Ma, Naptár, Receptek, Bevásárlás és Napló. A Mai nap mutatja az aktuális étrendnapot, a Naptárban előre böngészhetsz, a Receptekben megnyithatod az elkészítést, a Bevásárlásban napokat is összevonhatsz, a Naplóban pedig víz- és közérzetadatokat vezethetsz.</span>
       </div>
       <button id="startApp" class="primary-btn wide">Kezdjük</button>
       <p class="privacy-line">Minden naplód csak ezen a készüléken marad.</p>
