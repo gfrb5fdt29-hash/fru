@@ -5562,16 +5562,6 @@ body[data-active-tab="today"] .hero .day-switch .ghost-btn:active{
 .swap-option-main{display:flex;flex-direction:column;gap:2px}
 .swap-option-main em{font-style:normal;opacity:.7;font-size:12px}
 
-/* Heti trend – metrikánkénti mini-oszlopsorok */
-.trend-rows{display:flex;flex-direction:column;gap:11px;margin-top:4px}
-.trend-row{display:flex;flex-direction:column;gap:4px}
-.trend-row-head{display:flex;align-items:center;gap:8px;font-size:12.5px}
-.trend-row-head b{font-weight:600}
-.trend-row-head em{font-style:normal;opacity:.6;margin-left:auto;font-size:11.5px}
-.trend-dot{width:11px;height:11px;border-radius:3px;display:inline-block;flex:0 0 auto}
-.trend-row svg{display:block;width:100%;height:38px}
-.trend-days{display:flex;justify-content:space-between;padding:0 1px;margin-top:4px}
-.trend-days span{font-size:9px;opacity:.5;flex:1;text-align:center}
 /* Csere kereső a bottomsheetben */
 .swap-search{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:inherit;border-radius:12px;padding:11px 14px;font-size:14px;outline:none}
 .swap-search:focus{border-color:rgba(67,242,193,.5)}
@@ -5601,3 +5591,26 @@ body[data-active-tab="today"] .hero .day-switch .ghost-btn:active{
 .hm-empty{background:rgba(255,255,255,.05);box-shadow:none;text-shadow:none}
 .hm-legend{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;opacity:.75}
 .hm-scale{flex:1;height:8px;border-radius:5px;background:linear-gradient(90deg,hsl(130,68%,42%),hsl(65,68%,42%),hsl(0,68%,42%))}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+/* Ciklusfázis-táblázat és korreláció */
+.table-wrap{overflow-x:auto}
+.phase-table{width:100%;border-collapse:collapse;font-size:12px}
+.phase-table th,.phase-table td{padding:5px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07)}
+.phase-table thead th{opacity:.6;font-weight:600;font-size:10.5px}
+.phase-table tbody th{text-align:left;font-weight:500;opacity:.9;white-space:nowrap}
+.corr-controls{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0}
+.corr-chip{appearance:none;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:inherit;border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer}
+.corr-chip.active{border-color:#43f2c1;background:rgba(67,242,193,.14);color:#c7f7ea;font-weight:600}
+.corr-item{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.corr-main b{font-weight:600}
+.corr-main em{font-style:normal;opacity:.65;font-size:11.5px;display:block}
+.corr-badge{flex:0 0 auto;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(255,107,107,.18);color:#ffb3b3}
+.corr-trigger-btn{flex:0 0 auto;appearance:none;border:1px solid rgba(255,159,104,.5);background:rgba(255,159,104,.12);color:#ffd0ad;border-radius:999px;padding:4px 10px;font-size:11px;cursor:pointer}
+
+/* Személyes trigger elemek */
+.ing-actions{display:flex;gap:6px;flex:0 0 auto;align-items:center}
+.ing-trigger{color:#ffb3b3;font-style:normal;font-size:11px}
+.ing-trig-btn{appearance:none;border:1px solid rgba(255,159,104,.5);background:rgba(255,159,104,.1);color:#ffd0ad;border-radius:999px;padding:4px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
+.ing-trig-btn.on{background:rgba(255,159,104,.28);color:#fff}
+.trigger-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.trig-note{color:#ffb3b3}
